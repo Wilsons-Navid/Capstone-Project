@@ -1,0 +1,122 @@
+# ============================================================
+# Python / ML
+# ============================================================
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ML data + artifacts (keep code, ignore corpora and weights)
+ml/data/raw/
+ml/data/processed/
+ml/data/external/
+ml/models/*.pkl
+ml/models/*.tflite
+ml/models/*.h5
+ml/models/*.onnx
+ml/models/*.pt
+ml/models/checkpoints/
+ml/reports/runs/
+
+# ============================================================
+# Flutter / Dart (mobile/rethicsai/)
+# ============================================================
+mobile/rethicsai/.dart_tool/
+mobile/rethicsai/.flutter-plugins
+mobile/rethicsai/.flutter-plugins-dependencies
+mobile/rethicsai/build/
+mobile/rethicsai/.pub-cache/
+mobile/rethicsai/.pub/
+mobile/rethicsai/**/doc/api/
+mobile/rethicsai/migrate_working_dir/
+mobile/rethicsai/app.*.symbols
+mobile/rethicsai/app.*.map.json
+mobile/rethicsai/flutter_*.log
+
+# IDE files (project-level)
+*.iml
+*.ipr
+*.iws
+mobile/rethicsai/.idea/
+
+# ============================================================
+# Android build artefacts + signing (mobile/rethicsai/android/)
+# ============================================================
+mobile/rethicsai/android/.gradle/
+mobile/rethicsai/android/build/
+mobile/rethicsai/android/app/build/
+mobile/rethicsai/android/app/debug/
+mobile/rethicsai/android/app/profile/
+mobile/rethicsai/android/app/release/
+mobile/rethicsai/android/local.properties
+mobile/rethicsai/android/captures/
+
+# Android signing — NEVER COMMIT
+mobile/rethicsai/android/key.properties
+mobile/rethicsai/android/app/key.properties
+mobile/rethicsai/android/app/*.jks
+mobile/rethicsai/android/app/*.keystore
+
+# ============================================================
+# iOS / Xcode (mobile/rethicsai/ios/)
+# ============================================================
+mobile/rethicsai/ios/Pods/
+mobile/rethicsai/ios/.symbols/
+mobile/rethicsai/ios/Flutter/Flutter.framework
+mobile/rethicsai/ios/Flutter/Flutter.podspec
+mobile/rethicsai/ios/Flutter/.last_build_id
+mobile/rethicsai/ios/Flutter/flutter_export_environment.sh
+mobile/rethicsai/ios/Flutter/Generated.xcconfig
+mobile/rethicsai/ios/Runner.xcworkspace/xcuserdata/
+mobile/rethicsai/ios/Runner.xcodeproj/xcuserdata/
+
+# ============================================================
+# Firebase config
+# ============================================================
+mobile/rethicsai/.firebase/
+# google-services.json and firebase_options.dart are committed since the repo is private.
+# If repo flips public in future, re-add these exclusions:
+#   mobile/rethicsai/android/app/google-services.json
+#   mobile/rethicsai/ios/Runner/GoogleService-Info.plist
+#   mobile/rethicsai/lib/firebase_options.dart
+
+# ============================================================
+# Cloud Functions (mobile/rethicsai/functions/)
+# ============================================================
+mobile/rethicsai/functions/node_modules/
+mobile/rethicsai/functions/lib/
+mobile/rethicsai/functions/.runtimeconfig.json
+mobile/rethicsai/functions/.env
+mobile/rethicsai/functions/.env.*
+
+# ============================================================
+# OS / Editors / Misc
+# ============================================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Word lock files
+~$*
+
+# Logs
+*.log
+
+# ============================================================
+# Pilot — sensitive (PII)
+# ============================================================
+pilot/raw_responses/
+pilot/transcripts/
+pilot/consent-signed/
+
+# ============================================================
+# Don't track Claude Code local settings (any depth)
+# ============================================================
+**/.claude/settings.local.json

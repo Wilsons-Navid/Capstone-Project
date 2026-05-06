@@ -1,0 +1,12 @@
+scikit-learn>=1.4
+pandas>=2.1
+numpy>=1.26
+matplotlib>=3.8
+seaborn>=0.13
+jupyter>=1.0
+python-dotenv>=1.0
+openai>=1.40
+google-cloud-aiplatform>=1.60
+transformers>=4.40
+torch>=2.2
+datasets>=2.18

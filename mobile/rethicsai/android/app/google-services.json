@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "392328178263",
+    "project_id": "rethics-d47fa",
+    "storage_bucket": "rethics-d47fa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:392328178263:android:2cb444565287d41bfad112",
+        "android_client_info": {
+          "package_name": "com.example.rethicsai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBicuSH-74LrT85CnF8EsQtlP6GM28DnS0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:392328178263:android:524f93408f1e4436fad112",
+        "android_client_info": {
+          "package_name": "com.rethicsai.app.rethicsai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBicuSH-74LrT85CnF8EsQtlP6GM28DnS0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

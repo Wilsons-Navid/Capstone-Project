@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="64" cy="64" r="56" fill="#00BCD4"/>
+  <circle cx="64" cy="56" r="32" fill="white"/>
+  <circle cx="52" cy="48" r="4" fill="#00BCD4"/>
+  <circle cx="76" cy="48" r="4" fill="#00BCD4"/>
+  <path d="M48 64 Q64 76 80 64" stroke="#00BCD4" stroke-width="3" fill="none"/>
+  <rect x="44" y="88" width="40" height="20" fill="white" rx="10"/>
+  <rect x="48" y="92" width="12" height="12" fill="#00BCD4" rx="3"/>
+  <rect x="68" y="92" width="12" height="12" fill="#00BCD4" rx="3"/>
+  <circle cx="54" cy="98" r="2" fill="white"/>
+  <circle cx="74" cy="98" r="2" fill="white"/>
+  <text x="64" y="20" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="white">Wilson</text>
+</svg>

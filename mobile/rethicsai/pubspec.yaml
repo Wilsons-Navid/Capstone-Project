@@ -1,0 +1,135 @@
+name: rethicssec
+description: "Rethicssec - Comprehensive cybercrime reporting platform for Africa"
+publish_to: 'none'
+version: 1.0.2+3
+
+environment:
+  sdk: ^3.5.0
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase Services
+  firebase_core: ^4.1.0
+  firebase_auth: ^6.0.2
+  cloud_firestore: ^6.0.1
+  firebase_messaging: ^16.0.1
+  firebase_analytics: ^12.0.1
+  firebase_crashlytics: ^5.0.1
+  google_sign_in: ^6.2.1
+  sign_in_with_apple: ^6.1.2 
+  firebase_storage: ^13.0.1
+  flutter_local_notifications: ^19.4.1
+  cloud_functions: ^6.0.1
+
+  # State Management & Architecture
+  bloc: ^9.0.0
+  flutter_bloc: ^9.1.1
+  provider: ^6.1.2
+  get_it: ^8.0.0
+  injectable: ^2.4.4
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # UI & Design
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10+1
+  cached_network_image: ^3.4.1
+  shimmer: ^3.0.0
+  lottie: ^3.1.2
+  flutter_animate: ^4.5.0
+  youtube_player_flutter: ^9.1.1
+  video_player: ^2.9.1
+  markdown: ^7.2.2
+
+  # Networking & Data
+  dio: ^5.7.0
+  retrofit: ^4.4.1
+  pretty_dio_logger: ^1.4.0
+
+  # Local Storage & Caching
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.3.2
+
+  # Utilities
+  uuid: ^4.5.1
+  intl: ^0.20.2
+  url_launcher: ^6.3.1
+  image_picker: ^1.1.2
+  file_picker: ^8.1.2
+  permission_handler: ^11.3.1
+  geolocator: ^13.0.1
+  connectivity_plus: ^6.0.5
+  device_info_plus: ^10.1.2
+  package_info_plus: ^8.0.2
+  speech_to_text: ^7.0.0
+  path_provider: ^2.1.4
+  share_plus: ^10.0.0
+  csv: ^6.0.0
+  pdf: ^3.10.8
+  printing: ^5.12.0
+
+  # Security & Validation
+  crypto: ^3.0.5
+  encrypt: ^5.0.3
+  flutter_secure_storage: ^9.2.2
+
+  # Localization & Internationalization
+  flutter_localizations:
+    sdk: flutter
+  easy_localization: ^3.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  
+  # Testing Dependencies
+  mockito: ^5.4.4
+  equatable: ^2.0.5
+  firebase_performance: ^0.11.0+1
+  
+  # Code Generation
+  build_runner: ^2.4.13
+  injectable_generator: ^2.6.2
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+  hive_generator: ^2.0.1
+  retrofit_generator: ^9.1.2
+  flutter_launcher_icons: ^0.14.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
+    - assets/translations/
+    - assets/flags/
+
+  # fonts:
+    # - family: Rethicsec
+    #   fonts:
+    #     - asset: fonts/Rethicsec-Regular.ttf
+    #     - asset: fonts/Rethicsec-Medium.ttf
+    #       weight: 500
+    #     - asset: fonts/Rethicsec-Bold.ttf
+    #       weight: 700
+
+# Flutter Launcher Icons configuration
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/Rethicsec.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/images/Rethicsec.png"
+    background_color: "#1a237e"
+    theme_color: "#3f51b5"
+

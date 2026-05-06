@@ -1,0 +1,37 @@
+# Cybersecurity Icon Placeholders
+
+This directory should contain the following cybersecurity icons:
+
+## Required Icons (64x64, 128x128, 256x256 PNG):
+
+1. **shield_lock.png** - Shield with lock symbol
+2. **mobile_security.png** - Smartphone with security badge
+3. **wifi_security.png** - WiFi symbol with shield
+4. **password_security.png** - Key or lock symbol
+5. **phishing_protection.png** - Email with shield
+6. **data_protection.png** - Database with lock
+7. **ai_assistant.png** - Robot/AI brain icon
+8. **threat_scanner.png** - Magnifying glass with shield
+9. **incident_report.png** - Document with warning
+10. **emergency_help.png** - Emergency/first aid symbol
+
+## Design Guidelines:
+
+- Use consistent color scheme: Primary (#1976D2), Secondary (#388E3C)
+- Material Design icon style
+- SVG source files for scalability
+- PNG exports for Flutter compatibility
+- White/transparent versions for gradient overlays
+
+## Free Icon Sources:
+
+1. **Flaticon**: https://www.flaticon.com/free-icons/cyber-security
+2. **Feather Icons**: https://feathericons.com/
+3. **Heroicons**: https://heroicons.com/
+4. **Material Design Icons**: https://fonts.google.com/icons
+5. **Phosphor Icons**: https://phosphoricons.com/
+
+## Attribution:
+
+Include attribution for Flaticon icons:
+- Icons made by [Author] from www.flaticon.com
