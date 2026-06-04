@@ -7,11 +7,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/services/emergency_contacts_service.dart';
 
-/// Country-aware "report to the authorities" card. Looks up the signed-in user's
-/// country, finds its cyber-crime / police contacts, and offers to call or email
-/// them with a pre-filled report of the scanned scam.
-///
-/// Renders nothing for a safe result, or when no authority contact is found.
+/// "Report to authorities" card shown after a scam scan. Has a country dropdown
+/// (defaults to the user's profile country) so the user can pick which country's
+/// cyber-crime / police authority to contact — each with Call / Email / Report-online
+/// actions and a pre-filled scam report.
 class CountryReportCard extends StatefulWidget {
   final String content;
   final String? category;
@@ -29,35 +28,46 @@ class CountryReportCard extends StatefulWidget {
 }
 
 class _CountryReportCardState extends State<CountryReportCard> {
-  late final Future<List<EmergencyContact>> _future;
+  late final List<String> _countries;
+  String? _country;
+  Future<List<EmergencyContact>>? _future;
 
   @override
   void initState() {
     super.initState();
-    _future = _loadAuthorities();
+    _countries = EmergencyContactsService.supportedCountries();
+    _country = _countries.contains('Nigeria')
+        ? 'Nigeria'
+        : (_countries.isNotEmpty ? _countries.first : null);
+    if (_country != null) {
+      _future = EmergencyContactsService.getContactsByCountry(_country!);
+    }
+    _useProfileCountry();
   }
 
-  Future<List<EmergencyContact>> _loadAuthorities() async {
+  /// If the signed-in user has a (supported) profile country, default to it.
+  Future<void> _useProfileCountry() async {
     try {
       final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid == null) return [];
+      if (uid == null) return;
       final doc =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      final country = doc.data()?['country'] as String?;
-      if (country == null || country.isEmpty) return [];
+      final c = doc.data()?['country'] as String?;
+      if (c != null && _countries.contains(c) && c != _country && mounted) {
+        setState(() {
+          _country = c;
+          _future = EmergencyContactsService.getContactsByCountry(c);
+        });
+      }
+    } catch (_) {}
+  }
 
-      final contacts =
-          await EmergencyContactsService.getContactsByCountry(country);
-      final cyber = contacts
-          .where((c) => c.type == ContactType.cyberCrime)
-          .toList()
-        ..sort((a, b) => b.priority.compareTo(a.priority));
-      final police =
-          contacts.where((c) => c.type == ContactType.police).toList();
-      return (cyber.isNotEmpty ? cyber : police).take(2).toList();
-    } catch (_) {
-      return [];
-    }
+  void _selectCountry(String? c) {
+    if (c == null || c == _country) return;
+    setState(() {
+      _country = c;
+      _future = EmergencyContactsService.getContactsByCountry(c);
+    });
   }
 
   String get _reportBody {
@@ -79,50 +89,95 @@ class _CountryReportCardState extends State<CountryReportCard> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isThreat) return const SizedBox.shrink();
+    if (!widget.isThreat || _country == null) return const SizedBox.shrink();
+    final amber = AppTheme.secondaryDark;
 
-    return FutureBuilder<List<EmergencyContact>>(
-      future: _future,
-      builder: (context, snapshot) {
-        final contacts = snapshot.data ?? [];
-        if (contacts.isEmpty) return const SizedBox.shrink();
-
-        return Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: AppTheme.secondaryColor.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.3)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.secondaryColor.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(Icons.account_balance, size: 18, color: AppTheme.secondaryDark),
-                  const SizedBox(width: 6),
-                  Text(
-                    'scanner.report_to_authorities'.tr(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.secondaryDark,
-                    ),
-                  ),
-                ],
+              Icon(Icons.account_balance, size: 18, color: amber),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'scanner.report_to_authorities'.tr(),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: amber),
+                ),
               ),
-              const SizedBox(height: 10),
-              for (final c in contacts) _authorityRow(c),
             ],
           ),
-        );
-      },
+          const SizedBox(height: 8),
+          // Country picker
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.4)),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _country,
+                isExpanded: true,
+                icon: Icon(Icons.arrow_drop_down, color: amber),
+                style: const TextStyle(fontSize: 13, color: Colors.black87),
+                items: _countries
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
+                onChanged: _selectCountry,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          FutureBuilder<List<EmergencyContact>>(
+            future: _future,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: SizedBox(
+                    height: 16, width: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                );
+              }
+              final contacts = (snapshot.data ?? [])
+                  .where((c) => c.type == ContactType.cyberCrime ||
+                      c.type == ContactType.financial ||
+                      c.type == ContactType.police)
+                  .take(3)
+                  .toList();
+              if (contacts.isEmpty) {
+                return Text(
+                  'No authority contact on file for this country yet.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: contacts.map(_authorityRow).toList(),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
   Widget _authorityRow(EmergencyContact c) {
+    final hasPhone = c.phone.isNotEmpty;
+    final hasEmail = (c.email ?? '').isNotEmpty;
+    final hasSite = (c.website ?? '').isNotEmpty;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Column(
@@ -134,24 +189,32 @@ class _CountryReportCardState extends State<CountryReportCard> {
             Text(c.department,
                 style: TextStyle(fontSize: 11, color: Colors.grey[600])),
           const SizedBox(height: 6),
-          Row(
-            children: [
-              if (c.phone.isNotEmpty)
-                _btn('scanner.call'.tr(), Icons.call,
-                    () => _launch(Uri(scheme: 'tel', path: c.phone))),
-              if ((c.email ?? '').isNotEmpty) ...[
-                const SizedBox(width: 8),
-                _btn('scanner.email_report'.tr(), Icons.mail_outline, () => _launch(Uri(
-                      scheme: 'mailto',
-                      path: c.email,
-                      queryParameters: {
-                        'subject': 'scanner.report_subject'.tr(),
-                        'body': _reportBody,
-                      },
-                    ))),
+          if (hasPhone || hasEmail || hasSite)
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                if (hasPhone)
+                  _btn('scanner.call'.tr(), Icons.call,
+                      () => _launch(Uri(scheme: 'tel', path: c.phone))),
+                if (hasEmail)
+                  _btn('scanner.email_report'.tr(), Icons.mail_outline, () => _launch(Uri(
+                        scheme: 'mailto',
+                        path: c.email,
+                        queryParameters: {
+                          'subject': 'scanner.report_subject'.tr(),
+                          'body': _reportBody,
+                        },
+                      ))),
+                if (hasSite)
+                  _btn('scanner.report_online'.tr(), Icons.open_in_new,
+                      () => _launch(Uri.parse(c.website!))),
               ],
-            ],
-          ),
+            )
+          else
+            // No actionable contact — show guidance text instead.
+            Text(c.description,
+                style: TextStyle(fontSize: 11, color: Colors.grey[700])),
         ],
       ),
     );

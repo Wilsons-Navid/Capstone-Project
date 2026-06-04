@@ -15,17 +15,25 @@ class EmergencyContactsService {
           .orderBy('priority', descending: true)
           .get();
       
-      return snapshot.docs.map((doc) {
+      final results = snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         return EmergencyContact.fromJson({
           ...data,
           'id': doc.id,
         });
       }).toList();
+      // Fall back to bundled defaults when this country isn't seeded in Firestore yet.
+      return results.isEmpty ? _getDefaultContactsForCountry(country) : results;
     } catch (e) {
       // Return default contacts if Firebase fails
       return _getDefaultContactsForCountry(country);
     }
+  }
+
+  /// Countries that have bundled authority contacts (for pickers/dropdowns).
+  static List<String> supportedCountries() {
+    final set = <String>{for (final c in _getAllDefaultContacts()) c.country};
+    return set.toList()..sort();
   }
 
   // Get all available countries
@@ -309,6 +317,172 @@ class EmergencyContactsService {
         languages: ['English', 'Afrikaans', 'Local languages'],
         country: 'South Africa',
         priority: 8,
+      ),
+
+      // Ghana
+      EmergencyContact(
+        id: 'gh-csa',
+        type: ContactType.cyberCrime,
+        name: 'Cyber Security Authority (CSA)',
+        department: 'CERT-GH Cybercrime Incident Reporting',
+        phone: '292',
+        email: 'report@csa.gov.gh',
+        website: 'https://www.csa.gov.gh',
+        description: 'National 24/7 cybercrime & incident reporting point of contact (call/SMS 292, WhatsApp 0501603111)',
+        availability: '24/7',
+        languages: ['English'],
+        country: 'Ghana',
+        priority: 10,
+      ),
+
+      // Kenya extra already above; add others below
+
+      // Uganda
+      EmergencyContact(
+        id: 'ug-upf-cid',
+        type: ContactType.cyberCrime,
+        name: 'Uganda Police Force',
+        department: 'Criminal Investigations Directorate — Cyber Crime',
+        phone: '+256-414-233814',
+        email: 'info@upf.go.ug',
+        website: 'https://upf.go.ug',
+        description: 'Report cyber and financial crime via the Police CID',
+        availability: 'Mon-Fri',
+        languages: ['English'],
+        country: 'Uganda',
+        priority: 10,
+      ),
+
+      // Rwanda
+      EmergencyContact(
+        id: 'rw-rib',
+        type: ContactType.cyberCrime,
+        name: 'Rwanda Investigation Bureau (RIB)',
+        department: 'Cybercrime Unit',
+        phone: '166',
+        website: 'https://www.rib.gov.rw',
+        description: 'Toll-free hotline 166 to report cybercrime',
+        availability: '24/7 hotline',
+        languages: ['Kinyarwanda', 'English', 'French'],
+        country: 'Rwanda',
+        priority: 10,
+      ),
+
+      // Cameroon
+      EmergencyContact(
+        id: 'cm-antic',
+        type: ContactType.cyberCrime,
+        name: 'ANTIC — National CIRT',
+        department: 'Computer Incident Response Team',
+        phone: '+237-242-099-164',
+        website: 'https://www.antic.cm',
+        description: "Cameroon's national cyber incident response team",
+        availability: 'Mon-Fri',
+        languages: ['French', 'English'],
+        country: 'Cameroon',
+        priority: 10,
+      ),
+
+      // Senegal
+      EmergencyContact(
+        id: 'sn-dgpn-cyber',
+        type: ContactType.cyberCrime,
+        name: 'Police Nationale — Cybercriminalité',
+        department: 'Division spéciale de lutte contre la cybercriminalité',
+        phone: '',
+        website: 'https://signalementcyber.dgpn.sn',
+        description: 'Plateforme nationale de signalement de la cybercriminalité',
+        availability: '24/7 online',
+        languages: ['French'],
+        country: 'Senegal',
+        priority: 10,
+      ),
+
+      // Tanzania
+      EmergencyContact(
+        id: 'tz-police-cyber',
+        type: ContactType.cyberCrime,
+        name: 'Tanzania Police Force — Cyber Crime Unit',
+        department: 'Report via Police; TCRA regulates communications',
+        phone: '',
+        website: 'https://www.tcra.go.tz',
+        description: 'Report cybercrime to the Police Cyber Crime Unit',
+        availability: 'Mon-Fri',
+        languages: ['Swahili', 'English'],
+        country: 'Tanzania',
+        priority: 10,
+      ),
+
+      // Egypt
+      EmergencyContact(
+        id: 'eg-moi-cyber',
+        type: ContactType.cyberCrime,
+        name: 'Anti-Cyber Crime Department (Ministry of Interior)',
+        department: 'Internet Investigations Unit',
+        phone: '108',
+        description: 'Cybercrime hotline 108; or report at the nearest police station',
+        availability: '24/7 hotline',
+        languages: ['Arabic', 'English'],
+        country: 'Egypt',
+        priority: 10,
+      ),
+
+      // Tunisia
+      EmergencyContact(
+        id: 'tn-tuncert',
+        type: ContactType.cyberCrime,
+        name: 'tunCERT (ANSI / ANCS)',
+        department: 'National Computer Emergency Response Team',
+        phone: '+216-71-843200',
+        email: 'incident@ansi.tn',
+        website: 'https://tuncert.ansi.tn',
+        description: "Tunisia's national CERT — 24/7 incident hotline",
+        availability: '24/7',
+        languages: ['Arabic', 'French', 'English'],
+        country: 'Tunisia',
+        priority: 10,
+      ),
+
+      // Morocco
+      EmergencyContact(
+        id: 'ma-dgsn-eblagh',
+        type: ContactType.cyberCrime,
+        name: 'DGSN — E-Blagh',
+        department: 'Online cybercrime reporting platform',
+        phone: '',
+        description: 'Report online via the DGSN "E-Blagh" platform, or at the nearest police station',
+        availability: '24/7 online',
+        languages: ['Arabic', 'French'],
+        country: 'Morocco',
+        priority: 10,
+      ),
+
+      // Ethiopia
+      EmergencyContact(
+        id: 'et-insa',
+        type: ContactType.cyberCrime,
+        name: 'Information Network Security Agency (INSA)',
+        department: 'Cyber Incident Reporting',
+        phone: '',
+        description: 'Report cyber incidents to INSA, or the nearest Federal Police station',
+        availability: 'Mon-Fri',
+        languages: ['Amharic', 'English'],
+        country: 'Ethiopia',
+        priority: 10,
+      ),
+
+      // Algeria
+      EmergencyContact(
+        id: 'dz-dgsn-cyber',
+        type: ContactType.cyberCrime,
+        name: 'DGSN — Cybercrime Brigades',
+        department: 'Brigades de lutte contre la cybercriminalité',
+        phone: '',
+        description: 'Report to the DGSN cybercrime brigades or the nearest police station',
+        availability: 'Mon-Fri',
+        languages: ['Arabic', 'French'],
+        country: 'Algeria',
+        priority: 10,
       ),
     ];
   }

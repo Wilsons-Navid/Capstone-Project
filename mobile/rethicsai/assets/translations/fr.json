@@ -145,7 +145,8 @@
     "report_template": "Je souhaite signaler une arnaque présumée. J'ai reçu le message suivant :\n\n",
     "report_subject": "Signalement d'arnaque",
     "verify_subject": "Vérification d'un message suspect",
-    "report_intro": "Je souhaite signaler une {category} présumée. J'ai reçu le message suivant :\n\n"
+    "report_intro": "Je souhaite signaler une {category} présumée. J'ai reçu le message suivant :\n\n",
+    "report_online": "Signaler en ligne"
   },
   "incidents": {
     "report_incident": "Report Incident",

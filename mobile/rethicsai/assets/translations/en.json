@@ -178,7 +178,8 @@
     "report_template": "I want to report a suspected scam. I received the following message:\n\n",
     "report_subject": "Scam report",
     "verify_subject": "Verifying a suspicious message",
-    "report_intro": "I want to report a suspected {category}. I received the following message:\n\n"
+    "report_intro": "I want to report a suspected {category}. I received the following message:\n\n",
+    "report_online": "Report online"
   },
   "education": {
     "learn_protect": "Learn & Protect",
