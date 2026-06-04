@@ -1,0 +1,11 @@
+data/raw/
+data/labelled/*.jsonl
+!data/labelled/demo_labeled.jsonl
+data/audits/*.jsonl
+notebooks/.ipynb_checkpoints/
+__pycache__/
+*.pyc
+# trained weights + embedding cache — reproducible via src/demo_model.py & src/embed_model.py
+models/*.joblib
+models/*.npz
+# (metrics.json / embed_metrics.json / model_card.json stay tracked — they're the results)

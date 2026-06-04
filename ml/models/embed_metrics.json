@@ -1,0 +1,69 @@
+{
+  "embedder": "intfloat/multilingual-e5-small",
+  "test": {
+    "tfidf_logreg": {
+      "accuracy": 0.9578313253012049,
+      "macro_f1": 0.9434884831088358,
+      "per_class": {
+        "advance_fee_fraud": 0.8636363636363636,
+        "mobile_money_fraud": 0.9875,
+        "phishing": 0.96045197740113,
+        "not_a_scam": 0.9623655913978495
+      }
+    },
+    "tfidf_rf": {
+      "accuracy": 0.9503012048192772,
+      "macro_f1": 0.9282322184565497,
+      "per_class": {
+        "advance_fee_fraud": 0.8266666666666667,
+        "mobile_money_fraud": 0.9875,
+        "phishing": 0.9614325068870524,
+        "not_a_scam": 0.9373297002724795
+      }
+    },
+    "emb_logreg": {
+      "accuracy": 0.9533132530120482,
+      "macro_f1": 0.9255031794201578,
+      "per_class": {
+        "advance_fee_fraud": 0.7755102040816326,
+        "mobile_money_fraud": 0.9937888198757764,
+        "phishing": 0.9575070821529745,
+        "not_a_scam": 0.9752066115702479
+      }
+    },
+    "emb_rf": {
+      "accuracy": 0.9518072289156626,
+      "macro_f1": 0.9103600373962595,
+      "per_class": {
+        "advance_fee_fraud": 0.7246376811594203,
+        "mobile_money_fraud": 0.9937888198757764,
+        "phishing": 0.9571045576407506,
+        "not_a_scam": 0.9659090909090909
+      }
+    },
+    "ensemble_softvote": {
+      "accuracy": 0.9713855421686747,
+      "macro_f1": 0.954666929378668,
+      "per_class": {
+        "advance_fee_fraud": 0.8705882352941177,
+        "mobile_money_fraud": 0.9937888198757764,
+        "phishing": 0.9735744089012517,
+        "not_a_scam": 0.9807162534435262
+      }
+    },
+    "ensemble_stack": {
+      "accuracy": 0.9518072289156626,
+      "macro_f1": 0.9253679803356415,
+      "per_class": {
+        "advance_fee_fraud": 0.7766990291262136,
+        "mobile_money_fraud": 0.9937888198757764,
+        "phishing": 0.9557774607703281,
+        "not_a_scam": 0.9752066115702479
+      }
+    }
+  },
+  "best": "ensemble_softvote",
+  "n_train": 3095,
+  "n_dev": 663,
+  "n_test": 664
+}
