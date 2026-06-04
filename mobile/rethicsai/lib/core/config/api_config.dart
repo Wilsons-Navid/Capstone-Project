@@ -54,6 +54,45 @@ class ApiConfig {
     return '';
   }
 
+  // ---- Scam-classifier model API (the project's e5 + ensemble model) ----
+  // Default points at the deployed Hugging Face Space; override at build time with:
+  // flutter run --dart-define=SCAM_MODEL_API=https://<space>.hf.space
+  static const String _scamModelBuildTimeUrl = String.fromEnvironment(
+    'SCAM_MODEL_API',
+    defaultValue: 'https://wadotuh-scam-classifier-api.hf.space',
+  );
+
+  /// Base URL of the hosted scam-classifier API (e.g. a Hugging Face Space or
+  /// Cloud Run service). Empty string => model disabled and the threat scanner
+  /// falls back to its heuristic/DB checks.
+  static Future<String> getScamModelBaseUrl() async {
+    try {
+      final envUrl = Platform.environment['SCAM_MODEL_API'];
+      if (envUrl != null && envUrl.isNotEmpty) {
+        return envUrl;
+      }
+      final storedUrl = await _secureStorage.read(key: 'scam_model_base_url');
+      if (storedUrl != null && storedUrl.isNotEmpty) {
+        return storedUrl;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error retrieving scam model URL: $e');
+      }
+    }
+    return _scamModelBuildTimeUrl;
+  }
+
+  static Future<void> setScamModelBaseUrl(String url) async {
+    try {
+      await _secureStorage.write(key: 'scam_model_base_url', value: url);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error storing scam model URL: $e');
+      }
+    }
+  }
+
   // Configuration validation
   static Future<bool> validateApiConfiguration() async {
     final apiKey = await getVirusTotalApiKey();

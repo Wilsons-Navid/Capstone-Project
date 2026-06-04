@@ -10,10 +10,12 @@ import '../config/api_config.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'threat_management_service.dart';
 import 'suspicious_content_service.dart';
+import 'scam_model_service.dart';
 
 class ThreatScannerService {
   final Dio _dio = Dio();
   final ThreatManagementService _threatManagementService = ThreatManagementService();
+  final ScamModelService _scamModel = ScamModelService();
   
   // Comprehensive scanning method that combines all detection sources
   Future<ScanResult> comprehensiveScan(String input, ScanType type) async {
@@ -491,7 +493,21 @@ class ThreatScannerService {
           threats.add('Personal information request: $pattern');
         }
       }
-      
+
+      // AI semantic classifier — the project's e5 + ensemble model. Language-agnostic
+      // (English / French / Portuguese + more), so it catches scams the keyword lists
+      // above miss. Best-effort: returns null when unreachable/unconfigured, leaving the
+      // heuristic checks as the fallback.
+      final modelResult = await _scamModel.classify(content);
+      final threatCategories = <String>[];
+      if (modelResult != null && !modelResult.isSafe) {
+        threatCategories.add(modelResult.category);
+        threats.add(
+          'AI model: ${modelResult.readableCategory} '
+          '(${(modelResult.confidence * 100).round()}% confidence)',
+        );
+      }
+
       ThreatLevel threatLevel;
       if (threats.isEmpty) {
         threatLevel = ThreatLevel.safe;
@@ -512,7 +528,27 @@ class ThreatScannerService {
           'Delete the message'
         ]);
       }
-      
+
+      // Let the model's confidence escalate the level when it flags a scam.
+      if (modelResult != null && !modelResult.isSafe) {
+        final modelLevel = modelResult.confidence >= 0.85
+            ? ThreatLevel.high
+            : modelResult.confidence >= 0.6
+                ? ThreatLevel.medium
+                : ThreatLevel.low;
+        threatLevel = _maxThreatLevel(threatLevel, modelLevel);
+      }
+
+      final details = <String, dynamic>{};
+      if (threats.isNotEmpty) details['threats'] = threats;
+      if (modelResult != null) {
+        details['ai_model'] = {
+          'category': modelResult.category,
+          'confidence': modelResult.confidence,
+          'scores': modelResult.scores,
+        };
+      }
+
       return ScanResult(
         type: ScanType.text,
         input: content,
@@ -520,7 +556,8 @@ class ThreatScannerService {
         isComplete: true,
         result: threats.isEmpty ? 'No threats detected' : 'Threats found: ${threats.join(', ')}',
         recommendations: recommendations,
-        details: threats.isNotEmpty ? {'threats': threats} : null,
+        threatCategories: threatCategories.isNotEmpty ? threatCategories : null,
+        details: details.isNotEmpty ? details : null,
       );
     } catch (e) {
       return ScanResult(
@@ -532,6 +569,19 @@ class ThreatScannerService {
         recommendations: ['Try scanning again'],
       );
     }
+  }
+
+  // Returns the more severe of two threat levels.
+  ThreatLevel _maxThreatLevel(ThreatLevel a, ThreatLevel b) {
+    const rank = {
+      ThreatLevel.unknown: 0,
+      ThreatLevel.safe: 1,
+      ThreatLevel.low: 2,
+      ThreatLevel.medium: 3,
+      ThreatLevel.high: 4,
+      ThreatLevel.critical: 5,
+    };
+    return (rank[a] ?? 0) >= (rank[b] ?? 0) ? a : b;
   }
 
   // Helper methods for pattern matching

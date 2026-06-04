@@ -160,6 +160,42 @@ def predict_messages(bundle, texts) -> list:
     return out
 
 
+# ----------------------------------------------------------------------------- serving
+_LOADED = None      # cached SentenceTransformer for serving
+
+
+def load_ensemble(path=None) -> dict:
+    """Load the saved self-contained soft-vote ensemble (no retraining)."""
+    return joblib.load(path or (MODELS / "embed_models.joblib"))
+
+
+def predict_loaded(texts, models) -> list:
+    """Soft-vote inference from a loaded ensemble dict (see load_ensemble).
+
+    Returns one (label, confidence, full_proba_dict) per input message. The
+    SentenceTransformer is loaded once and cached across calls.
+    """
+    global _LOADED
+    order = models.get("class_order", CLASS_ORDER)
+    if _LOADED is None:
+        from sentence_transformers import SentenceTransformer
+        _LOADED = SentenceTransformer(models["embedder"])
+    emb = _LOADED.encode([EMB_PREFIX + t for t in texts], normalize_embeddings=True)
+    probs = []
+    for m in models["members"]:
+        X = texts if m.startswith("tfidf") else emb
+        p = models[m].predict_proba(X)
+        classes = list(models[m].classes_)
+        probs.append(p[:, [classes.index(c) for c in order]])
+    avg = np.mean(probs, axis=0)
+    out = []
+    for row in avg:
+        ranked = sorted(zip(order, row), key=lambda x: -x[1])
+        out.append((ranked[0][0], float(ranked[0][1]),
+                    {c: float(p) for c, p in zip(order, row)}))
+    return out
+
+
 def _print_report(bundle) -> None:
     results = bundle["results"]
     train, dev, test = bundle["splits"]
@@ -183,8 +219,10 @@ def main() -> None:
     (MODELS / "embed_metrics.json").write_text(json.dumps(
         {"embedder": EMB_MODEL, "test": bundle["results"], "best": bundle["best"],
          "n_train": len(train), "n_dev": len(dev), "n_test": len(test)}, indent=2))
-    joblib.dump({"emb_logreg": base["emb_logreg"][0], "emb_rf": base["emb_rf"][0],
-                 "stack_meta": meta, "members": bundle["members"], "embedder": EMB_MODEL},
+    joblib.dump({"tfidf_logreg": base["tfidf_logreg"][0],   # soft-vote member (lexical)
+                 "emb_logreg": base["emb_logreg"][0], "emb_rf": base["emb_rf"][0],
+                 "stack_meta": meta, "members": bundle["members"], "embedder": EMB_MODEL,
+                 "class_order": CLASS_ORDER},
                 MODELS / "embed_models.joblib")
     print(f"\nsaved: models/embed_metrics.json, models/embed_models.joblib, {EMB_CACHE.name}")
 

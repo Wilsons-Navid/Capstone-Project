@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/services/threat_scanner_service.dart';
 import '../../../../shared/widgets/african_pattern_background.dart';
+import '../widgets/ai_model_verdict_card.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -573,9 +574,14 @@ class _ScannerPageState extends State<ScannerPage>
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
+          // AI model verdict (the project's e5 + ensemble classifier)
+          AiModelVerdictCard(
+            aiModel: result.details?['ai_model'] as Map<String, dynamic>?,
+          ),
+
           // Recommendations
           if (result.recommendations.isNotEmpty) ...[
             Text(

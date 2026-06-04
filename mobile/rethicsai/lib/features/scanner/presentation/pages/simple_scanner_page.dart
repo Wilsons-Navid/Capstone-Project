@@ -5,6 +5,7 @@ import '../../../../core/themes/app_theme.dart';
 import '../../../../core/services/threat_scanner_service.dart';
 import '../../../../core/services/activity_service.dart';
 import '../../../../shared/models/activity_model.dart';
+import '../widgets/ai_model_verdict_card.dart';
 
 class SimpleScannerPage extends StatefulWidget {
   const SimpleScannerPage({super.key});
@@ -293,7 +294,14 @@ class _SimpleScannerPageState extends State<SimpleScannerPage> with SingleTicker
               result.result,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
-            
+
+            const SizedBox(height: 16),
+
+            // AI model verdict (the project's e5 + ensemble classifier)
+            AiModelVerdictCard(
+              aiModel: result.details?['ai_model'] as Map<String, dynamic>?,
+            ),
+
             // Recommendations
             if (result.recommendations.isNotEmpty) ...[
               const SizedBox(height: 16),

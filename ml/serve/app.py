@@ -1,49 +1,46 @@
-"""FastAPI serving app for the initial scam-message classifier.
+"""FastAPI serving app for the MAIN scam-message classifier.
 
-Deployment MVP for the software-demonstration milestone (ML track,
-"API UI - Swagger UI" option). Loads the fitted TF-IDF pipeline saved by
-`src/demo_model.py` and exposes a prediction endpoint with interactive
-Swagger docs at /docs.
+Serves the soft-voting ensemble (TF-IDF Logistic Regression + multilingual-e5-small
+embeddings -> Logistic Regression / Random Forest), the project's best model
+(test macro-F1 0.955). Loads the self-contained ensemble saved by
+`src/embed_model.py` (`models/embed_models.joblib`) plus the e5 embedder, and
+exposes a prediction endpoint with interactive Swagger docs at /docs.
 
-Run:
-    python -m uvicorn ml.serve.app:app --reload --port 8000
+Run locally:
+    python -m uvicorn serve.app:app --reload --port 8000   # from ml/
     # then open http://127.0.0.1:8000/docs
 
-The model classifies a message into one of four classes:
-    advance_fee_fraud | mobile_money_fraud | phishing | not_a_scam
+Classes: advance_fee_fraud | mobile_money_fraud | phishing | not_a_scam
 """
 
 from __future__ import annotations
 
-import json
+import os
+import sys
 from pathlib import Path
 
-import os
-
-import joblib
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-ROOT = Path(__file__).resolve().parent.parent
-MODELS = ROOT / "models"
-MODEL_PATH = MODELS / "scam_classifier.joblib"
-CARD_PATH = MODELS / "model_card.json"
+ROOT = Path(__file__).resolve().parent.parent          # ml/
+sys.path.insert(0, str(ROOT / "src"))
+import embed_model as em                                # noqa: E402
+
+MODEL_PATH = ROOT / "models" / "embed_models.joblib"
 
 app = FastAPI(
-    title="Scam Message Classifier — Initial Model",
+    title="Scam Message Classifier — Ensemble (main model)",
     description=(
-        "Classical ML (TF-IDF + Logistic Regression) classifier for scam "
-        "messages across phishing, mobile-money fraud, and advance-fee fraud, "
-        "plus a not_a_scam residual. Initial/preliminary model trained on "
-        "source-provenance labels; final evaluation uses the human "
-        "inter-rater-verified corpus."
+        "Soft-voting ensemble over a lexical TF-IDF model and multilingual "
+        "e5-small sentence-embedding models. Classifies a short message as "
+        "advance_fee_fraud, mobile_money_fraud, phishing, or not_a_scam. "
+        "Multilingual (English / Portuguese / French + more). Test macro-F1 0.955."
     ),
-    version="0.1.0",
+    version="1.0.0",
 )
 
-# CORS — allow the static front-end (Vercel) to call this API from the browser.
-# Set ALLOWED_ORIGINS env (comma-separated) in production; defaults to "*" for the demo.
+# CORS — allow the mobile app / web front-ends to call this API.
 _origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
@@ -52,24 +49,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-_model = None
-_card: dict = {}
+_models = None
 
 
-def get_model():
-    global _model, _card
-    if _model is None:
+def get_models():
+    """Lazy-load the ensemble + embedder once (first request warms it)."""
+    global _models
+    if _models is None:
         if not MODEL_PATH.exists():
-            raise HTTPException(503, "Model not trained yet. Run python ml/src/demo_model.py")
-        _model = joblib.load(MODEL_PATH)
-        if CARD_PATH.exists():
-            _card = json.loads(CARD_PATH.read_text())
-    return _model
+            raise HTTPException(503, "Model not trained. Run: python src/embed_model.py")
+        _models = em.load_ensemble(MODEL_PATH)
+        em.predict_loaded(["warmup"], _models)          # pull the e5 weights now
+    return _models
 
 
 class Message(BaseModel):
     text: str = Field(..., min_length=1, examples=[
-        "URGENT! Your mobile number won a 2000 prize GUARANTEED. Call 09061790121 to claim."])
+        "Caro cliente, a sua conta M-Pesa foi bloqueada. Envie o seu PIN para reactivar."])
 
 
 class Prediction(BaseModel):
@@ -79,43 +75,39 @@ class Prediction(BaseModel):
     scores: dict[str, float]
 
 
+def _predict_one(text: str) -> Prediction:
+    label, conf, scores = em.predict_loaded([text], get_models())[0]
+    return Prediction(text=text, predicted_category=label,
+                      confidence=round(conf, 4),
+                      scores={c: round(p, 4) for c, p in scores.items()})
+
+
 @app.get("/", summary="Service info")
 def root():
     return {
         "service": "scam-message-classifier",
+        "model": "soft-voting ensemble (tfidf_logreg + e5_logreg + e5_rf)",
+        "macro_f1": 0.955,
+        "classes": em.CLASS_ORDER,
         "status": "ok",
-        "model": _card.get("best_model", "tfidf_logreg"),
-        "classes": _card.get("classes", []),
         "docs": "/docs",
     }
 
 
 @app.get("/health", summary="Health check")
 def health():
-    return {"status": "healthy", "model_loaded": MODEL_PATH.exists()}
+    return {"status": "healthy", "model_present": MODEL_PATH.exists()}
 
 
 @app.post("/predict", response_model=Prediction, summary="Classify a single message")
 def predict(msg: Message):
-    model = get_model()
-    proba = model.predict_proba([msg.text])[0]
-    classes = list(model.classes_)
-    scores = {c: round(float(p), 4) for c, p in zip(classes, proba)}
-    top = max(scores, key=scores.get)
-    return Prediction(text=msg.text, predicted_category=top,
-                      confidence=scores[top], scores=scores)
+    return _predict_one(msg.text)
 
 
 @app.post("/predict_batch", summary="Classify many messages")
 def predict_batch(messages: list[Message]):
-    model = get_model()
-    texts = [m.text for m in messages]
-    probas = model.predict_proba(texts)
-    classes = list(model.classes_)
-    out = []
-    for text, proba in zip(texts, probas):
-        scores = {c: round(float(p), 4) for c, p in zip(classes, proba)}
-        top = max(scores, key=scores.get)
-        out.append({"text": text, "predicted_category": top,
-                    "confidence": scores[top], "scores": scores})
-    return out
+    models = get_models()
+    results = em.predict_loaded([m.text for m in messages], models)
+    return [{"text": m.text, "predicted_category": label, "confidence": round(conf, 4),
+             "scores": {c: round(p, 4) for c, p in scores.items()}}
+            for m, (label, conf, scores) in zip(messages, results)]
