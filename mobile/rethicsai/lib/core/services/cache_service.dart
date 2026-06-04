@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crypto/crypto.dart';
@@ -60,9 +59,9 @@ class CacheService {
       await _initializeCleanupTasks();
       
       _isInitialized = true;
-      LoggingService.info('CacheService initialized successfully');
+      LoggingService.info('CacheService','CacheService initialized successfully');
     } catch (e) {
-      LoggingService.error('Failed to initialize CacheService: $e');
+      LoggingService.error('CacheService','Failed to initialize CacheService: $e');
       throw CacheException('Cache initialization failed: $e');
     }
   }
@@ -109,11 +108,11 @@ class CacheService {
         size: _estimateObjectSize(data),
       ));
 
-      LoggingService.debug('Cache item stored: $key (${category.name})');
+      LoggingService.debug('CacheService','Cache item stored: $key (${category.name})');
       return const Right(true);
     } catch (e) {
-      LoggingService.error('Failed to store cache item: $key - $e');
-      return Left(CacheFailure('Failed to store cache item: $e'));
+      LoggingService.error('CacheService','Failed to store cache item: $key - $e');
+      return Left(CacheFailure(message: 'Failed to store cache item: $e'));
     }
   }
 
@@ -130,7 +129,7 @@ class CacheService {
       final cachedData = box.get(key);
       
       if (cachedData == null) {
-        LoggingService.debug('Cache miss: $key');
+        LoggingService.debug('CacheService','Cache miss: $key');
         return const Right(null);
       }
 
@@ -138,16 +137,16 @@ class CacheService {
       
       // Check if item has expired
       if (cacheItem.isExpired) {
-        LoggingService.debug('Cache item expired: $key');
+        LoggingService.debug('CacheService','Cache item expired: $key');
         await _removeItem(key, category);
         return const Right(null);
       }
 
-      LoggingService.debug('Cache hit: $key');
+      LoggingService.debug('CacheService','Cache hit: $key');
       return Right(cacheItem.data);
     } catch (e) {
-      LoggingService.error('Failed to retrieve cache item: $key - $e');
-      return Left(CacheFailure('Failed to retrieve cache item: $e'));
+      LoggingService.error('CacheService','Failed to retrieve cache item: $key - $e');
+      return Left(CacheFailure(message: 'Failed to retrieve cache item: $e'));
     }
   }
 
@@ -172,11 +171,11 @@ class CacheService {
         size: await _getFileSize(imagePath),
       ));
 
-      LoggingService.debug('Image cached: $url');
+      LoggingService.debug('CacheService','Image cached: $url');
       return const Right(true);
     } catch (e) {
-      LoggingService.error('Failed to cache image: $url - $e');
-      return Left(CacheFailure('Failed to cache image: $e'));
+      LoggingService.error('CacheService','Failed to cache image: $url - $e');
+      return Left(CacheFailure(message: 'Failed to cache image: $e'));
     }
   }
 
@@ -205,8 +204,8 @@ class CacheService {
         return const Right(null);
       }
     } catch (e) {
-      LoggingService.error('Failed to retrieve cached image: $url - $e');
-      return Left(CacheFailure('Failed to retrieve cached image: $e'));
+      LoggingService.error('CacheService','Failed to retrieve cached image: $url - $e');
+      return Left(CacheFailure(message: 'Failed to retrieve cached image: $e'));
     }
   }
 
@@ -214,9 +213,9 @@ class CacheService {
   Future<bool> isOnline() async {
     try {
       final connectivityResult = await _connectivity.checkConnectivity();
-      return connectivityResult != ConnectivityResult.none;
+      return !connectivityResult.contains(ConnectivityResult.none);
     } catch (e) {
-      LoggingService.warning('Failed to check connectivity: $e');
+      LoggingService.warning('CacheService','Failed to check connectivity: $e');
       return false; // Assume offline if check fails
     }
   }
@@ -240,9 +239,9 @@ class CacheService {
         );
         
         if (cachedResult.isRight) {
-          final cachedData = cachedResult.right;
+          final cachedData = cachedResult.value;
           if (cachedData != null) {
-            LoggingService.debug('Returning cached data for: $key');
+            LoggingService.debug('CacheService','Returning cached data for: $key');
             return Right(cachedData);
           }
         }
@@ -250,12 +249,12 @@ class CacheService {
 
       // Check if online before fetching
       if (!await isOnline()) {
-        LoggingService.warning('Offline: Cannot fetch fresh data for $key');
-        return Left(NetworkFailure('Device is offline'));
+        LoggingService.warning('CacheService','Offline: Cannot fetch fresh data for $key');
+        return Left(NetworkFailure(message: 'Device is offline'));
       }
 
       // Fetch fresh data
-      LoggingService.debug('Fetching fresh data for: $key');
+      LoggingService.debug('CacheService','Fetching fresh data for: $key');
       final freshData = await fetchFunction();
       
       // Cache the fresh data
@@ -268,8 +267,8 @@ class CacheService {
 
       return Right(freshData);
     } catch (e) {
-      LoggingService.error('Failed to get or fetch data: $key - $e');
-      return Left(ServerFailure('Failed to get or fetch data: $e'));
+      LoggingService.error('CacheService','Failed to get or fetch data: $key - $e');
+      return Left(ServerFailure(message: 'Failed to get or fetch data: $e'));
     }
   }
 
@@ -279,11 +278,11 @@ class CacheService {
       if (!_isInitialized) await initialize();
 
       await _removeItem(key, category ?? CacheCategory.general);
-      LoggingService.debug('Cache item removed: $key');
+      LoggingService.debug('CacheService','Cache item removed: $key');
       return const Right(true);
     } catch (e) {
-      LoggingService.error('Failed to remove cache item: $key - $e');
-      return Left(CacheFailure('Failed to remove cache item: $e'));
+      LoggingService.error('CacheService','Failed to remove cache item: $key - $e');
+      return Left(CacheFailure(message: 'Failed to remove cache item: $e'));
     }
   }
 
@@ -303,11 +302,11 @@ class CacheService {
       // Clear image files
       await _clearImageFiles();
 
-      LoggingService.info('All cache data cleared');
+      LoggingService.info('CacheService','All cache data cleared');
       return const Right(true);
     } catch (e) {
-      LoggingService.error('Failed to clear cache: $e');
-      return Left(CacheFailure('Failed to clear cache: $e'));
+      LoggingService.error('CacheService','Failed to clear cache: $e');
+      return Left(CacheFailure(message: 'Failed to clear cache: $e'));
     }
   }
 
@@ -331,11 +330,11 @@ class CacheService {
         await _cacheMetadata.delete(key);
       }
 
-      LoggingService.info('Cache cleared for category: ${category.name}');
+      LoggingService.info('CacheService','Cache cleared for category: ${category.name}');
       return const Right(true);
     } catch (e) {
-      LoggingService.error('Failed to clear category cache: ${category.name} - $e');
-      return Left(CacheFailure('Failed to clear category cache: $e'));
+      LoggingService.error('CacheService','Failed to clear category cache: ${category.name} - $e');
+      return Left(CacheFailure(message: 'Failed to clear category cache: $e'));
     }
   }
 
@@ -408,7 +407,7 @@ class CacheService {
     try {
       await File(imagePath).delete();
     } catch (e) {
-      LoggingService.warning('Failed to delete image file: $imagePath - $e');
+      LoggingService.warning('CacheService','Failed to delete image file: $imagePath - $e');
     }
   }
 
@@ -436,7 +435,7 @@ class CacheService {
     }
 
     if (keysToRemove.isNotEmpty) {
-      LoggingService.info('Cleaned ${keysToRemove.length} expired cache items');
+      LoggingService.info('CacheService','Cleaned ${keysToRemove.length} expired cache items');
     }
   }
 
@@ -472,7 +471,7 @@ class CacheService {
       removedSize += item.value.size;
     }
 
-    LoggingService.info('Cache size reduction: removed ${removedSize} bytes');
+    LoggingService.info('CacheService', 'Cache size reduction: removed ${removedSize} bytes');
   }
 
   String _generateImageCacheKey(String url) {
@@ -510,7 +509,7 @@ class CacheService {
         await cacheDir.delete(recursive: true);
       }
     } catch (e) {
-      LoggingService.warning('Failed to clear image files: $e');
+      LoggingService.warning('CacheService','Failed to clear image files: $e');
     }
   }
 
@@ -617,7 +616,7 @@ class CacheMetadataAdapter extends TypeAdapter<CacheMetadata> {
   }
 
   @override
-  bool get hashCode => typeId.hashCode;
+  int get hashCode => typeId.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -702,8 +701,4 @@ class CacheException implements Exception {
   
   @override
   String toString() => 'CacheException: $message';
-}
-
-class CacheFailure extends Failure {
-  CacheFailure(super.message);
 }

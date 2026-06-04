@@ -28,9 +28,9 @@ class NetworkCacheService {
       await _cacheService.initialize();
       await _initializeImageDirectory();
       _isInitialized = true;
-      LoggingService.info('NetworkCacheService initialized');
+      LoggingService.info('NetworkCacheService','NetworkCacheService initialized');
     } catch (e) {
-      LoggingService.error('Failed to initialize NetworkCacheService: $e');
+      LoggingService.error('NetworkCacheService','Failed to initialize NetworkCacheService: $e');
       throw Exception('NetworkCacheService initialization failed: $e');
     }
   }
@@ -67,9 +67,9 @@ class NetworkCacheService {
         );
 
         if (cachedResult.isRight) {
-          final cachedData = cachedResult.right;
+          final cachedData = cachedResult.value;
           if (cachedData != null) {
-            LoggingService.debug('Cache hit for URL: $url');
+            LoggingService.debug('NetworkCacheService','Cache hit for URL: $url');
             return Right(_responseFromCachedData(cachedData));
           }
         }
@@ -77,16 +77,13 @@ class NetworkCacheService {
 
       // Check if online
       if (!await _cacheService.isOnline()) {
-        LoggingService.warning('Offline: Cannot make request to $url');
-        return Left(NetworkFailure('Device is offline'));
+        LoggingService.warning('NetworkCacheService','Offline: Cannot make request to $url');
+        return Left(NetworkFailure(message: 'Device is offline'));
       }
 
-      // Make network request
+      // Make network request (options already carries the path/method/headers).
       final dio = Dio();
-      final response = await dio.request(
-        url,
-        options: options,
-      );
+      final response = await dio.fetch(options);
 
       // Cache successful response
       if (response.statusCode == 200) {
@@ -99,15 +96,15 @@ class NetworkCacheService {
         );
       }
 
-      LoggingService.debug('Network request successful: $url');
+      LoggingService.debug('NetworkCacheService','Network request successful: $url');
       return Right(response);
 
     } on DioException catch (e) {
-      LoggingService.error('Network request failed: $url - ${e.message}');
-      return Left(NetworkFailure('Network request failed: ${e.message}'));
+      LoggingService.error('NetworkCacheService','Network request failed: $url - ${e.message}');
+      return Left(NetworkFailure(message: 'Network request failed: ${e.message}'));
     } catch (e) {
-      LoggingService.error('Unexpected error in cached request: $url - $e');
-      return Left(ServerFailure('Unexpected error: $e'));
+      LoggingService.error('NetworkCacheService','Unexpected error in cached request: $url - $e');
+      return Left(ServerFailure(message: 'Unexpected error: $e'));
     }
   }
 
@@ -126,9 +123,9 @@ class NetworkCacheService {
       if (!forceRefresh) {
         final cachedResult = await _cacheService.retrieveImage(imageUrl);
         if (cachedResult.isRight) {
-          final cachedPath = cachedResult.right;
+          final cachedPath = cachedResult.value;
           if (cachedPath != null && await File(cachedPath).exists()) {
-            LoggingService.debug('Image cache hit: $imageUrl');
+            LoggingService.debug('NetworkCacheService','Image cache hit: $imageUrl');
             return Right(cachedPath);
           }
         }
@@ -136,7 +133,7 @@ class NetworkCacheService {
 
       // Check if online
       if (!await _cacheService.isOnline()) {
-        return Left(NetworkFailure('Cannot download image: device is offline'));
+        return Left(NetworkFailure(message: 'Cannot download image: device is offline'));
       }
 
       // Download image
@@ -162,12 +159,12 @@ class NetworkCacheService {
         ttl: ttl,
       );
 
-      LoggingService.debug('Image cached successfully: $imageUrl');
+      LoggingService.debug('NetworkCacheService','Image cached successfully: $imageUrl');
       return Right(imagePath);
 
     } catch (e) {
-      LoggingService.error('Failed to cache image: $imageUrl - $e');
-      return Left(CacheFailure('Failed to cache image: $e'));
+      LoggingService.error('NetworkCacheService','Failed to cache image: $imageUrl - $e');
+      return Left(CacheFailure(message: 'Failed to cache image: $e'));
     }
   }
 
@@ -178,11 +175,11 @@ class NetworkCacheService {
     Duration? ttl,
   }) async {
     if (!await _cacheService.isOnline()) {
-      LoggingService.warning('Cannot preload resources: device is offline');
+      LoggingService.warning('NetworkCacheService','Cannot preload resources: device is offline');
       return;
     }
 
-    LoggingService.info('Preloading ${urls.length} critical resources');
+    LoggingService.info('NetworkCacheService','Preloading ${urls.length} critical resources');
     
     final preloadTasks = urls.map((url) async {
       try {
@@ -190,16 +187,16 @@ class NetworkCacheService {
           url: url,
           options: RequestOptions(path: url, method: 'GET'),
           category: category,
-          ttl: ttl,
+          cacheTtl: ttl,
           priority: CachePriority.high,
         );
       } catch (e) {
-        LoggingService.warning('Failed to preload resource: $url - $e');
+        LoggingService.warning('NetworkCacheService','Failed to preload resource: $url - $e');
       }
     });
 
     await Future.wait(preloadTasks);
-    LoggingService.info('Critical resources preload completed');
+    LoggingService.info('NetworkCacheService','Critical resources preload completed');
   }
 
   /// Preload images for better UX
@@ -210,11 +207,11 @@ class NetworkCacheService {
     int? maxHeight,
   }) async {
     if (!await _cacheService.isOnline()) {
-      LoggingService.warning('Cannot preload images: device is offline');
+      LoggingService.warning('NetworkCacheService','Cannot preload images: device is offline');
       return;
     }
 
-    LoggingService.info('Preloading ${imageUrls.length} images');
+    LoggingService.info('NetworkCacheService','Preloading ${imageUrls.length} images');
     
     final imageTasks = imageUrls.map((url) async {
       try {
@@ -225,12 +222,12 @@ class NetworkCacheService {
           maxHeight: maxHeight,
         );
       } catch (e) {
-        LoggingService.warning('Failed to preload image: $url - $e');
+        LoggingService.warning('NetworkCacheService','Failed to preload image: $url - $e');
       }
     });
 
     await Future.wait(imageTasks);
-    LoggingService.info('Image preload completed');
+    LoggingService.info('NetworkCacheService','Image preload completed');
   }
 
   /// Smart cache warming for user-specific content
@@ -241,7 +238,7 @@ class NetworkCacheService {
   }) async {
     if (!await _cacheService.isOnline()) return;
 
-    LoggingService.info('Warming cache for user: $userId');
+    LoggingService.info('NetworkCacheService','Warming cache for user: $userId');
     
     for (final url in frequentUrls) {
       try {
@@ -252,7 +249,7 @@ class NetworkCacheService {
           category: CacheCategory.user,
         );
         
-        if (cachedResult.isRight && cachedResult.right != null) {
+        if (cachedResult.isRight && cachedResult.value != null) {
           continue; // Already cached
         }
 
@@ -261,18 +258,18 @@ class NetworkCacheService {
           url: url,
           options: RequestOptions(path: url, method: 'GET'),
           category: CacheCategory.user,
-          ttl: ttl,
+          cacheTtl: ttl,
           priority: CachePriority.high,
         );
 
         // Add small delay to avoid overwhelming the server
         await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
-        LoggingService.warning('Failed to warm cache for URL: $url - $e');
+        LoggingService.warning('NetworkCacheService','Failed to warm cache for URL: $url - $e');
       }
     }
     
-    LoggingService.info('Cache warming completed for user: $userId');
+    LoggingService.info('NetworkCacheService','Cache warming completed for user: $userId');
   }
 
   /// Background sync for offline-first experience
@@ -281,11 +278,11 @@ class NetworkCacheService {
     Function(String)? onProgress,
   }) async {
     if (!await _cacheService.isOnline()) {
-      LoggingService.info('Background sync skipped: device is offline');
+      LoggingService.info('NetworkCacheService','Background sync skipped: device is offline');
       return;
     }
 
-    LoggingService.info('Starting background sync for ${pendingRequests.length} requests');
+    LoggingService.info('NetworkCacheService','Starting background sync for ${pendingRequests.length} requests');
     
     int completed = 0;
     for (final request in pendingRequests) {
@@ -303,11 +300,11 @@ class NetworkCacheService {
         // Small delay between requests
         await Future.delayed(const Duration(milliseconds: 50));
       } catch (e) {
-        LoggingService.warning('Background sync failed for: ${request.url} - $e');
+        LoggingService.warning('NetworkCacheService','Background sync failed for: ${request.url} - $e');
       }
     }
     
-    LoggingService.info('Background sync completed: $completed/${pendingRequests.length} successful');
+    LoggingService.info('NetworkCacheService','Background sync completed: $completed/${pendingRequests.length} successful');
   }
 
   /// Clear network cache
@@ -323,7 +320,7 @@ class NetworkCacheService {
       }
     }
     
-    LoggingService.info('Network cache cleared');
+    LoggingService.info('NetworkCacheService','Network cache cleared');
   }
 
   // Private helper methods
@@ -379,7 +376,7 @@ class NetworkCacheService {
     // Image optimization would go here
     // This would typically use a package like 'image' to resize images
     // For now, we'll skip this implementation detail
-    LoggingService.debug('Image optimization placeholder for: $imagePath');
+    LoggingService.debug('NetworkCacheService','Image optimization placeholder for: $imagePath');
   }
 
   Map<String, dynamic> _responseToMap(Response response) {
@@ -399,7 +396,13 @@ class NetworkCacheService {
       statusCode: cachedData['statusCode'] as int?,
       statusMessage: cachedData['statusMessage'] as String?,
       headers: Headers.fromMap(
-        Map<String, dynamic>.from(cachedData['headers'] as Map? ?? {}),
+        (cachedData['headers'] as Map?)?.map(
+              (k, v) => MapEntry(
+                k.toString(),
+                (v as List).map((e) => e.toString()).toList(),
+              ),
+            ) ??
+            <String, List<String>>{},
       ),
       requestOptions: RequestOptions(path: cachedData['requestPath'] as String),
     );
