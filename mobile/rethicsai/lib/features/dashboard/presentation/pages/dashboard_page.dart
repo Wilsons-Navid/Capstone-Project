@@ -77,7 +77,7 @@ class _DashboardPageState extends State<DashboardPage>
       subtitle: 'sms.dashboard_subtitle',
       icon: Icons.sms_failed,
       gradient: const LinearGradient(
-        colors: [Color(0xFF00897B), Color(0xFF4DB6AC)],
+        colors: [AppTheme.baobabBrown, AppTheme.copperAccent],
       ),
       route: AppRouter.smsGuard,
       useImage: false,

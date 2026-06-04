@@ -26,7 +26,7 @@ class AiModelVerdictCard extends StatelessWidget {
     final category = data['category']?.toString() ?? 'unknown';
     final confidence = (data['confidence'] as num?)?.toDouble() ?? 0;
     final isSafe = category == 'not_a_scam';
-    final accent = isSafe ? Colors.green[700]! : Colors.red[700]!;
+    final accent = isSafe ? AppTheme.successColor : AppTheme.errorColor;
 
     final scoresRaw = (data['scores'] as Map?) ?? const {};
     final scores = scoresRaw.entries

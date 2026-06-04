@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/themes/app_theme.dart';
 import '../../../../core/services/emergency_contacts_service.dart';
 
 /// Country-aware "report to the authorities" card. Looks up the signed-in user's
@@ -91,23 +92,23 @@ class _CountryReportCardState extends State<CountryReportCard> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.06),
+            color: AppTheme.secondaryColor.withOpacity(0.06),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.orange.withOpacity(0.3)),
+            border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Icon(Icons.account_balance, size: 18, color: Colors.orange[800]),
+                  Icon(Icons.account_balance, size: 18, color: AppTheme.secondaryDark),
                   const SizedBox(width: 6),
                   Text(
                     'scanner.report_to_authorities'.tr(),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.orange[800],
+                      color: AppTheme.secondaryDark,
                     ),
                   ),
                 ],
@@ -163,19 +164,19 @@ class _CountryReportCardState extends State<CountryReportCard> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.12),
+          color: AppTheme.secondaryColor.withOpacity(0.12),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: Colors.orange[900]),
+            Icon(icon, size: 14, color: AppTheme.secondaryDark),
             const SizedBox(width: 4),
             Text(label,
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Colors.orange[900])),
+                    color: AppTheme.secondaryDark)),
           ],
         ),
       ),

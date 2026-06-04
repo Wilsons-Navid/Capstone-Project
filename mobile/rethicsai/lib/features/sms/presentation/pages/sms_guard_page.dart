@@ -64,7 +64,7 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
         if (item.isScam) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: Colors.red[700],
+              backgroundColor: AppTheme.errorColor,
               content: Text(
                 'sms.suspicious_from'.tr(namedArgs: {
                   'sender': item.address,
@@ -169,12 +169,12 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
     final scam = item.isScam;
     final accent = item.verdict == null
         ? Colors.grey
-        : (scam ? Colors.red[700]! : Colors.green[700]!);
+        : (scam ? AppTheme.errorColor : AppTheme.successColor);
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: scam ? Colors.red.withOpacity(0.04) : Colors.white,
+        color: scam ? AppTheme.errorColor.withOpacity(0.04) : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: accent.withOpacity(0.3)),
       ),
