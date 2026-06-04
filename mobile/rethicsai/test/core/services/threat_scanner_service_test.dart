@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rethicsai/core/services/threat_scanner_service.dart';
+import 'package:rethicssec/core/services/threat_scanner_service.dart';
 
 void main() {
   late ThreatScannerService threatScanner;
@@ -139,8 +139,8 @@ void main() {
 
         for (final phone in premiumNumbers) {
           final result = await threatScanner.scanPhoneNumber(phone);
-          expect(result.recommendations, 
-              anyElement(contains('premium') || contains('charges')));
+          expect(result.recommendations,
+              anyElement(anyOf(contains('premium'), contains('charges'))));
         }
       });
 
@@ -226,8 +226,8 @@ void main() {
         for (final scam in mPesaScams) {
           final result = await threatScanner.scanTextContent(scam);
           expect(result.threatLevel, equals(ThreatLevel.high));
-          expect(result.recommendations, 
-              anyElement(contains('M-Pesa') || contains('PIN')));
+          expect(result.recommendations,
+              anyElement(anyOf(contains('M-Pesa'), contains('PIN'))));
         }
       });
 
@@ -290,9 +290,8 @@ void main() {
         );
 
         expect(result.recommendations, isNotEmpty);
-        expect(result.recommendations, anyElement(contains('caution') || 
-                                                 contains('verify') || 
-                                                 contains('click')));
+        expect(result.recommendations,
+            anyElement(anyOf(contains('caution'), contains('verify'), contains('click'))));
       });
     });
 
