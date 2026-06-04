@@ -4,6 +4,7 @@ import 'package:another_telephony/telephony.dart';
 import 'package:flutter/foundation.dart';
 
 import 'scam_model_service.dart';
+import 'detected_threat_service.dart';
 
 /// One scanned SMS + the model's verdict (null when the message is empty or the
 /// model could not be reached).
@@ -34,6 +35,7 @@ class SmsScannerService {
       : _model = model ?? ScamModelService();
 
   final ScamModelService _model;
+  final DetectedThreatService _detectedThreats = DetectedThreatService();
   final Telephony _telephony = Telephony.instance;
 
   bool get isSupported => !kIsWeb && Platform.isAndroid;
@@ -60,19 +62,38 @@ class SmsScannerService {
   }
 
   /// Live foreground protection: classify each incoming SMS and call [onResult].
+  /// Live detections are persisted for the admin dashboard.
   void startListening(void Function(SmsScanItem) onResult) {
     if (!isSupported) return;
     _telephony.listenIncomingSms(
       onNewMessage: (SmsMessage message) async {
-        onResult(await _classify(message.address, message.body, null));
+        onResult(await _classify(message.address, message.body, null, record: true));
       },
       listenInBackground: false,
     );
   }
 
-  Future<SmsScanItem> _classify(String? address, String? body, int? dateMs) async {
+  Future<SmsScanItem> _classify(String? address, String? body, int? dateMs,
+      {bool record = false}) async {
     final text = (body ?? '').trim();
     final verdict = text.isEmpty ? null : await _model.classify(text);
+
+    if (record && verdict != null && !verdict.isSafe) {
+      final level = verdict.confidence >= 0.85
+          ? 'high'
+          : verdict.confidence >= 0.6
+              ? 'medium'
+              : 'low';
+      _detectedThreats.record(
+        content: text,
+        category: verdict.category,
+        confidence: verdict.confidence,
+        threatLevel: level,
+        scores: verdict.scores,
+        source: 'sms',
+      );
+    }
+
     return SmsScanItem(
       address: address ?? 'Unknown',
       body: body ?? '',

@@ -11,11 +11,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'threat_management_service.dart';
 import 'suspicious_content_service.dart';
 import 'scam_model_service.dart';
+import 'detected_threat_service.dart';
 
 class ThreatScannerService {
   final Dio _dio = Dio();
   final ThreatManagementService _threatManagementService = ThreatManagementService();
   final ScamModelService _scamModel = ScamModelService();
+  final DetectedThreatService _detectedThreats = DetectedThreatService();
   
   // Comprehensive scanning method that combines all detection sources
   Future<ScanResult> comprehensiveScan(String input, ScanType type) async {
@@ -547,6 +549,18 @@ class ThreatScannerService {
           'confidence': modelResult.confidence,
           'scores': modelResult.scores,
         };
+      }
+
+      // Persist model-detected scams for the admin dashboard (best-effort).
+      if (modelResult != null && !modelResult.isSafe) {
+        _detectedThreats.record(
+          content: content,
+          category: modelResult.category,
+          confidence: modelResult.confidence,
+          threatLevel: threatLevel.name,
+          scores: modelResult.scores,
+          source: 'text_scan',
+        );
       }
 
       return ScanResult(

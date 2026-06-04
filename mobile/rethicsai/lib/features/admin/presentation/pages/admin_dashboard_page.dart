@@ -7,6 +7,7 @@ import '../../../../shared/widgets/african_pattern_background.dart';
 import '../../../../shared/widgets/premium_components.dart';
 import '../../../../core/utils/app_router.dart';
 import 'incident_reports_page.dart';
+import 'detected_threats_page.dart';
 import 'case_management_page.dart';
 import 'content_moderation_page.dart';
 import 'system_settings_page.dart';
@@ -159,6 +160,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => const IncidentReportsPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildAdminCard(
+                        context,
+                        'Detected Threats',
+                        'Scams the AI model flagged from scans & SMS',
+                        Icons.shield_moon,
+                        Colors.teal,
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetectedThreatsPage(),
                             ),
                           );
                         },

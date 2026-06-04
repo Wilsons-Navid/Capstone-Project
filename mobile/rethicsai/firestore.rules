@@ -61,7 +61,14 @@ service cloud.firestore {
     match /content_analysis/{analysisId} {
       allow read, write: if request.auth != null;
     }
-    
+
+    // Model-detected scams (from text scans & SMS) — any signed-in user can record;
+    // only admins can read/manage for the dashboard.
+    match /detected_threats/{detectionId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if hasAdminPrivileges();
+    }
+
     // Admin-only collections
     match /admin/{document=**} {
       allow read, write: if request.auth != null && 
