@@ -73,6 +73,16 @@ class _DashboardPageState extends State<DashboardPage>
       useImage: false,
     ),
     DashboardFeature(
+      title: 'SMS Protection',
+      subtitle: 'Scan messages for scams',
+      icon: Icons.sms_failed,
+      gradient: const LinearGradient(
+        colors: [Color(0xFF00897B), Color(0xFF4DB6AC)],
+      ),
+      route: AppRouter.smsGuard,
+      useImage: false,
+    ),
+    DashboardFeature(
       title: 'education.learn_protect',
       subtitle: 'education.security_education',
       icon: Icons.school,

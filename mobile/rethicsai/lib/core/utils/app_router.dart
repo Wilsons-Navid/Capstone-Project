@@ -20,6 +20,7 @@ import '../../features/scanner/presentation/pages/scanner_page.dart';
 import '../../features/scanner/presentation/pages/content_scanner_page.dart';
 import '../../features/scanner/presentation/pages/test_scanner_page.dart';
 import '../../features/scanner/presentation/pages/simple_scanner_page.dart';
+import '../../features/sms/presentation/pages/sms_guard_page.dart';
 import '../../features/emergency/presentation/pages/emergency_contacts_page.dart';
 import '../../features/auth/presentation/pages/profile_page.dart';
 import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
@@ -42,6 +43,7 @@ class AppRouter {
   static const String educationDetail = '/education-detail';
   static const String scanner = '/scanner';
   static const String contentScanner = '/content-scanner';
+  static const String smsGuard = '/sms-guard';
   static const String emergencyContacts = '/emergency-contacts';
   static const String profile = '/profile';
   static const String adminDashboard = '/admin';
@@ -168,6 +170,15 @@ class AppRouter {
           builder: (_) => const RouteErrorBoundary(
             routeName: 'ContentScanner',
             child: ContentScannerPage(),
+          ),
+          settings: settings,
+        );
+
+      case smsGuard:
+        return MaterialPageRoute(
+          builder: (_) => const RouteErrorBoundary(
+            routeName: 'SmsGuard',
+            child: SmsGuardPage(),
           ),
           settings: settings,
         );
