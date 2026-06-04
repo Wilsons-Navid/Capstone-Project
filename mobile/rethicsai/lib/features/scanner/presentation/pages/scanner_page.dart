@@ -8,6 +8,7 @@ import '../../../../core/services/threat_scanner_service.dart';
 import '../../../../shared/widgets/african_pattern_background.dart';
 import '../widgets/ai_model_verdict_card.dart';
 import '../widgets/scam_action_bar.dart';
+import '../widgets/country_report_card.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -586,6 +587,14 @@ class _ScannerPageState extends State<ScannerPage>
           // Action layer — tappable call / message / email + report
           ScamActionBar(
             content: result.input,
+            isThreat: result.threatLevel != ThreatLevel.safe,
+          ),
+
+          // Country-aware "report to authorities"
+          CountryReportCard(
+            content: result.input,
+            category: (result.details?['ai_model']
+                as Map<String, dynamic>?)?['category'] as String?,
             isThreat: result.threatLevel != ThreatLevel.safe,
           ),
 

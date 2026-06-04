@@ -7,6 +7,7 @@ import '../../../../core/services/activity_service.dart';
 import '../../../../shared/models/activity_model.dart';
 import '../widgets/ai_model_verdict_card.dart';
 import '../widgets/scam_action_bar.dart';
+import '../widgets/country_report_card.dart';
 
 class SimpleScannerPage extends StatefulWidget {
   const SimpleScannerPage({super.key});
@@ -306,6 +307,14 @@ class _SimpleScannerPageState extends State<SimpleScannerPage> with SingleTicker
             // Action layer — tappable call / message / email + report
             ScamActionBar(
               content: result.input,
+              isThreat: result.threatLevel != ThreatLevel.safe,
+            ),
+
+            // Country-aware "report to authorities"
+            CountryReportCard(
+              content: result.input,
+              category: (result.details?['ai_model']
+                  as Map<String, dynamic>?)?['category'] as String?,
               isThreat: result.threatLevel != ThreatLevel.safe,
             ),
 
