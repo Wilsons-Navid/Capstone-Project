@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../constants/app_constants.dart';
 import '../config/api_config.dart';
@@ -505,29 +506,29 @@ class ThreatScannerService {
       if (modelResult != null && !modelResult.isSafe) {
         threatCategories.add(modelResult.category);
         threats.add(
-          'AI model: ${modelResult.readableCategory} '
-          '(${(modelResult.confidence * 100).round()}% confidence)',
+          '${'scanner.ai_model'.tr()}: ${'scanner.cat_${modelResult.category}'.tr()} '
+          '(${(modelResult.confidence * 100).round()}% ${'scanner.confidence_pct'.tr()})',
         );
       }
 
       ThreatLevel threatLevel;
       if (threats.isEmpty) {
         threatLevel = ThreatLevel.safe;
-        recommendations.add('Content appears safe');
+        recommendations.add('scanner.rec_safe'.tr());
       } else if (threats.length <= 2) {
         threatLevel = ThreatLevel.medium;
         recommendations.addAll([
-          'Content contains suspicious elements',
-          'Do not provide personal information',
-          'Verify sender authenticity'
+          'scanner.rec_suspicious_elements'.tr(),
+          'scanner.rec_no_personal_info'.tr(),
+          'scanner.rec_verify_sender'.tr(),
         ]);
       } else {
         threatLevel = ThreatLevel.high;
         recommendations.addAll([
-          'High-risk content detected',
-          'Do not respond or engage',
-          'Report as spam/fraud',
-          'Delete the message'
+          'scanner.rec_high_risk'.tr(),
+          'scanner.rec_no_engage'.tr(),
+          'scanner.rec_report_fraud'.tr(),
+          'scanner.rec_delete'.tr(),
         ]);
       }
 
@@ -568,7 +569,9 @@ class ThreatScannerService {
         input: content,
         threatLevel: threatLevel,
         isComplete: true,
-        result: threats.isEmpty ? 'No threats detected' : 'Threats found: ${threats.join(', ')}',
+        result: threats.isEmpty
+            ? 'scanner.no_threats'.tr()
+            : '${'scanner.threats_found'.tr()}: ${threats.join(', ')}',
         recommendations: recommendations,
         threatCategories: threatCategories.isNotEmpty ? threatCategories : null,
         details: details.isNotEmpty ? details : null,

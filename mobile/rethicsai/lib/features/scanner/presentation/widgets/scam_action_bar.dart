@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -14,13 +15,6 @@ class ScamActionBar extends StatelessWidget {
   final bool isThreat;
 
   const ScamActionBar({super.key, required this.content, this.isThreat = true});
-
-  // Pre-filled bodies the user can edit before sending.
-  static const _verifyTemplate =
-      'Hello, I received this message and want to verify whether it is genuine '
-      'before taking any action. Can you confirm?';
-  static const _reportTemplate =
-      'I want to report a suspected scam. I received the following message:\n\n';
 
   static final _phoneRe = RegExp(r'(?<!\d)(\+?\d[\d\s\-()]{6,}\d)');
   static final _emailRe =
@@ -41,13 +35,13 @@ class ScamActionBar extends StatelessWidget {
       final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!ok && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open ${uri.scheme}')),
+          SnackBar(content: Text('scanner.no_app_available'.tr())),
         );
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No app available for this action')),
+          SnackBar(content: Text('scanner.no_app_available'.tr())),
         );
       }
     }
@@ -76,7 +70,7 @@ class ScamActionBar extends StatelessWidget {
               Icon(Icons.touch_app, size: 18, color: AppTheme.primaryColor),
               const SizedBox(width: 6),
               Text(
-                'Take action',
+                'scanner.take_action'.tr(),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -88,38 +82,42 @@ class ScamActionBar extends StatelessWidget {
           if (isThreat) ...[
             const SizedBox(height: 4),
             Text(
-              'Be careful — verify before you call or reply. Messages open pre-filled so you can edit them.',
+              'scanner.action_caution'.tr(),
               style: TextStyle(fontSize: 11, color: Colors.grey[600]),
             ),
           ],
           const SizedBox(height: 10),
           for (final phone in phones) _contactRow(context, icon: Icons.phone, label: phone, actions: [
-            _ActionChip('Call', Icons.call, () => _launch(context, Uri(scheme: 'tel', path: phone))),
-            _ActionChip('Message', Icons.sms, () => _launch(
+            _ActionChip('scanner.call'.tr(), Icons.call,
+                () => _launch(context, Uri(scheme: 'tel', path: phone))),
+            _ActionChip('scanner.message'.tr(), Icons.sms, () => _launch(
                   context,
-                  Uri(scheme: 'sms', path: phone, queryParameters: {'body': _verifyTemplate}),
+                  Uri(scheme: 'sms', path: phone, queryParameters: {'body': 'scanner.verify_template'.tr()}),
                 )),
           ]),
           for (final email in emails) _contactRow(context, icon: Icons.email, label: email, actions: [
-            _ActionChip('Email', Icons.mail_outline, () => _launch(
+            _ActionChip('scanner.email'.tr(), Icons.mail_outline, () => _launch(
                   context,
                   Uri(
                     scheme: 'mailto',
                     path: email,
-                    queryParameters: {'subject': 'Verifying a suspicious message', 'body': _verifyTemplate},
+                    queryParameters: {
+                      'subject': 'scanner.verify_subject'.tr(),
+                      'body': 'scanner.verify_template'.tr(),
+                    },
                   ),
                 )),
           ]),
           const Divider(height: 20),
           // Generic report — opens an email draft pre-filled with the message.
-          _ActionChip('Report this scam', Icons.flag_outlined, () => _launch(
+          _ActionChip('scanner.report_scam'.tr(), Icons.flag_outlined, () => _launch(
                 context,
                 Uri(
                   scheme: 'mailto',
                   path: '',
                   queryParameters: {
-                    'subject': 'Scam report',
-                    'body': '$_reportTemplate$content',
+                    'subject': 'scanner.report_subject'.tr(),
+                    'body': '${'scanner.report_template'.tr()}$content',
                   },
                 ),
               )).build(context, filled: true),

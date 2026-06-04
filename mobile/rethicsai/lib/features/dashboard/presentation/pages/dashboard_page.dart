@@ -73,8 +73,8 @@ class _DashboardPageState extends State<DashboardPage>
       useImage: false,
     ),
     DashboardFeature(
-      title: 'SMS Protection',
-      subtitle: 'Scan messages for scams',
+      title: 'sms.title',
+      subtitle: 'sms.dashboard_subtitle',
       icon: Icons.sms_failed,
       gradient: const LinearGradient(
         colors: [Color(0xFF00897B), Color(0xFF4DB6AC)],

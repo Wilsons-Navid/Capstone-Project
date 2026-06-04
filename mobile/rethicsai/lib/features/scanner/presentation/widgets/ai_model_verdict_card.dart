@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/themes/app_theme.dart';
@@ -12,12 +13,10 @@ class AiModelVerdictCard extends StatelessWidget {
 
   const AiModelVerdictCard({super.key, required this.aiModel});
 
-  static const _readable = {
-    'advance_fee_fraud': 'Advance-fee fraud',
-    'mobile_money_fraud': 'Mobile-money fraud',
-    'phishing': 'Phishing',
-    'not_a_scam': 'Not a scam',
-  };
+  String _cat(String c) {
+    const known = {'advance_fee_fraud', 'mobile_money_fraud', 'phishing', 'not_a_scam'};
+    return known.contains(c) ? 'scanner.cat_$c'.tr() : c;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +51,7 @@ class AiModelVerdictCard extends StatelessWidget {
               Icon(Icons.psychology, size: 18, color: accent),
               const SizedBox(width: 6),
               Text(
-                'AI Model Verdict',
+                'scanner.ai_verdict_title'.tr(),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -72,7 +71,7 @@ class AiModelVerdictCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            _readable[category] ?? category,
+            _cat(category),
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 10),
@@ -84,7 +83,7 @@ class AiModelVerdictCard extends StatelessWidget {
                     SizedBox(
                       width: 120,
                       child: Text(
-                        _readable[e.key] ?? e.key,
+                        _cat(e.key),
                         style: TextStyle(fontSize: 11, color: Colors.grey[700]),
                       ),
                     ),
@@ -113,7 +112,7 @@ class AiModelVerdictCard extends StatelessWidget {
               )),
           const SizedBox(height: 6),
           Text(
-            'Multilingual ML ensemble (TF-IDF + e5 embeddings)',
+            'scanner.ai_ensemble_caption'.tr(),
             style: TextStyle(
               fontSize: 10,
               fontStyle: FontStyle.italic,

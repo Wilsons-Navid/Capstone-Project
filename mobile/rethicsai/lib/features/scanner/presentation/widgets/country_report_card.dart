@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -30,13 +31,6 @@ class CountryReportCard extends StatefulWidget {
 class _CountryReportCardState extends State<CountryReportCard> {
   late final Future<List<EmergencyContact>> _future;
 
-  static const _readable = {
-    'advance_fee_fraud': 'advance-fee fraud',
-    'mobile_money_fraud': 'mobile-money fraud',
-    'phishing': 'phishing',
-    'not_a_scam': 'not a scam',
-  };
-
   @override
   void initState() {
     super.initState();
@@ -67,9 +61,14 @@ class _CountryReportCardState extends State<CountryReportCard> {
   }
 
   String get _reportBody {
-    final cat = _readable[widget.category] ?? 'a scam';
-    return 'I want to report a suspected $cat. I received the following message:'
-        '\n\n${widget.content}';
+    final c = widget.category;
+    const known = {'advance_fee_fraud', 'mobile_money_fraud', 'phishing', 'not_a_scam'};
+    if (c != null && known.contains(c)) {
+      return 'scanner.report_intro'
+              .tr(namedArgs: {'category': 'scanner.cat_$c'.tr()}) +
+          widget.content;
+    }
+    return 'scanner.report_template'.tr() + widget.content;
   }
 
   Future<void> _launch(Uri uri) async {
@@ -105,7 +104,7 @@ class _CountryReportCardState extends State<CountryReportCard> {
                   Icon(Icons.account_balance, size: 18, color: Colors.orange[800]),
                   const SizedBox(width: 6),
                   Text(
-                    'Report to authorities',
+                    'scanner.report_to_authorities'.tr(),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -138,15 +137,15 @@ class _CountryReportCardState extends State<CountryReportCard> {
           Row(
             children: [
               if (c.phone.isNotEmpty)
-                _btn('Call', Icons.call,
+                _btn('scanner.call'.tr(), Icons.call,
                     () => _launch(Uri(scheme: 'tel', path: c.phone))),
               if (c.email.isNotEmpty) ...[
                 const SizedBox(width: 8),
-                _btn('Email report', Icons.mail_outline, () => _launch(Uri(
+                _btn('scanner.email_report'.tr(), Icons.mail_outline, () => _launch(Uri(
                       scheme: 'mailto',
                       path: c.email,
                       queryParameters: {
-                        'subject': 'Scam report',
+                        'subject': 'scanner.report_subject'.tr(),
                         'body': _reportBody,
                       },
                     ))),

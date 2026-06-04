@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -21,12 +22,10 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
   bool _loading = false;
   bool _liveOn = false;
 
-  static const _readable = {
-    'advance_fee_fraud': 'Advance-fee fraud',
-    'mobile_money_fraud': 'Mobile-money fraud',
-    'phishing': 'Phishing',
-    'not_a_scam': 'Not a scam',
-  };
+  String _cat(String c) {
+    const known = {'advance_fee_fraud', 'mobile_money_fraud', 'phishing', 'not_a_scam'};
+    return known.contains(c) ? 'scanner.cat_$c'.tr() : c;
+  }
 
   Future<void> _grant() async {
     final ok = await _service.requestPermission();
@@ -67,8 +66,10 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
             SnackBar(
               backgroundColor: Colors.red[700],
               content: Text(
-                'Suspicious SMS from ${item.address}: '
-                '${_readable[item.verdict!.category] ?? item.verdict!.category}',
+                'sms.suspicious_from'.tr(namedArgs: {
+                  'sender': item.address,
+                  'category': _cat(item.verdict!.category),
+                }),
               ),
             ),
           );
@@ -82,12 +83,12 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
   Widget build(BuildContext context) {
     if (!_service.isSupported) {
       return Scaffold(
-        appBar: AppBar(title: const Text('SMS Protection')),
-        body: const Center(
+        appBar: AppBar(title: Text('sms.title'.tr())),
+        body: Center(
           child: Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Text(
-              'SMS protection is available on Android only.',
+              'sms.android_only'.tr(),
               textAlign: TextAlign.center,
             ),
           ),
@@ -105,7 +106,7 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
             child: _items.isEmpty
                 ? Center(
                     child: Text(
-                      _loading ? 'Scanning…' : 'No messages scanned yet.',
+                      _loading ? 'sms.scanning'.tr() : 'sms.no_messages'.tr(),
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                   )
@@ -132,10 +133,10 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
             children: [
               Icon(Icons.sms_failed, color: AppTheme.primaryColor),
               const SizedBox(width: 8),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Scan your messages for scams with the AI model.',
-                  style: TextStyle(fontSize: 13),
+                  'sms.intro'.tr(),
+                  style: const TextStyle(fontSize: 13),
                 ),
               ),
             ],
@@ -147,14 +148,14 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
                 child: ElevatedButton.icon(
                   onPressed: _loading ? null : _scanInbox,
                   icon: const Icon(Icons.inbox, size: 18),
-                  label: Text(_loading ? 'Scanning…' : 'Scan inbox'),
+                  label: Text(_loading ? 'sms.scanning'.tr() : 'sms.scan_inbox'.tr()),
                 ),
               ),
               const SizedBox(width: 12),
               Column(
                 children: [
                   Switch(value: _liveOn, onChanged: _toggleLive),
-                  const Text('Live', style: TextStyle(fontSize: 11)),
+                  Text('sms.live'.tr(), style: const TextStyle(fontSize: 11)),
                 ],
               ),
             ],
@@ -210,8 +211,8 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
             ),
             child: Text(
               item.verdict == null
-                  ? 'Not analyzed'
-                  : '${_readable[item.verdict!.category] ?? item.verdict!.category} '
+                  ? 'sms.not_analyzed'.tr()
+                  : '${_cat(item.verdict!.category)} '
                       '(${(item.verdict!.confidence * 100).round()}%)',
               style: TextStyle(
                 fontSize: 11,
