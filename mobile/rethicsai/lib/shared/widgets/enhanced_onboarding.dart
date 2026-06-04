@@ -1,3 +1,5 @@
+import 'dart:math' show cos, sin;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -777,6 +779,3 @@ class _FloatingIcon extends StatelessWidget {
         );
   }
 }
-
-// Add math import for cos/sin functions
-import 'dart:math' show cos, sin;

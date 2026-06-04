@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart';
@@ -62,7 +64,7 @@ class _AccessibilityWrapperState extends State<AccessibilityWrapper> {
             if (widget.semanticsLabel != null) {
               SemanticsService.announce(
                 'accessibility.focused'.tr(args: [widget.semanticsLabel!]),
-                TextDirection.ltr,
+                ui.TextDirection.ltr,
               );
             }
           }
@@ -275,7 +277,7 @@ class _VoiceControlHelperState extends State<VoiceControlHelper> {
       HapticFeedback.mediumImpact();
       SemanticsService.announce(
         'accessibility.voice_command_executed'.tr(args: [keyword]),
-        TextDirection.ltr,
+        ui.TextDirection.ltr,
       );
       
       // Execute command
@@ -335,7 +337,7 @@ class _AccessibleButtonState extends State<AccessibleButton> {
             HapticFeedback.selectionClick();
             SemanticsService.announce(
               'accessibility.button_focused'.tr(args: [widget.text]),
-              TextDirection.ltr,
+              ui.TextDirection.ltr,
             );
           }
         },
@@ -403,7 +405,7 @@ class ScreenReaderAnnouncer extends StatelessWidget {
   Widget build(BuildContext context) {
     if (announceOnBuild) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        SemanticsService.announce(message, TextDirection.ltr);
+        SemanticsService.announce(message, ui.TextDirection.ltr);
       });
     }
     
@@ -411,7 +413,7 @@ class ScreenReaderAnnouncer extends StatelessWidget {
   }
 
   static void announce(String message) {
-    SemanticsService.announce(message, TextDirection.ltr);
+    SemanticsService.announce(message, ui.TextDirection.ltr);
   }
 }
 
@@ -548,7 +550,7 @@ class SkipNavigationLinks extends StatelessWidget {
                 // Announce navigation
                 SemanticsService.announce(
                   'accessibility.navigated_to'.tr(args: [link.label]),
-                  TextDirection.ltr,
+                  ui.TextDirection.ltr,
                 );
               },
               style: ElevatedButton.styleFrom(

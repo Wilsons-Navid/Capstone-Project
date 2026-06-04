@@ -65,7 +65,7 @@ class CaseTrackingBloc extends Bloc<CaseTrackingEvent, CaseTrackingState> {
     // Don't show loading state on refresh
     try {
       final user = FirebaseAuth.instance.currentUser;
-      final cases = await IncidentService.getUserIncidents(user?.uid);
+      final cases = await IncidentService.getUserIncidents(user?.uid ?? '');
       _allCases = cases;
       
       emit(CaseTrackingLoaded(cases));
