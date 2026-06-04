@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../core/themes/app_theme.dart';
 import '../../../../core/services/emergency_contacts_service.dart';
 
 /// Country-aware "report to the authorities" card. Looks up the signed-in user's
@@ -139,7 +138,7 @@ class _CountryReportCardState extends State<CountryReportCard> {
               if (c.phone.isNotEmpty)
                 _btn('scanner.call'.tr(), Icons.call,
                     () => _launch(Uri(scheme: 'tel', path: c.phone))),
-              if (c.email.isNotEmpty) ...[
+              if ((c.email ?? '').isNotEmpty) ...[
                 const SizedBox(width: 8),
                 _btn('scanner.email_report'.tr(), Icons.mail_outline, () => _launch(Uri(
                       scheme: 'mailto',
