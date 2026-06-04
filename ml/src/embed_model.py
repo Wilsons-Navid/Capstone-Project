@@ -75,8 +75,26 @@ def metrics(y_true, y_pred) -> dict:
     }
 
 
-def main() -> None:
-    df = load_df()
+# Ensemble members (RF skipped on TF-IDF — weak on sparse) and the report row order.
+MEMBERS = ["tfidf_logreg", "emb_logreg", "emb_rf"]
+ORDER = ["tfidf_logreg", "tfidf_rf", "emb_logreg", "emb_rf",
+         "ensemble_softvote", "ensemble_stack"]
+
+
+def _X_for(kind, split_df, emb):
+    return split_df["text"] if kind == "text" else emb
+
+
+def train_and_eval(df=None) -> dict:
+    """Fit the full ladder and evaluate on the held-out test split.
+
+    Lexical (TF-IDF) + semantic (e5-small) base models, then a soft-voting and a
+    stacking ensemble over {tfidf_logreg, emb_logreg, emb_rf}. Single source of
+    truth shared by the CLI report (`main`) and the project notebook. Returns a
+    bundle dict so callers can plot confusion matrices, per-class F1, etc.
+    """
+    if df is None:
+        df = load_df()
     train, dev, test = split(df)
     id2vec = embed_corpus(df)
     Xtr_e, Xdv_e, Xte_e = (emb_matrix(d, id2vec) for d in (train, dev, test))
@@ -84,8 +102,7 @@ def main() -> None:
 
     # --- base models -------------------------------------------------------
     base = {}                                # name -> (fitted_model, feature_kind)
-    pipes = build_pipelines()                # tfidf_logreg, tfidf_rf  (the demo baseline)
-    for name, pipe in pipes.items():
+    for name, pipe in build_pipelines().items():   # tfidf_logreg, tfidf_rf (lexical)
         pipe.fit(train["text"], ytr)
         base[name] = (pipe, "text")
 
@@ -98,52 +115,76 @@ def main() -> None:
     emb_rf.fit(Xtr_e, ytr)
     base["emb_rf"] = (emb_rf, "emb")
 
-    def X_for(kind, txt_df, emb):
-        return txt_df["text"] if kind == "text" else emb
-
-    # --- ensembles over {tfidf_logreg, labse_logreg, labse_rf} -------------
-    members = ["tfidf_logreg", "emb_logreg", "emb_rf"]
-
-    def stack_proba(split_df, emb):
-        return [proba_aligned(base[m][0], X_for(base[m][1], split_df, emb)) for m in members]
+    def members_proba(split_df, emb):
+        return [proba_aligned(base[m][0], _X_for(base[m][1], split_df, emb)) for m in MEMBERS]
 
     # soft voting = mean of member probabilities
-    sv_test = np.mean(stack_proba(test, Xte_e), axis=0)
+    sv_test = np.mean(members_proba(test, Xte_e), axis=0)
     softvote_pred = [CLASS_ORDER[i] for i in sv_test.argmax(1)]
 
     # stacking = meta-LogReg trained on DEV member-probabilities (no leakage: bases fit on train)
     meta = LogisticRegression(max_iter=4000, class_weight="balanced")
-    meta.fit(np.hstack(stack_proba(dev, Xdv_e)), ydv)
-    stack_pred = meta.predict(np.hstack(stack_proba(test, Xte_e)))
+    meta.fit(np.hstack(members_proba(dev, Xdv_e)), ydv)
+    stack_pred = list(meta.predict(np.hstack(members_proba(test, Xte_e))))
 
     # --- collect results ---------------------------------------------------
-    results = {}
-    for name, (model, kind) in base.items():
-        results[name] = metrics(yte, model.predict(X_for(kind, test, Xte_e)))
+    results = {name: metrics(yte, model.predict(_X_for(kind, test, Xte_e)))
+               for name, (model, kind) in base.items()}
     results["ensemble_softvote"] = metrics(yte, softvote_pred)
-    results["ensemble_stack"] = metrics(yte, list(stack_pred))
+    results["ensemble_stack"] = metrics(yte, stack_pred)
+    best = max(results, key=lambda n: results[n]["macro_f1"])
 
-    # --- report ------------------------------------------------------------
-    order = ["tfidf_logreg", "tfidf_rf", "emb_logreg", "emb_rf",
-             "ensemble_softvote", "ensemble_stack"]
+    return {"df": df, "splits": (train, dev, test), "emb": (Xtr_e, Xdv_e, Xte_e),
+            "base": base, "members": MEMBERS, "meta": meta, "results": results,
+            "order": ORDER, "best": best, "softvote_proba": sv_test,
+            "softvote_pred": softvote_pred, "stack_pred": stack_pred}
+
+
+def predict_messages(bundle, texts) -> list:
+    """Soft-vote ensemble inference on raw strings.
+
+    Returns one (label, confidence, full_proba_dict) per input message.
+    """
+    from sentence_transformers import SentenceTransformer
+    emb = SentenceTransformer(EMB_MODEL).encode(
+        [EMB_PREFIX + t for t in texts], normalize_embeddings=True)
+    base = bundle["base"]
+    probs = [proba_aligned(base[m][0], texts if base[m][1] == "text" else emb)
+             for m in bundle["members"]]
+    avg = np.mean(probs, axis=0)
+    out = []
+    for row in avg:
+        ranked = sorted(zip(CLASS_ORDER, row), key=lambda x: -x[1])
+        out.append((ranked[0][0], float(ranked[0][1]),
+                    {c: float(p) for c, p in zip(CLASS_ORDER, row)}))
+    return out
+
+
+def _print_report(bundle) -> None:
+    results = bundle["results"]
+    train, dev, test = bundle["splits"]
     print(f"\nsplit: train {len(train)} / dev {len(dev)} / test {len(test)}   classes={CLASS_ORDER}\n")
     head = f"{'model':<20} {'acc':>6} {'macroF1':>8}   " + "  ".join(f"{c[:10]:>10}" for c in CLASS_ORDER)
     print(head); print("-" * len(head))
-    for name in order:
+    for name in bundle["order"]:
         r = results[name]
         pc = "  ".join(f"{r['per_class'][c]:>10.3f}" for c in CLASS_ORDER)
         tag = "  <- baseline" if name == "tfidf_logreg" else ""
         print(f"{name:<20} {r['accuracy']:>6.3f} {r['macro_f1']:>8.3f}   {pc}{tag}")
+    print(f"\nbest by macro-F1: {bundle['best']} ({results[bundle['best']]['macro_f1']:.3f})")
 
-    best = max(results, key=lambda n: results[n]["macro_f1"])
-    print(f"\nbest by macro-F1: {best} ({results[best]['macro_f1']:.3f})")
 
+def main() -> None:
+    bundle = train_and_eval()
+    _print_report(bundle)
+    train, dev, test = bundle["splits"]
+    base, meta = bundle["base"], bundle["meta"]
     MODELS.mkdir(parents=True, exist_ok=True)
     (MODELS / "embed_metrics.json").write_text(json.dumps(
-        {"embedder": EMB_MODEL, "test": results, "best": best,
+        {"embedder": EMB_MODEL, "test": bundle["results"], "best": bundle["best"],
          "n_train": len(train), "n_dev": len(dev), "n_test": len(test)}, indent=2))
-    joblib.dump({"emb_logreg": emb_lr, "emb_rf": emb_rf, "stack_meta": meta,
-                 "members": members, "embedder": EMB_MODEL},
+    joblib.dump({"emb_logreg": base["emb_logreg"][0], "emb_rf": base["emb_rf"][0],
+                 "stack_meta": meta, "members": bundle["members"], "embedder": EMB_MODEL},
                 MODELS / "embed_models.joblib")
     print(f"\nsaved: models/embed_metrics.json, models/embed_models.joblib, {EMB_CACHE.name}")
 

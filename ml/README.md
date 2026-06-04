@@ -2,10 +2,25 @@
 
 **Status:** Active. Migrated from `ml_potential/` on 2026-05-28 after Thadee approved the proposal. This directory is the working track for Objectives 1 and 3.
 
-## Scope (approved 2026-05-28)
+## Main model
 
-- Classical-only ML evaluation: TF-IDF + Logistic Regression vs TF-IDF + Random Forest (500 estimators)
-- Six-category scam taxonomy + `not_a_scam` residual
+The project classifier scores a short message as **advance_fee_fraud**, **mobile_money_fraud**, **phishing**, or **not_a_scam** (the four data-backed classes; romance / identity-theft / synthetic-media are future work). It is built and compared in three rungs:
+
+1. **Lexical baseline** — TF-IDF → Logistic Regression / Random Forest (`src/demo_model.py`).
+2. **Semantic upgrade** — multilingual **e5-small** sentence embeddings → Logistic Regression / Random Forest (`src/embed_model.py`).
+3. **Ensemble** — soft-voting + stacking over the lexical + semantic models.
+
+**Result (held-out test, macro-F1):** TF-IDF baseline **0.943** → **soft-voting ensemble 0.955** (best; lifts every class). Embeddings alone do *not* beat the lexical baseline on this corpus, but they contribute complementary signal that the ensemble exploits — see the finding in the notebook.
+
+```bash
+python src/embed_model.py                       # train the full ladder, print the comparison table
+python notebooks/build_main_notebook.py         # regenerate the MAIN notebook with plots + inference
+```
+
+The canonical write-up is **`notebooks/scam_detection_main.ipynb`**. `notebooks/model_demo.ipynb` was an earlier preliminary/demo run and is superseded by it. Trained weights + the embedding cache are gitignored (reproducible via the commands above); metrics persist in `models/embed_metrics.json`.
+
+## Corpus scope
+
 - Two data streams: public (Nazario / UCI SMS Spam / Kaggle / etc.) and regional (ngCERT / ANTIC / EFCC / West African news)
 - No live pilot; no LLM comparison (both retained as future work)
 
