@@ -6,6 +6,7 @@ import '../../../../core/services/threat_scanner_service.dart';
 import '../../../../core/services/activity_service.dart';
 import '../../../../shared/models/activity_model.dart';
 import '../widgets/ai_model_verdict_card.dart';
+import '../widgets/scam_action_bar.dart';
 
 class SimpleScannerPage extends StatefulWidget {
   const SimpleScannerPage({super.key});
@@ -300,6 +301,12 @@ class _SimpleScannerPageState extends State<SimpleScannerPage> with SingleTicker
             // AI model verdict (the project's e5 + ensemble classifier)
             AiModelVerdictCard(
               aiModel: result.details?['ai_model'] as Map<String, dynamic>?,
+            ),
+
+            // Action layer — tappable call / message / email + report
+            ScamActionBar(
+              content: result.input,
+              isThreat: result.threatLevel != ThreatLevel.safe,
             ),
 
             // Recommendations
