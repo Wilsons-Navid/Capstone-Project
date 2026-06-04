@@ -393,17 +393,9 @@ class _SimpleScannerPageState extends State<SimpleScannerPage> with SingleTicker
           result = await _scannerService.scanPhoneNumber(input);
           break;
         case ScanType.text:
-          // Text scanning feature coming soon
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Text scanning feature coming soon!'),
-              backgroundColor: Colors.blue,
-            ),
-          );
-          setState(() {
-            _isScanning = false;
-          });
-          return;
+          // Text scanning runs the full pipeline (DB + heuristics + the e5/ensemble AI model).
+          result = await _scannerService.scanTextContent(input);
+          break;
         case ScanType.file:
           result = await _scannerService.scanFileHash(input);
           break;
