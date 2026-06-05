@@ -8,6 +8,12 @@ and SEED so every number is directly comparable to the approved baseline.
 Run:  python src/embed_model.py
 """
 
+# TODO (known limitation — revisit later): the model misclassifies very short, keyword-free
+# advance-fee messages (e.g. "you won 100, send 200 to get it") as not_a_scam — they sit
+# outside the training distribution (corpus skews to longer, formal email/SMS text). Fix:
+# add short "pay-to-receive" / SMS / pidgin advance-fee examples to demo_labeled.jsonl and
+# retrain; the in-app user-report -> admin detected_threats loop can supply such examples.
+
 from __future__ import annotations
 
 import json

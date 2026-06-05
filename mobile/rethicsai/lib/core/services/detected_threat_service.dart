@@ -12,6 +12,7 @@ class DetectedThreat {
   final String threatLevel;
   final String source; // 'text_scan' | 'sms'
   final String? userId;
+  final String? country;
   final DateTime createdAt;
 
   DetectedThreat({
@@ -23,6 +24,7 @@ class DetectedThreat {
     required this.source,
     required this.createdAt,
     this.userId,
+    this.country,
   });
 
   factory DetectedThreat.fromFirestore(DocumentSnapshot doc) {
@@ -36,6 +38,7 @@ class DetectedThreat {
       threatLevel: d['threat_level'] as String? ?? 'unknown',
       source: d['source'] as String? ?? 'text_scan',
       userId: d['user_id'] as String?,
+      country: d['country'] as String?,
       createdAt: ts is Timestamp ? ts.toDate() : DateTime.now(),
     );
   }
@@ -56,6 +59,15 @@ class DetectedThreatService {
     Map<String, double>? scores,
   }) async {
     try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      // Best-effort: tag the detection with the reporting user's country (for admin filtering).
+      String? country;
+      if (uid != null) {
+        try {
+          final u = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+          country = u.data()?['country'] as String?;
+        } catch (_) {}
+      }
       final snippet = content.length > 500 ? content.substring(0, 500) : content;
       await _col.add({
         'content': snippet,
@@ -64,7 +76,8 @@ class DetectedThreatService {
         'threat_level': threatLevel,
         'scores': scores,
         'source': source,
-        'user_id': FirebaseAuth.instance.currentUser?.uid,
+        'user_id': uid,
+        'country': country,
         'created_at': FieldValue.serverTimestamp(),
       });
     } catch (e) {
