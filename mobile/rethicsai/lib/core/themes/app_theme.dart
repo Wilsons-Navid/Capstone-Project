@@ -38,10 +38,12 @@ class AppTheme {
   static const Color savannaTan = Color(0xFFDEB887); // Savanna Grass
   static const Color kilimanjaro = Color(0xFF5D4037); // Mountain Rock
   static const Color victoriaBlue = Color(0xFF4A6FA5); // Softer Victoria Falls
+  static const Color victoriaBlueDark = Color(0xFF3A5A8C); // Deep Victoria Falls
   static const Color clayRed = Color(0xFFCD5C5C); // African Clay
   static const Color copperAccent = Color(0xFFB87333); // Copper Highlight
   
   // Neutral colors
+  static const Color inputFill = Color(0xFFF3EDE6); // Warm sand field fill
   static const Color surfaceLight = Color(0xFFFAFAFA);
   static const Color surfaceDark = Color(0xFF121212);
   static const Color surfaceVariant = Color(0xFFF5F5F5);
@@ -167,6 +169,28 @@ class AppTheme {
     end: Alignment.bottomRight,
     colors: [Colors.white, Color(0xFFF8F9FA), surfaceVariant],
     stops: [0.0, 0.5, 1.0],
+  );
+
+  // Semantic feature gradients - keep every dashboard tile on the earth palette
+  static const LinearGradient scannerGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [victoriaBlue, victoriaBlueDark],
+    stops: [0.0, 1.0],
+  );
+
+  static const LinearGradient smsGuardGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [baobabBrown, copperAccent],
+    stops: [0.0, 1.0],
+  );
+
+  static const LinearGradient threatIntelGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [copperAccent, clayRed],
+    stops: [0.0, 1.0],
   );
 
   static ThemeData get lightTheme {
