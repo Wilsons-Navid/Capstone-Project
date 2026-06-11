@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/themes/app_theme.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
@@ -16,11 +18,32 @@ class AppDrawer extends StatefulWidget {
 
 class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
   DrawerThemeMode _themeMode = DrawerThemeMode.normal;
+  bool _isAdmin = false;
 
   @override
   void initState() {
     super.initState();
     // Don't call _detectThemeMode here - wait for didChangeDependencies
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final role = doc.data()?['role'];
+      if (mounted) {
+        setState(() {
+          _isAdmin = role == 'admin' || role == 'super_admin';
+        });
+      }
+    } catch (_) {
+      // Leave _isAdmin false; server-side rules enforce access anyway.
+    }
   }
 
   @override
@@ -56,11 +79,6 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
     if (mounted) {
       setState(() {});
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -513,17 +531,19 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
       ]);
     }
 
-    // Admin section (always show if available)
-    items.addAll([
-      const Divider(color: Colors.white24),
-      _buildDrawerItem(
-        context,
-        icon: Icons.admin_panel_settings,
-        title: 'Admin Panel',
-        route: AppRouter.adminDashboard,
-        isAdmin: true,
-      ),
-    ]);
+    // Admin section (only for accounts with the admin/super_admin role)
+    if (_isAdmin) {
+      items.addAll([
+        const Divider(color: Colors.white24),
+        _buildDrawerItem(
+          context,
+          icon: Icons.admin_panel_settings,
+          title: 'Admin Panel',
+          route: AppRouter.adminDashboard,
+          isAdmin: true,
+        ),
+      ]);
+    }
 
     // User settings (always show)
     items.addAll([

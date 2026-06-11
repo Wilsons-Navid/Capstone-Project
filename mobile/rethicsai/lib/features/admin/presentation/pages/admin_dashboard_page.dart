@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/themes/app_theme.dart';
@@ -139,7 +138,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'Learning Materials',
                         'Manage educational content and categories',
                         Icons.school,
-                        Colors.teal,
+                        AppTheme.secondaryDark,
                         () {
                           Navigator.push(
                             context,
@@ -154,7 +153,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'Incident Reports',
                         'View and manage all incident reports',
                         Icons.report_problem,
-                        Colors.orange,
+                        AppTheme.copperAccent,
                         () {
                           Navigator.push(
                             context,
@@ -169,7 +168,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'Detected Threats',
                         'Scams the AI model flagged from scans & SMS',
                         Icons.shield_moon,
-                        Colors.teal,
+                        AppTheme.accentDark,
                         () {
                           Navigator.push(
                             context,
@@ -184,7 +183,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'Case Management',
                         'Assign and track investigation cases',
                         Icons.folder_open,
-                        Colors.blue,
+                        AppTheme.victoriaBlue,
                         () {
                           Navigator.push(
                             context,
@@ -199,7 +198,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'System Analytics',
                         'View platform usage and statistics',
                         Icons.analytics,
-                        Colors.green,
+                        AppTheme.successColor,
                         () {
                           Navigator.push(
                             context,
@@ -214,7 +213,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'Content Moderation',
                         'Moderate user-generated content',
                         Icons.verified_user,
-                        Colors.purple,
+                        AppTheme.baobabBrown,
                         () {
                           Navigator.push(
                             context,
@@ -229,7 +228,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'System Settings',
                         'Configure platform settings',
                         Icons.settings,
-                        Colors.grey[700]!,
+                        AppTheme.kilimanjaro,
                         () {
                           Navigator.push(
                             context,
@@ -244,7 +243,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'Threat Management',
                         'Manage verified threat database',
                         Icons.security,
-                        Colors.red,
+                        AppTheme.clayRed,
                         () {
                           Navigator.push(
                             context,
@@ -259,7 +258,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'Emergency Contacts',
                         'Manage emergency contact database',
                         Icons.contact_phone,
-                        Colors.indigo,
+                        AppTheme.victoriaBlueDark,
                         () {
                           Navigator.push(
                             context,
@@ -362,9 +361,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         const SizedBox(height: 12),
                         Text(
                           '• Admin access is available through the navigation drawer\n'
-                          '• In production, this requires user.isAdmin = true\n'
-                          '• Access URL: /admin or through the drawer menu\n'
-                          '• For testing, admin access is currently enabled for all users',
+                          '• Restricted to accounts with the admin or super_admin role\n'
+                          '• Roles are stored on the user document and enforced by Firestore rules',
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[700],
                           ),
@@ -470,25 +468,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           overflow: TextOverflow.ellipsis,
         ),
       ],
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Coming Soon'),
-        content: const Text(
-          'This admin feature is currently under development. '
-          'It will be available in a future update.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
     );
   }
 }
