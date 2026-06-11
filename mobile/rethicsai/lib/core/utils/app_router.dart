@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../themes/app_theme.dart';
-import '../../shared/widgets/african_pattern_background.dart';
 import '../../shared/widgets/animated_splash_screen.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
@@ -18,8 +15,6 @@ import '../../features/education/presentation/pages/education_hub_page.dart';
 import '../../features/education/presentation/pages/education_detail_page.dart';
 import '../../features/scanner/presentation/pages/scanner_page.dart';
 import '../../features/scanner/presentation/pages/content_scanner_page.dart';
-import '../../features/scanner/presentation/pages/test_scanner_page.dart';
-import '../../features/scanner/presentation/pages/simple_scanner_page.dart';
 import '../../features/sms/presentation/pages/sms_guard_page.dart';
 import '../../features/emergency/presentation/pages/emergency_contacts_page.dart';
 import '../../features/auth/presentation/pages/profile_page.dart';
@@ -160,7 +155,7 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => const RouteErrorBoundary(
             routeName: 'Scanner',
-            child: SimpleScannerPage(),
+            child: ScannerPage(),
           ),
           settings: settings,
         );
