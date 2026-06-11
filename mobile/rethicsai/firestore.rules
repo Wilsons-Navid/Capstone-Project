@@ -42,10 +42,16 @@ service cloud.firestore {
       // Chat sessions - users can read/write their own chat history
       match /chatSessions/{sessionId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
-        
+
         match /messages/{messageId} {
           allow read, write: if request.auth != null && request.auth.uid == userId;
         }
+      }
+
+      // Per-user case-tracking mirror, written when the user reports an incident
+      match /cases/{caseId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read: if hasAdminPrivileges();
       }
     }
     
@@ -60,6 +66,68 @@ service cloud.firestore {
     // Suspicious content analysis results
     match /content_analysis/{analysisId} {
       allow read, write: if request.auth != null;
+    }
+
+    // In-app notification history — per-user; legacy docs use user_id/is_read,
+    // newer writers use userId/read, so ownership accepts either field.
+    match /notifications/{notificationId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if request.auth != null &&
+          (resource.data.userId == request.auth.uid ||
+           resource.data.user_id == request.auth.uid);
+      allow read: if hasAdminPrivileges();
+    }
+
+    // User comments - authors manage their own, admins moderate everything
+    match /comments/{commentId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+      allow update, delete: if request.auth != null &&
+          (resource.data.userId == request.auth.uid ||
+           resource.data.user_id == request.auth.uid ||
+           hasAdminPrivileges());
+    }
+
+    // Moderation audit trail - admin only
+    match /moderation_logs/{logId} {
+      allow read, write: if hasAdminPrivileges();
+    }
+
+    // Platform configuration managed from the admin Settings page
+    match /system_settings/{settingId} {
+      allow read: if request.auth != null;
+      allow write: if hasAdminPrivileges();
+    }
+
+    // Verified threat database, curated in the admin Threat Management page
+    match /verified_threats/{threatId} {
+      allow read: if request.auth != null;
+      allow write: if hasAdminPrivileges();
+    }
+
+    // Incident activity timeline - append-only log written on status changes
+    match /incident_activities/{activityId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+      allow update, delete: if hasAdminPrivileges();
+    }
+
+    // Course-completion certificates - owner reads own, admins read all
+    match /certificates/{certificateId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null &&
+          (resource.data.user_id == request.auth.uid || hasAdminPrivileges());
+      allow update, delete: if hasAdminPrivileges();
+    }
+
+    // Per-user activity log (scans, threat detections, logins) — immutable audit trail
+    match /user_activities/{activityId} {
+      allow create: if request.auth != null &&
+          request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null &&
+          resource.data.userId == request.auth.uid;
+      allow read: if hasAdminPrivileges();
+      allow update, delete: if false;
     }
 
     // Model-detected scams (from text scans & SMS) — any signed-in user can record;
@@ -78,9 +146,22 @@ service cloud.firestore {
 
     // Admin-only collections
     match /admin/{document=**} {
-      allow read, write: if request.auth != null && 
+      allow read, write: if request.auth != null &&
                             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
                             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Admin incident inbox - the app creates an alert here when any user
+    // submits a report; only admins can read or manage the inbox.
+    match /admin/notifications/incidents/{alertId} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if hasAdminPrivileges();
+    }
+
+    // Aggregate counters incremented client-side on incident submission
+    // (transactional read-modify-write, so signed-in users need read too).
+    match /admin/dashboard_stats {
+      allow read, write: if request.auth != null;
     }
     
     // Main incidents collection (authenticated users can create/read, admins can modify)
@@ -151,17 +232,17 @@ service cloud.firestore {
     match /user_roles/{userId} {
       // Users can read their own role info
       allow read: if request.auth != null && request.auth.uid == userId;
-      // Admins can read all role documents
-      allow read: if hasPermission('manage_users') || hasPermission('view_analytics');
-      // Only users with change_user_roles permission can write
-      allow write: if hasPermission('change_user_roles');
+      // Admins (by users-doc role) or permission holders can read all role documents
+      allow read: if hasAdminPrivileges() || hasPermission('manage_users') || hasPermission('view_analytics');
+      // Admins or users with change_user_roles permission can write
+      allow write: if hasAdminPrivileges() || hasPermission('change_user_roles');
     }
-    
+
     match /role_history/{historyId} {
-      // Only users with manage_users permission can read role history
-      allow read: if hasPermission('manage_users') || hasPermission('view_analytics');
-      // Only users with change_user_roles permission can write role history
-      allow write: if hasPermission('change_user_roles');
+      // Admins or permission holders can read role history
+      allow read: if hasAdminPrivileges() || hasPermission('manage_users') || hasPermission('view_analytics');
+      // Admins or users with change_user_roles permission can write role history
+      allow write: if hasAdminPrivileges() || hasPermission('change_user_roles');
     }
     
     // Bulk operations audit log (super admin only)
