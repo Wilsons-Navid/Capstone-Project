@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/themes/app_theme.dart';
 import '../../../../shared/widgets/african_pattern_background.dart';
 import '../../../../core/services/database_init_service.dart';
-import '../../../../core/services/user_service.dart';
 import '../../../../core/services/cloud_functions_service.dart';
 
 class DatabaseSetupPage extends StatefulWidget {
@@ -262,7 +261,7 @@ class _DatabaseSetupPageState extends State<DatabaseSetupPage> {
             Text('UID: ${user.uid}'),
             Text('Email Verified: ${user.emailVerified ? 'Yes' : 'No'}'),
           ] else
-            const Text('Not logged in', style: TextStyle(color: Colors.red)),
+            const Text('Not logged in', style: TextStyle(color: AppTheme.clayRed)),
         ],
       ),
     );
@@ -328,7 +327,7 @@ class _DatabaseSetupPageState extends State<DatabaseSetupPage> {
         children: [
           Icon(
             isOk ? Icons.check_circle : Icons.error,
-            color: isOk ? Colors.green : Colors.red,
+            color: isOk ? Colors.green : AppTheme.clayRed,
             size: 20,
           ),
           const SizedBox(width: 8),
@@ -366,7 +365,7 @@ class _DatabaseSetupPageState extends State<DatabaseSetupPage> {
           icon: const Icon(Icons.people),
           label: const Text('Create Demo Users'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange,
+            backgroundColor: AppTheme.secondaryColor,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.all(16),
           ),
@@ -377,7 +376,7 @@ class _DatabaseSetupPageState extends State<DatabaseSetupPage> {
         const Divider(),
         const Text(
           'Cloud Function Options (Bypasses Security Rules)',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.successColor),
         ),
         const SizedBox(height: 12),
         
@@ -386,7 +385,7 @@ class _DatabaseSetupPageState extends State<DatabaseSetupPage> {
           icon: const Icon(Icons.cloud),
           label: const Text('Initialize with Cloud Function'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
+            backgroundColor: AppTheme.successColor,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.all(16),
           ),
@@ -399,7 +398,7 @@ class _DatabaseSetupPageState extends State<DatabaseSetupPage> {
           icon: const Icon(Icons.cloud_queue),
           label: const Text('Create Demo Users (Cloud Function)'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.teal,
+            backgroundColor: AppTheme.accentDark,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.all(16),
           ),
@@ -488,7 +487,7 @@ class _DatabaseSetupPageState extends State<DatabaseSetupPage> {
                   icon: const Icon(Icons.cloud),
                   label: const Text('Create (Cloud)'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: AppTheme.successColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.all(16),
                   ),
@@ -507,18 +506,18 @@ class _DatabaseSetupPageState extends State<DatabaseSetupPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: _statusMessage!.contains('Error') 
-            ? Colors.red.withOpacity(0.1)
-            : Colors.green.withOpacity(0.1),
+            ? AppTheme.clayRed.withOpacity(0.1)
+            : AppTheme.successColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _statusMessage!.contains('Error') ? Colors.red : Colors.green,
+          color: _statusMessage!.contains('Error') ? Colors.red : AppTheme.successColor,
         ),
       ),
       child: Row(
         children: [
           Icon(
             _statusMessage!.contains('Error') ? Icons.error : Icons.check_circle,
-            color: _statusMessage!.contains('Error') ? Colors.red : Colors.green,
+            color: _statusMessage!.contains('Error') ? Colors.red : AppTheme.successColor,
           ),
           const SizedBox(width: 12),
           Expanded(child: Text(_statusMessage!)),

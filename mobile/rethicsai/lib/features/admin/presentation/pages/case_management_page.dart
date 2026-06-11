@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../../shared/widgets/labeled_dropdown.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../shared/widgets/african_pattern_background.dart';
 import '../../../../shared/widgets/premium_components.dart';
-import '../../../../core/services/incident_service.dart';
-import '../../../../shared/models/incident_model.dart';
 
 class CaseManagementPage extends StatefulWidget {
   const CaseManagementPage({super.key});
@@ -180,7 +178,7 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
                   subtitle: 'Assign and track investigation cases',
                   icon: Icons.folder_open,
                   gradient: LinearGradient(
-                    colors: [Colors.blue, Colors.blue[700]!],
+                    colors: [AppTheme.victoriaBlue, AppTheme.victoriaBlueDark],
                   ),
                   action: IconButton(
                     onPressed: () => Navigator.pop(context),
@@ -196,13 +194,13 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
                   margin: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Expanded(child: _buildStatCard('Total', _caseStats['total']?.toString() ?? '0', Icons.folder, Colors.blue)),
+                      Expanded(child: _buildStatCard('Total', _caseStats['total']?.toString() ?? '0', Icons.folder, AppTheme.victoriaBlue)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard('Pending', _caseStats['pending_review']?.toString() ?? '0', Icons.pending, Colors.orange)),
+                      Expanded(child: _buildStatCard('Pending', _caseStats['pending_review']?.toString() ?? '0', Icons.pending, AppTheme.secondaryColor)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard('Active', _caseStats['in_progress']?.toString() ?? '0', Icons.work, Colors.purple)),
+                      Expanded(child: _buildStatCard('Active', _caseStats['in_progress']?.toString() ?? '0', Icons.work, AppTheme.baobabBrown)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard('Unassigned', _caseStats['unassigned']?.toString() ?? '0', Icons.person_off, Colors.red)),
+                      Expanded(child: _buildStatCard('Unassigned', _caseStats['unassigned']?.toString() ?? '0', Icons.person_off, AppTheme.clayRed)),
                     ],
                   ),
                 ),
@@ -246,7 +244,7 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
         onPressed: _loadCases,
         icon: const Icon(Icons.refresh),
         label: const Text('Refresh'),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppTheme.victoriaBlue,
         foregroundColor: Colors.white,
       ),
     );
@@ -270,12 +268,15 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ),
           Text(
@@ -337,17 +338,11 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: _selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'Status',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    isDense: true,
-                  ),
-                  items: _caseStatuses.map((status) => DropdownMenuItem(
+                child: LabeledDropdown<String>(
+                  label: 'Status',                  value: _selectedStatus,
+                                    items: _caseStatuses.map((status) => DropdownMenuItem(
                     value: status,
-                    child: Text(status == 'all' ? 'All Status' : status.replaceAll('_', ' ').toUpperCase()),
+                    child: Text(status == 'all' ? 'All Status' : status.replaceAll('_', ' ').toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis),
                   )).toList(),
                   onChanged: (value) {
                     setState(() => _selectedStatus = value ?? 'all');
@@ -357,17 +352,11 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: _selectedPriority,
-                  decoration: const InputDecoration(
-                    labelText: 'Priority',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    isDense: true,
-                  ),
-                  items: _priorityOptions.map((priority) => DropdownMenuItem(
+                child: LabeledDropdown<String>(
+                  label: 'Priority',                  value: _selectedPriority,
+                                    items: _priorityOptions.map((priority) => DropdownMenuItem(
                     value: priority,
-                    child: Text(priority == 'all' ? 'All Priorities' : priority.toUpperCase()),
+                    child: Text(priority == 'all' ? 'All Priorities' : priority.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis),
                   )).toList(),
                   onChanged: (value) {
                     setState(() => _selectedPriority = value ?? 'all');
@@ -508,11 +497,11 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
                     const SizedBox(width: 8),
                     Expanded(child: Text(caseModel.caseType.replaceAll('_', ' ').toUpperCase())),
                     if (caseModel.financialLoss != null) ...[
-                      Icon(Icons.attach_money, size: 16, color: Colors.red[600]),
+                      Icon(Icons.attach_money, size: 16, color: AppTheme.clayRed),
                       Text(
                         '\$${caseModel.financialLoss!.toStringAsFixed(2)}',
                         style: TextStyle(
-                          color: Colors.red[600],
+                          color: AppTheme.clayRed,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -531,7 +520,7 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
                       child: Text(
                         caseModel.assignedInvestigator ?? 'Unassigned',
                         style: TextStyle(
-                          color: caseModel.assignedInvestigator != null ? Colors.green[700] : Colors.red[600],
+                          color: caseModel.assignedInvestigator != null ? AppTheme.successColor : AppTheme.clayRed,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -559,8 +548,8 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
                         icon: const Icon(Icons.visibility, size: 16),
                         label: const Text('View Details'),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.blue,
-                          side: const BorderSide(color: Colors.blue),
+                          foregroundColor: AppTheme.victoriaBlue,
+                          side: const BorderSide(color: AppTheme.victoriaBlue),
                           padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
                       ),
@@ -572,7 +561,7 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
                         icon: const Icon(Icons.assignment_ind, size: 16),
                         label: const Text('Assign'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: AppTheme.victoriaBlue,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
@@ -640,14 +629,14 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
   Color _getCaseStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending_review':
-        return Colors.blue;
+        return AppTheme.victoriaBlue;
       case 'assigned':
-        return Colors.orange;
+        return AppTheme.secondaryColor;
       case 'in_progress':
       case 'investigating':
-        return Colors.purple;
+        return AppTheme.baobabBrown;
       case 'resolved':
-        return Colors.green;
+        return AppTheme.successColor;
       case 'closed':
         return Colors.grey;
       default:
@@ -658,11 +647,11 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
   Color _getPriorityColor(String priority) {
     switch (priority.toLowerCase()) {
       case 'high':
-        return Colors.red;
+        return AppTheme.clayRed;
       case 'medium':
-        return Colors.orange;
+        return AppTheme.secondaryColor;
       case 'low':
-        return Colors.green;
+        return AppTheme.successColor;
       default:
         return Colors.grey;
     }
@@ -837,7 +826,7 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
                 width: 8,
                 height: 8,
                 decoration: const BoxDecoration(
-                  color: Colors.blue,
+                  color: AppTheme.victoriaBlue,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -916,13 +905,9 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                DropdownButtonFormField<String>(
-                  value: selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'Status',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: _caseStatuses.where((s) => s != 'all').map((status) => DropdownMenuItem(
+                LabeledDropdown<String>(
+                  label: 'Status',                  value: selectedStatus,
+                                    items: _caseStatuses.where((s) => s != 'all').map((status) => DropdownMenuItem(
                     value: status,
                     child: Text(status.replaceAll('_', ' ').toUpperCase()),
                   )).toList(),
@@ -999,7 +984,7 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: AppTheme.successColor,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1009,7 +994,7 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.clayRed,
         behavior: SnackBarBehavior.floating,
       ),
     );

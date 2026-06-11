@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../shared/widgets/labeled_dropdown.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -110,7 +111,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('You do not have permission to change this user\'s role'),
-          backgroundColor: Colors.orange,
+          backgroundColor: AppTheme.secondaryColor,
         ),
       );
       return;
@@ -136,7 +137,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error updating role: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.clayRed,
           ),
         );
       }
@@ -312,7 +313,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.clayRed,
         ),
       );
     }
@@ -331,7 +332,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
         title: Text('Select Role for ${_selectedUsers.length} users'),
         children: availableRoles.map((role) => SimpleDialogOption(
           onPressed: () => Navigator.pop(context, role['value']),
-          child: Text(role['label'] as String),
+          child: Text(role['label'] as String, maxLines: 1, overflow: TextOverflow.ellipsis),
         )).toList(),
       ),
     );
@@ -359,7 +360,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Bulk update failed: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.clayRed,
           ),
         );
       }
@@ -485,14 +486,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
       child: Row(
         children: [
           Expanded(
-            child: DropdownButtonFormField<String>(
-              value: _selectedRoleFilter,
-              decoration: const InputDecoration(
-                labelText: 'Filter by Role',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              items: [
+            child: LabeledDropdown<String>(
+              label: 'Filter by Role',              value: _selectedRoleFilter,
+                            items: [
                 const DropdownMenuItem(value: 'all', child: Text('All Roles')),
                 ...RoleManagementService.availableRoles.map((role) =>
                   DropdownMenuItem(
@@ -657,6 +653,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
             fontWeight: FontWeight.w600,
             color: isActive ? Colors.black87 : Colors.grey,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -666,6 +664,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
               style: TextStyle(
                 color: isActive ? Colors.black54 : Colors.grey,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
             Row(
@@ -691,14 +691,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
+                      color: AppTheme.clayRed.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red),
+                      border: Border.all(color: AppTheme.clayRed),
                     ),
                     child: const Text(
                       'INACTIVE',
                       style: TextStyle(
-                        color: Colors.red,
+                        color: AppTheme.clayRed,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
@@ -744,7 +744,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         Icon(
                           isActive ? Icons.block : Icons.check_circle,
                           size: 20,
-                          color: isActive ? Colors.red : Colors.green,
+                          color: isActive ? Colors.red : AppTheme.successColor,
                         ),
                         const SizedBox(width: 8),
                         Text(isActive ? 'Deactivate' : 'Reactivate'),
@@ -834,7 +834,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error loading history: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppTheme.clayRed,
         ),
       );
     }

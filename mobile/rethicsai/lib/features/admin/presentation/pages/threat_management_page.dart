@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../shared/widgets/labeled_dropdown.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../shared/widgets/african_pattern_background.dart';
-import '../../../../shared/widgets/premium_components.dart';
 import '../../../../core/services/threat_management_service.dart';
 
 class ThreatManagementPage extends StatefulWidget {
@@ -139,7 +138,7 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.clayRed),
             child: const Text('Delete'),
           ),
         ],
@@ -162,7 +161,7 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: AppTheme.successColor,
       ),
     );
   }
@@ -171,7 +170,7 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.clayRed,
       ),
     );
   }
@@ -323,17 +322,9 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
   }
 
   Widget _buildTypeFilter() {
-    return DropdownButtonFormField<ThreatContentType?>(
+    return LabeledDropdown<ThreatContentType?>(
+      label: 'Type',
       value: _selectedType,
-      decoration: InputDecoration(
-        labelText: 'Type',
-        filled: true,
-        fillColor: Colors.grey[100],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
-      ),
       items: [
         const DropdownMenuItem<ThreatContentType?>(
           value: null,
@@ -341,7 +332,7 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
         ),
         ...ThreatContentType.values.map((type) => DropdownMenuItem(
           value: type,
-          child: Text(type.displayName),
+          child: Text(type.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
         )),
       ],
       onChanged: _onTypeFilterChanged,
@@ -349,17 +340,9 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
   }
 
   Widget _buildRiskFilter() {
-    return DropdownButtonFormField<ThreatRiskLevel?>(
+    return LabeledDropdown<ThreatRiskLevel?>(
+      label: 'Risk Level',
       value: _selectedRiskLevel,
-      decoration: InputDecoration(
-        labelText: 'Risk Level',
-        filled: true,
-        fillColor: Colors.grey[100],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
-      ),
       items: [
         const DropdownMenuItem<ThreatRiskLevel?>(
           value: null,
@@ -367,7 +350,7 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
         ),
         ...ThreatRiskLevel.values.map((level) => DropdownMenuItem(
           value: level,
-          child: Text(level.displayName),
+          child: Text(level.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
         )),
       ],
       onChanged: _onRiskFilterChanged,
@@ -388,12 +371,17 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text(threat.description),
+            Text(
+              threat.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
             const SizedBox(height: 4),
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
               children: [
                 _buildTypeChip(threat.type),
-                const SizedBox(width: 8),
                 _buildRiskChip(threat.threatLevel),
               ],
             ),
@@ -415,9 +403,9 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
               value: 'delete',
               child: Row(
                 children: [
-                  Icon(Icons.delete, color: Colors.red),
+                  Icon(Icons.delete, color: AppTheme.clayRed),
                   SizedBox(width: 8),
-                  Text('Delete', style: TextStyle(color: Colors.red)),
+                  Text('Delete', style: TextStyle(color: AppTheme.clayRed)),
                 ],
               ),
             ),
@@ -437,10 +425,10 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
 
   Widget _buildTypeChip(ThreatContentType type) {
     final colors = {
-      ThreatContentType.url: Colors.blue,
-      ThreatContentType.email: Colors.green,
-      ThreatContentType.phone: Colors.orange,
-      ThreatContentType.text: Colors.purple,
+      ThreatContentType.url: AppTheme.victoriaBlue,
+      ThreatContentType.email: AppTheme.successColor,
+      ThreatContentType.phone: AppTheme.secondaryColor,
+      ThreatContentType.text: AppTheme.baobabBrown,
     };
 
     return Chip(
@@ -455,11 +443,11 @@ class _ThreatManagementPageState extends State<ThreatManagementPage> {
 
   Widget _buildRiskChip(ThreatRiskLevel level) {
     final colors = {
-      ThreatRiskLevel.safe: Colors.green,
+      ThreatRiskLevel.safe: AppTheme.successColor,
       ThreatRiskLevel.low: Colors.yellow[700],
-      ThreatRiskLevel.medium: Colors.orange,
-      ThreatRiskLevel.high: Colors.red,
-      ThreatRiskLevel.critical: Colors.red[900],
+      ThreatRiskLevel.medium: AppTheme.secondaryColor,
+      ThreatRiskLevel.high: AppTheme.clayRed,
+      ThreatRiskLevel.critical: AppTheme.errorColor,
     };
 
     return Chip(
@@ -528,7 +516,7 @@ class _AddThreatDialogState extends State<AddThreatDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Threat added successfully'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppTheme.successColor,
           ),
         );
       }
@@ -537,7 +525,7 @@ class _AddThreatDialogState extends State<AddThreatDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to add threat: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.clayRed,
           ),
         );
       }
@@ -556,12 +544,11 @@ class _AddThreatDialogState extends State<AddThreatDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              DropdownButtonFormField<ThreatContentType>(
-                value: _selectedType,
-                decoration: const InputDecoration(labelText: 'Type'),
-                items: ThreatContentType.values.map((type) => DropdownMenuItem(
+              LabeledDropdown<ThreatContentType>(
+                label: 'Type',                value: _selectedType,
+                                items: ThreatContentType.values.map((type) => DropdownMenuItem(
                   value: type,
-                  child: Text(type.displayName),
+                  child: Text(type.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
                 )).toList(),
                 onChanged: (value) => setState(() => _selectedType = value!),
               ),
@@ -581,12 +568,11 @@ class _AddThreatDialogState extends State<AddThreatDialog> {
               ),
               const SizedBox(height: 16),
               
-              DropdownButtonFormField<ThreatRiskLevel>(
-                value: _selectedRiskLevel,
-                decoration: const InputDecoration(labelText: 'Risk Level'),
-                items: ThreatRiskLevel.values.map((level) => DropdownMenuItem(
+              LabeledDropdown<ThreatRiskLevel>(
+                label: 'Risk Level',                value: _selectedRiskLevel,
+                                items: ThreatRiskLevel.values.map((level) => DropdownMenuItem(
                   value: level,
-                  child: Text(level.displayName),
+                  child: Text(level.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
                 )).toList(),
                 onChanged: (value) => setState(() => _selectedRiskLevel = value!),
               ),
@@ -691,7 +677,7 @@ class _EditThreatDialogState extends State<EditThreatDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Threat updated successfully'),
-            backgroundColor: Colors.green,
+            backgroundColor: AppTheme.successColor,
           ),
         );
       }
@@ -700,7 +686,7 @@ class _EditThreatDialogState extends State<EditThreatDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to update threat: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.clayRed,
           ),
         );
       }
@@ -719,12 +705,11 @@ class _EditThreatDialogState extends State<EditThreatDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              DropdownButtonFormField<ThreatContentType>(
-                value: _selectedType,
-                decoration: const InputDecoration(labelText: 'Type'),
-                items: ThreatContentType.values.map((type) => DropdownMenuItem(
+              LabeledDropdown<ThreatContentType>(
+                label: 'Type',                value: _selectedType,
+                                items: ThreatContentType.values.map((type) => DropdownMenuItem(
                   value: type,
-                  child: Text(type.displayName),
+                  child: Text(type.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
                 )).toList(),
                 onChanged: (value) => setState(() => _selectedType = value!),
               ),
@@ -744,12 +729,11 @@ class _EditThreatDialogState extends State<EditThreatDialog> {
               ),
               const SizedBox(height: 16),
               
-              DropdownButtonFormField<ThreatRiskLevel>(
-                value: _selectedRiskLevel,
-                decoration: const InputDecoration(labelText: 'Risk Level'),
-                items: ThreatRiskLevel.values.map((level) => DropdownMenuItem(
+              LabeledDropdown<ThreatRiskLevel>(
+                label: 'Risk Level',                value: _selectedRiskLevel,
+                                items: ThreatRiskLevel.values.map((level) => DropdownMenuItem(
                   value: level,
-                  child: Text(level.displayName),
+                  child: Text(level.displayName, maxLines: 1, overflow: TextOverflow.ellipsis),
                 )).toList(),
                 onChanged: (value) => setState(() => _selectedRiskLevel = value!),
               ),

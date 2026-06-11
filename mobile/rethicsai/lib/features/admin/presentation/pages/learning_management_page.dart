@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../shared/widgets/african_pattern_background.dart';
@@ -294,11 +293,29 @@ class _LearningManagementPageState extends State<LearningManagementPage>
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Text('${category.moduleCount} modules'),
+                        Flexible(
+                          child: Text(
+                            '${category.moduleCount} modules',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                         const SizedBox(width: 12),
-                        Text('${category.estimatedTime}'),
+                        Flexible(
+                          child: Text(
+                            '${category.estimatedTime}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                         const SizedBox(width: 12),
-                        Text(category.difficulty),
+                        Flexible(
+                          child: Text(
+                            category.difficulty,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -309,7 +326,7 @@ class _LearningManagementPageState extends State<LearningManagementPage>
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(Icons.edit, size: 20, color: Colors.blue),
+                          Icon(Icons.edit, size: 20, color: AppTheme.victoriaBlue),
                           SizedBox(width: 8),
                           Text('Edit'),
                         ],
@@ -319,7 +336,7 @@ class _LearningManagementPageState extends State<LearningManagementPage>
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete, size: 20, color: Colors.red),
+                          Icon(Icons.delete, size: 20, color: AppTheme.clayRed),
                           SizedBox(width: 8),
                           Text('Delete'),
                         ],
@@ -393,7 +410,7 @@ class _LearningManagementPageState extends State<LearningManagementPage>
           Icon(
             Icons.error_outline,
             size: 80,
-            color: Colors.red[400],
+            color: AppTheme.errorLight,
           ),
           const SizedBox(height: 20),
           Text(
@@ -401,7 +418,7 @@ class _LearningManagementPageState extends State<LearningManagementPage>
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.red[600],
+              color: AppTheme.clayRed,
             ),
           ),
           const SizedBox(height: 8),
@@ -513,7 +530,7 @@ class _LearningManagementPageState extends State<LearningManagementPage>
                 );
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.clayRed),
             child: Text('Delete'),
           ),
         ],

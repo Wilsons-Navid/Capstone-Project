@@ -494,6 +494,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
     required void Function(T?) onChanged,
   }) {
     return DropdownButtonFormField<T>(
+      isExpanded: true,
       value: value,
       decoration: InputDecoration(
         labelText: label,
@@ -567,17 +568,17 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
         children: [
           const Text('System Health Status', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
-          _buildHealthItem('Database', 'Operational', Colors.green),
-          _buildHealthItem('File Storage', 'Operational', Colors.green),
-          _buildHealthItem('Email Service', 'Operational', Colors.green),
-          _buildHealthItem('Authentication', 'Operational', Colors.green),
+          _buildHealthItem('Database', 'Operational', AppTheme.successColor),
+          _buildHealthItem('File Storage', 'Operational', AppTheme.successColor),
+          _buildHealthItem('Email Service', 'Operational', AppTheme.successColor),
+          _buildHealthItem('Authentication', 'Operational', AppTheme.successColor),
           const SizedBox(height: 12),
           ElevatedButton.icon(
             onPressed: () => _runSystemHealthCheck(),
             icon: const Icon(Icons.health_and_safety, size: 16),
             label: const Text('Run Health Check'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: AppTheme.successColor,
               foregroundColor: Colors.white,
             ),
           ),
@@ -621,7 +622,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
                   icon: const Icon(Icons.tune, size: 16),
                   label: const Text('Optimize'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppTheme.victoriaBlue,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -633,7 +634,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
                   icon: const Icon(Icons.analytics, size: 16),
                   label: const Text('Analyze'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
+                    backgroundColor: AppTheme.baobabBrown,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -692,7 +693,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
                   icon: const Icon(Icons.backup, size: 16),
                   label: const Text('Create Backup'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
+                    backgroundColor: AppTheme.secondaryColor,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -704,8 +705,8 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
                   icon: const Icon(Icons.schedule, size: 16),
                   label: const Text('Configure'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.orange,
-                    side: const BorderSide(color: Colors.orange),
+                    foregroundColor: AppTheme.secondaryColor,
+                    side: const BorderSide(color: AppTheme.secondaryColor),
                   ),
                 ),
               ),
@@ -742,7 +743,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
                   icon: const Icon(Icons.delete_sweep, size: 16),
                   label: const Text('Clean Logs'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red[600],
+                    backgroundColor: AppTheme.clayRed,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -754,8 +755,8 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
                   icon: const Icon(Icons.archive, size: 16),
                   label: const Text('Archive'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red[600],
-                    side: BorderSide(color: Colors.red[600]!),
+                    foregroundColor: AppTheme.clayRed,
+                    side: BorderSide(color: AppTheme.clayRed),
                   ),
                 ),
               ),
@@ -879,7 +880,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: AppTheme.successColor,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -889,7 +890,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.clayRed,
         behavior: SnackBarBehavior.floating,
       ),
     );

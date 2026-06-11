@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../shared/widgets/labeled_dropdown.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -284,7 +285,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                   subtitle: 'Review and moderate user-generated content',
                   icon: Icons.verified_user,
                   gradient: LinearGradient(
-                    colors: [Colors.purple, Colors.purple[700]!],
+                    colors: [AppTheme.baobabBrown, AppTheme.kilimanjaro],
                   ),
                   action: IconButton(
                     onPressed: () => Navigator.pop(context),
@@ -300,13 +301,13 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                   margin: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Expanded(child: _buildStatCard('Total', _moderationStats['total']?.toString() ?? '0', Icons.content_paste, Colors.purple)),
+                      Expanded(child: _buildStatCard('Total', _moderationStats['total']?.toString() ?? '0', Icons.content_paste, AppTheme.baobabBrown)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard('Pending', _moderationStats['pending']?.toString() ?? '0', Icons.pending, Colors.orange)),
+                      Expanded(child: _buildStatCard('Pending', _moderationStats['pending']?.toString() ?? '0', Icons.pending, AppTheme.secondaryColor)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard('Flagged', _moderationStats['flagged']?.toString() ?? '0', Icons.flag, Colors.red)),
+                      Expanded(child: _buildStatCard('Flagged', _moderationStats['flagged']?.toString() ?? '0', Icons.flag, AppTheme.clayRed)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard('Approved', _moderationStats['approved']?.toString() ?? '0', Icons.check_circle, Colors.green)),
+                      Expanded(child: _buildStatCard('Approved', _moderationStats['approved']?.toString() ?? '0', Icons.check_circle, AppTheme.successColor)),
                     ],
                   ),
                 ),
@@ -350,7 +351,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
         onPressed: _loadContent,
         icon: const Icon(Icons.refresh),
         label: const Text('Refresh'),
-        backgroundColor: Colors.purple,
+        backgroundColor: AppTheme.baobabBrown,
         foregroundColor: Colors.white,
       ),
     );
@@ -374,12 +375,15 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ),
           Text(
@@ -441,15 +445,9 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: _selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'Status',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                    isDense: true,
-                  ),
-                  items: _contentStatuses.map((status) => DropdownMenuItem(
+                child: LabeledDropdown<String>(
+                  label: 'Status',                  value: _selectedStatus,
+                                    items: _contentStatuses.map((status) => DropdownMenuItem(
                     value: status,
                     child: Text(
                       status == 'all' ? 'All' : status.replaceAll('_', ' ').toUpperCase(),
@@ -464,15 +462,9 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: _selectedType,
-                  decoration: const InputDecoration(
-                    labelText: 'Type',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                    isDense: true,
-                  ),
-                  items: _contentTypes.map((type) => DropdownMenuItem(
+                child: LabeledDropdown<String>(
+                  label: 'Type',                  value: _selectedType,
+                                    items: _contentTypes.map((type) => DropdownMenuItem(
                     value: type,
                     child: Text(
                       type == 'all' ? 'All' : type.replaceAll('_', ' ').toUpperCase(),
@@ -585,18 +577,18 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
+                      color: AppTheme.clayRed.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.flag, size: 12, color: Colors.red),
+                        const Icon(Icons.flag, size: 12, color: AppTheme.clayRed),
                         const SizedBox(width: 2),
                         Text(
                           item.flaggedCount.toString(),
                           style: const TextStyle(
-                            color: Colors.red,
+                            color: AppTheme.clayRed,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -656,8 +648,8 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                         icon: const Icon(Icons.visibility, size: 16),
                         label: const Text('View Details'),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.purple,
-                          side: const BorderSide(color: Colors.purple),
+                          foregroundColor: AppTheme.baobabBrown,
+                          side: const BorderSide(color: AppTheme.baobabBrown),
                           padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
                       ),
@@ -670,7 +662,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                           icon: const Icon(Icons.check, size: 16),
                           label: const Text('Approve'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: AppTheme.successColor,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                           ),
@@ -683,7 +675,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                           icon: const Icon(Icons.close, size: 16),
                           label: const Text('Reject'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppTheme.clayRed,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                           ),
@@ -696,7 +688,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                           icon: const Icon(Icons.edit, size: 16),
                           label: const Text('Update Status'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple,
+                            backgroundColor: AppTheme.baobabBrown,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 8),
                           ),
@@ -752,13 +744,13 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
     switch (status.toLowerCase()) {
       case 'pending':
       case 'under_review':
-        return Colors.orange;
+        return AppTheme.secondaryColor;
       case 'approved':
-        return Colors.green;
+        return AppTheme.successColor;
       case 'rejected':
-        return Colors.red;
+        return AppTheme.clayRed;
       case 'flagged':
-        return Colors.purple;
+        return AppTheme.baobabBrown;
       default:
         return Colors.grey;
     }
@@ -805,7 +797,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                 // Title
                 Row(
                   children: [
-                    Icon(_getContentTypeIcon(item.type), color: Colors.purple),
+                    Icon(_getContentTypeIcon(item.type), color: AppTheme.baobabBrown),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -882,7 +874,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                           icon: const Icon(Icons.check),
                           label: const Text('Approve'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: AppTheme.successColor,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -897,7 +889,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
                           icon: const Icon(Icons.close),
                           label: const Text('Reject'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: AppTheme.clayRed,
                             foregroundColor: Colors.white,
                           ),
                         ),
@@ -978,7 +970,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.clayRed),
             child: const Text('Reject', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -1005,13 +997,9 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
         builder: (context, setState) {
           return AlertDialog(
             title: const Text('Update Content Status'),
-            content: DropdownButtonFormField<String>(
-              value: selectedStatus,
-              decoration: const InputDecoration(
-                labelText: 'New Status',
-                border: OutlineInputBorder(),
-              ),
-              items: _contentStatuses.where((s) => s != 'all').map((status) => DropdownMenuItem(
+            content: LabeledDropdown<String>(
+              label: 'New Status',              value: selectedStatus,
+                            items: _contentStatuses.where((s) => s != 'all').map((status) => DropdownMenuItem(
                 value: status,
                 child: Text(status.replaceAll('_', ' ').toUpperCase()),
               )).toList(),
@@ -1111,7 +1099,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: AppTheme.successColor,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1121,7 +1109,7 @@ class _ContentModerationPageState extends State<ContentModerationPage> with Tick
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.clayRed,
         behavior: SnackBarBehavior.floating,
       ),
     );

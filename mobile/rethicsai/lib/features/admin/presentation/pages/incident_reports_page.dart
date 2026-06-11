@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../../../shared/widgets/labeled_dropdown.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
@@ -9,7 +10,6 @@ import 'package:csv/csv.dart';
 import 'dart:io';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/themes/app_theme.dart';
@@ -123,7 +123,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
                   subtitle: 'Manage and review incident reports',
                   icon: Icons.report_problem,
                   gradient: LinearGradient(
-                    colors: [Colors.orange, Colors.deepOrange],
+                    colors: [AppTheme.secondaryColor, Colors.deepOrange],
                   ),
                   action: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -152,13 +152,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
                   margin: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      Expanded(child: _buildStatCard('Total', _statistics['total']?.toString() ?? '0', Icons.report, Colors.blue)),
+                      Expanded(child: _buildStatCard('Total', _statistics['total']?.toString() ?? '0', Icons.report, AppTheme.victoriaBlue)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard('Pending', _statistics['submitted']?.toString() ?? '0', Icons.pending, Colors.orange)),
+                      Expanded(child: _buildStatCard('Pending', _statistics['submitted']?.toString() ?? '0', Icons.pending, AppTheme.secondaryColor)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard('In Progress', _statistics['in_progress']?.toString() ?? '0', Icons.work, Colors.green)),
+                      Expanded(child: _buildStatCard('In Progress', _statistics['in_progress']?.toString() ?? '0', Icons.work, AppTheme.successColor)),
                       const SizedBox(width: 8),
-                      Expanded(child: _buildStatCard('Resolved', _statistics['resolved']?.toString() ?? '0', Icons.check_circle, Colors.teal)),
+                      Expanded(child: _buildStatCard('Resolved', _statistics['resolved']?.toString() ?? '0', Icons.check_circle, AppTheme.accentDark)),
                     ],
                   ),
                 ),
@@ -223,12 +223,15 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ),
           Text(
@@ -292,16 +295,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: _selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'Status',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  items: _statusOptions.map((status) => DropdownMenuItem(
+                child: LabeledDropdown<String>(
+                  label: 'Status',                  value: _selectedStatus,
+                                    items: _statusOptions.map((status) => DropdownMenuItem(
                     value: status,
-                    child: Text(status == 'all' ? 'All Status' : status.replaceAll('_', ' ')),
+                    child: Text(status == 'all' ? 'All Status' : status.replaceAll('_', ' '), maxLines: 1, overflow: TextOverflow.ellipsis),
                   )).toList(),
                   onChanged: (value) {
                     setState(() => _selectedStatus = value ?? 'all');
@@ -311,16 +309,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: _selectedPriority,
-                  decoration: const InputDecoration(
-                    labelText: 'Priority',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  items: _priorityOptions.map((priority) => DropdownMenuItem(
+                child: LabeledDropdown<String>(
+                  label: 'Priority',                  value: _selectedPriority,
+                                    items: _priorityOptions.map((priority) => DropdownMenuItem(
                     value: priority,
-                    child: Text(priority == 'all' ? 'All Priorities' : priority.toUpperCase()),
+                    child: Text(priority == 'all' ? 'All Priorities' : priority.toUpperCase(), maxLines: 1, overflow: TextOverflow.ellipsis),
                   )).toList(),
                   onChanged: (value) {
                     setState(() => _selectedPriority = value ?? 'all');
@@ -461,11 +454,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
                     const SizedBox(width: 8),
                     Expanded(child: Text(incident.incidentType.replaceAll('_', ' ').toUpperCase())),
                     if (incident.financialLoss != null) ...[
-                      Icon(Icons.attach_money, size: 16, color: Colors.red[600]),
+                      Icon(Icons.attach_money, size: 16, color: AppTheme.clayRed),
                       Text(
                         '\$${incident.financialLoss!.toStringAsFixed(2)}',
                         style: TextStyle(
-                          color: Colors.red[600],
+                          color: AppTheme.clayRed,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -565,14 +558,14 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'submitted':
-        return Colors.blue;
+        return AppTheme.victoriaBlue;
       case 'under_review':
-        return Colors.orange;
+        return AppTheme.secondaryColor;
       case 'in_progress':
       case 'investigating':
-        return Colors.purple;
+        return AppTheme.baobabBrown;
       case 'resolved':
-        return Colors.green;
+        return AppTheme.successColor;
       case 'closed':
         return Colors.grey;
       default:
@@ -583,11 +576,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
   Color _getPriorityColor(String priority) {
     switch (priority.toLowerCase()) {
       case 'high':
-        return Colors.red;
+        return AppTheme.clayRed;
       case 'medium':
-        return Colors.orange;
+        return AppTheme.secondaryColor;
       case 'low':
-        return Colors.green;
+        return AppTheme.successColor;
       default:
         return Colors.grey;
     }
@@ -814,13 +807,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
               Text('Current Status: ${incident.status}'),
               const SizedBox(height: 16),
               
-              DropdownButtonFormField<String>(
-                value: selectedStatus,
-                decoration: const InputDecoration(
-                  labelText: 'New Status',
-                  border: OutlineInputBorder(),
-                ),
-                items: _statusOptions.where((s) => s != 'all').map((status) => DropdownMenuItem(
+              LabeledDropdown<String>(
+                label: 'New Status',                value: selectedStatus,
+                                items: _statusOptions.where((s) => s != 'all').map((status) => DropdownMenuItem(
                   value: status,
                   child: Text(status.replaceAll('_', ' ')),
                 )).toList(),
@@ -1003,7 +992,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: AppTheme.successColor,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1013,7 +1002,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.clayRed,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1023,7 +1012,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.blue,
+        backgroundColor: AppTheme.victoriaBlue,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1058,7 +1047,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
             const SizedBox(height: 20),
             
             ListTile(
-              leading: const Icon(Icons.table_chart, color: Colors.green),
+              leading: const Icon(Icons.table_chart, color: AppTheme.successColor),
               title: const Text('Download as CSV'),
               subtitle: const Text('Spreadsheet format for data analysis'),
               onTap: () {
@@ -1068,10 +1057,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
             ),
             
             ListTile(
-              leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+              leading: const Icon(Icons.picture_as_pdf, color: AppTheme.clayRed),
               title: const Text('Download as PDF'),
               subtitle: const Text('Beautiful formatted report with colors'),
-              trailing: const Icon(Icons.star, color: Colors.amber, size: 20),
+              trailing: const Icon(Icons.star, color: AppTheme.saharaGold, size: 20),
               onTap: () {
                 Navigator.pop(context);
                 _downloadAsPDF();
@@ -1079,7 +1068,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
             ),
             
             ListTile(
-              leading: const Icon(Icons.code, color: Colors.blue),
+              leading: const Icon(Icons.code, color: AppTheme.victoriaBlue),
               title: const Text('Download as JSON'),
               subtitle: const Text('Structured data format'),
               onTap: () {
@@ -1089,7 +1078,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
             ),
             
             ListTile(
-              leading: const Icon(Icons.description, color: Colors.orange),
+              leading: const Icon(Icons.description, color: AppTheme.secondaryColor),
               title: const Text('Generate Summary Report'),
               subtitle: const Text('Human-readable incident summary'),
               onTap: () {
@@ -1099,7 +1088,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
             ),
 
             ListTile(
-              leading: const Icon(Icons.filter_list, color: Colors.purple),
+              leading: const Icon(Icons.filter_list, color: AppTheme.baobabBrown),
               title: const Text('Download Filtered Results'),
               subtitle: const Text('Export currently visible incidents only'),
               onTap: () {
@@ -1759,7 +1748,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.green),
+            Icon(Icons.check_circle, color: AppTheme.successColor),
             SizedBox(width: 8),
             Expanded(child: Text('$format Generated')),
           ],
@@ -1778,7 +1767,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
               ),
               child: Row(
                 children: [
-                  Icon(Icons.folder, color: Colors.orange),
+                  Icon(Icons.folder, color: AppTheme.secondaryColor),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -1808,7 +1797,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> with TickerPr
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$format report saved to Downloads folder'),
-        backgroundColor: Colors.green,
+        backgroundColor: AppTheme.successColor,
       ),
     );
   }

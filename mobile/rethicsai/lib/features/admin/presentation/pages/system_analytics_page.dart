@@ -280,7 +280,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
           'description': 'New incident reported: ${data['title']}',
           'timestamp': timestamp,
           'icon': Icons.report,
-          'color': Colors.orange,
+          'color': AppTheme.secondaryColor,
         });
       }
 
@@ -310,7 +310,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
           'description': 'New user registered: ${data['email']}',
           'timestamp': timestamp,
           'icon': Icons.person_add,
-          'color': Colors.green,
+          'color': AppTheme.successColor,
         });
       }
 
@@ -386,12 +386,13 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
                   subtitle: 'Platform usage and performance statistics',
                   icon: Icons.analytics,
                   gradient: LinearGradient(
-                    colors: [Colors.green, Colors.green[700]!],
+                    colors: [AppTheme.successColor, AppTheme.accentDark],
                   ),
                   action: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       DropdownButton<String>(
+                        isExpanded: true,
                         value: _selectedTimeframe,
                         dropdownColor: Colors.white,
                         underline: Container(),
@@ -468,7 +469,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
         onPressed: _loadAnalyticsData,
         icon: const Icon(Icons.refresh),
         label: const Text('Refresh'),
-        backgroundColor: Colors.green,
+        backgroundColor: AppTheme.successColor,
         foregroundColor: Colors.white,
       ),
     );
@@ -493,25 +494,25 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
                 'Total Users',
                 _overviewStats['total_users']?.toString() ?? '0',
                 Icons.people,
-                Colors.blue,
+                AppTheme.victoriaBlue,
               ),
               _buildMetricCard(
                 'Total Incidents',
                 _overviewStats['total_incidents']?.toString() ?? '0',
                 Icons.report_problem,
-                Colors.orange,
+                AppTheme.secondaryColor,
               ),
               _buildMetricCard(
                 'Active Cases',
                 _overviewStats['active_cases']?.toString() ?? '0',
                 Icons.work,
-                Colors.purple,
+                AppTheme.baobabBrown,
               ),
               _buildMetricCard(
                 'Resolution Rate',
                 '${_overviewStats['resolution_rate'] ?? 0}%',
                 Icons.check_circle,
-                Colors.green,
+                AppTheme.successColor,
               ),
             ],
           ),
@@ -544,7 +545,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
                   'Total Users',
                   _userStats['total_users']?.toString() ?? '0',
                   Icons.people,
-                  Colors.blue,
+                  AppTheme.victoriaBlue,
                 ),
               ),
               const SizedBox(width: 16),
@@ -553,7 +554,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
                   'Active Users',
                   _userStats['active_users']?.toString() ?? '0',
                   Icons.person,
-                  Colors.green,
+                  AppTheme.successColor,
                 ),
               ),
             ],
@@ -568,7 +569,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
                   'New This Month',
                   _userStats['new_users_this_month']?.toString() ?? '0',
                   Icons.person_add,
-                  Colors.orange,
+                  AppTheme.secondaryColor,
                 ),
               ),
               const SizedBox(width: 16),
@@ -577,7 +578,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
                   'Growth Rate',
                   '${_userStats['user_growth_rate'] ?? 0}%',
                   Icons.trending_up,
-                  Colors.purple,
+                  AppTheme.baobabBrown,
                 ),
               ),
             ],
@@ -606,7 +607,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
                   'Total Incidents',
                   _incidentStats['total_incidents']?.toString() ?? '0',
                   Icons.report,
-                  Colors.red,
+                  AppTheme.clayRed,
                 ),
               ),
               const SizedBox(width: 16),
@@ -615,7 +616,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
                   'This Month',
                   _incidentStats['this_month_incidents']?.toString() ?? '0',
                   Icons.calendar_today,
-                  Colors.orange,
+                  AppTheme.secondaryColor,
                 ),
               ),
             ],
@@ -627,7 +628,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
             'Avg Resolution Time',
             '${_incidentStats['avg_resolution_time'] ?? 0} days',
             Icons.timer,
-            Colors.green,
+            AppTheme.successColor,
           ),
           
           const SizedBox(height: 24),
@@ -669,25 +670,25 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
                 'Response Time',
                 '${_performanceStats['response_time'] ?? 0}ms',
                 Icons.speed,
-                Colors.blue,
+                AppTheme.victoriaBlue,
               ),
               _buildMetricCard(
                 'Error Rate',
                 '${_performanceStats['error_rate'] ?? 0}%',
                 Icons.error,
-                Colors.red,
+                AppTheme.clayRed,
               ),
               _buildMetricCard(
                 'Cache Hit Rate',
                 '${_performanceStats['cache_hit_rate'] ?? 0}%',
                 Icons.storage,
-                Colors.green,
+                AppTheme.successColor,
               ),
               _buildMetricCard(
                 'Concurrent Users',
                 _performanceStats['concurrent_users']?.toString() ?? '0',
                 Icons.people,
-                Colors.purple,
+                AppTheme.baobabBrown,
               ),
             ],
           ),
@@ -937,7 +938,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
           ),
           const SizedBox(height: 16),
           ...typeBreakdown.entries.take(5).map((entry) => 
-            _buildProgressItem(entry.key.replaceAll('_', ' ').toUpperCase(), entry.value, Colors.orange)
+            _buildProgressItem(entry.key.replaceAll('_', ' ').toUpperCase(), entry.value, AppTheme.secondaryColor)
           ),
         ],
       ),
@@ -1079,10 +1080,18 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: const TextStyle(color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );
@@ -1090,29 +1099,29 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
 
   Color _getRoleColor(String role) {
     switch (role) {
-      case 'super_admin': return Colors.red;
-      case 'admin': return Colors.orange;
-      case 'moderator': return Colors.blue;
-      case 'user': return Colors.green;
+      case 'super_admin': return AppTheme.clayRed;
+      case 'admin': return AppTheme.secondaryColor;
+      case 'moderator': return AppTheme.victoriaBlue;
+      case 'user': return AppTheme.successColor;
       default: return Colors.grey;
     }
   }
 
   Color _getPriorityColor(String priority) {
     switch (priority) {
-      case 'high': return Colors.red;
-      case 'medium': return Colors.orange;
-      case 'low': return Colors.green;
+      case 'high': return AppTheme.clayRed;
+      case 'medium': return AppTheme.secondaryColor;
+      case 'low': return AppTheme.successColor;
       default: return Colors.grey;
     }
   }
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'submitted': return Colors.blue;
-      case 'under_review': return Colors.orange;
-      case 'investigating': return Colors.purple;
-      case 'resolved': return Colors.green;
+      case 'submitted': return AppTheme.victoriaBlue;
+      case 'under_review': return AppTheme.secondaryColor;
+      case 'investigating': return AppTheme.baobabBrown;
+      case 'resolved': return AppTheme.successColor;
       default: return Colors.grey;
     }
   }
@@ -1186,7 +1195,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.clayRed,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1196,7 +1205,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.green,
+        backgroundColor: AppTheme.successColor,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -1260,7 +1269,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
             const SizedBox(height: 20),
             
             ListTile(
-              leading: const Icon(Icons.table_chart, color: Colors.green),
+              leading: const Icon(Icons.table_chart, color: AppTheme.successColor),
               title: const Text('Download as CSV'),
               subtitle: const Text('Spreadsheet format for data analysis'),
               onTap: () {
@@ -1270,7 +1279,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
             ),
             
             ListTile(
-              leading: const Icon(Icons.code, color: Colors.blue),
+              leading: const Icon(Icons.code, color: AppTheme.victoriaBlue),
               title: const Text('Download as JSON'),
               subtitle: const Text('Structured data format'),
               onTap: () {
@@ -1280,7 +1289,7 @@ class _SystemAnalyticsPageState extends State<SystemAnalyticsPage> with TickerPr
             ),
             
             ListTile(
-              leading: const Icon(Icons.description, color: Colors.orange),
+              leading: const Icon(Icons.description, color: AppTheme.secondaryColor),
               title: const Text('Generate Summary Report'),
               subtitle: const Text('Human-readable summary'),
               onTap: () {

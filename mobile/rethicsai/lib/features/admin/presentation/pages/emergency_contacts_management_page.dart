@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
+import '../../../../shared/widgets/labeled_dropdown.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../shared/widgets/african_pattern_background.dart';
-import '../../../../shared/widgets/premium_components.dart';
 import '../../../../core/services/emergency_contacts_service.dart';
 import '../widgets/emergency_contact_editor_dialog.dart';
 
@@ -264,15 +263,9 @@ class _EmergencyContactsManagementPageState
             children: [
               Expanded(
                 flex: 2,
-                child: DropdownButtonFormField<String>(
-                  value: _selectedCountry,
-                  decoration: InputDecoration(
-                    labelText: 'Country',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    isDense: true,
-                  ),
-                  items: _countries.map((country) {
+                child: LabeledDropdown<String>(
+                  label: 'Country',                  value: _selectedCountry,
+                                    items: _countries.map((country) {
                     return DropdownMenuItem(
                       value: country,
                       child: Text(
@@ -293,15 +286,9 @@ class _EmergencyContactsManagementPageState
               const SizedBox(width: 12),
               Expanded(
                 flex: 2,
-                child: DropdownButtonFormField<ContactType?>(
-                  value: _selectedType,
-                  decoration: InputDecoration(
-                    labelText: 'Type',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    isDense: true,
-                  ),
-                  items: [
+                child: LabeledDropdown<ContactType?>(
+                  label: 'Type',                  value: _selectedType,
+                                    items: [
                     const DropdownMenuItem<ContactType?>(
                       value: null,
                       child: Text('All Types'),
@@ -365,10 +352,10 @@ class _EmergencyContactsManagementPageState
             runSpacing: 12,
             children: [
               _buildCompactStatItem('Total', _statistics['total'].toString(), Icons.contacts, AppTheme.primaryColor),
-              _buildCompactStatItem('Countries', _statistics['countries'].toString(), Icons.public, Colors.blue),
-              _buildCompactStatItem('Cybercrime', _statistics['Cybercrime'].toString(), Icons.security, Colors.red),
-              _buildCompactStatItem('Police', _statistics['Police'].toString(), Icons.local_police, Colors.blue),
-              _buildCompactStatItem('Financial', _statistics['Financial'].toString(), Icons.account_balance, Colors.green),
+              _buildCompactStatItem('Countries', _statistics['countries'].toString(), Icons.public, AppTheme.victoriaBlue),
+              _buildCompactStatItem('Cybercrime', _statistics['Cybercrime'].toString(), Icons.security, AppTheme.clayRed),
+              _buildCompactStatItem('Police', _statistics['Police'].toString(), Icons.local_police, AppTheme.victoriaBlue),
+              _buildCompactStatItem('Financial', _statistics['Financial'].toString(), Icons.account_balance, AppTheme.successColor),
             ],
           ),
         ],
@@ -528,12 +515,12 @@ class _EmergencyContactsManagementPageState
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
+                          color: AppTheme.clayRed.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: IconButton(
                           icon: const Icon(Icons.delete, size: 16),
-                          color: Colors.red,
+                          color: AppTheme.clayRed,
                           onPressed: () => _showDeleteConfirmation(contact),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
@@ -647,7 +634,7 @@ class _EmergencyContactsManagementPageState
               _deleteContact(contact);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppTheme.clayRed,
               foregroundColor: Colors.white,
             ),
             child: const Text('Delete'),
