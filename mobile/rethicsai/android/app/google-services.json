@@ -12,7 +12,20 @@
           "package_name": "com.example.rethicsai"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "392328178263-10sthjg1k7tuth5tfaeuv3p5us7ofht5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rethicsai",
+            "certificate_hash": "e4a96343462d99ffa068325c40644a4532edeb9e"
+          }
+        },
+        {
+          "client_id": "392328178263-ooor8m87eddq8g38qghte3dt4128bvep.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBicuSH-74LrT85CnF8EsQtlP6GM28DnS0"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "392328178263-ooor8m87eddq8g38qghte3dt4128bvep.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "392328178263-hp9thtqtgekolfmpkc172blgqn3ivh4t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.rethicsai"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +56,20 @@
           "package_name": "com.rethicsai.app.rethicsai"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "392328178263-42b3aaeoh80712joipen3p9chjavoqqh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rethicsai.app.rethicsai",
+            "certificate_hash": "e4a96343462d99ffa068325c40644a4532edeb9e"
+          }
+        },
+        {
+          "client_id": "392328178263-ooor8m87eddq8g38qghte3dt4128bvep.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBicuSH-74LrT85CnF8EsQtlP6GM28DnS0"
@@ -39,7 +77,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "392328178263-ooor8m87eddq8g38qghte3dt4128bvep.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "392328178263-hp9thtqtgekolfmpkc172blgqn3ivh4t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.rethicsai"
+              }
+            }
+          ]
         }
       }
     }
