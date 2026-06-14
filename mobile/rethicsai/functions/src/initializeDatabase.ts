@@ -7,7 +7,6 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
-const auth = admin.auth();
 
 /**
  * Cloud Function to initialize the database with users collection
@@ -113,7 +112,7 @@ export const initializeDatabase = functions.https.onCall(async (data, context) =
       const userRef = db.collection('users').doc(uid);
       const userDoc = await userRef.get();
       
-      const userData = {
+      const userData: Record<string, any> = {
         uid: uid,
         email: email,
         role: 'super_admin',
@@ -260,7 +259,7 @@ export const createDemoUsers = functions.https.onCall(async (data, context) => {
       const userRef = db.collection('users').doc(user.uid);
       batch.set(userRef, {
         ...user,
-        permissions: rolePermissions[user.role] || rolePermissions['user'],
+        permissions: (rolePermissions as Record<string, string[]>)[user.role] || rolePermissions.user,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         isActive: true,
@@ -280,7 +279,7 @@ export const createDemoUsers = functions.https.onCall(async (data, context) => {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         is_active: true,
-        permissions: rolePermissions[user.role] || rolePermissions['user'],
+        permissions: (rolePermissions as Record<string, string[]>)[user.role] || rolePermissions.user,
       });
     }
 

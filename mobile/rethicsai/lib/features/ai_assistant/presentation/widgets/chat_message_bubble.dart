@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../pages/ai_chat_page.dart';
@@ -8,9 +13,14 @@ import '../pages/ai_chat_page.dart';
 class ChatMessageBubble extends StatelessWidget {
   final WilsonChatMessage message;
 
+  /// Signed-in user's profile picture: a `data:image/...;base64,...` URI or a
+  /// network URL. Shown next to the user's own messages.
+  final String? userPhoto;
+
   const ChatMessageBubble({
     super.key,
     required this.message,
+    this.userPhoto,
   });
 
   @override
@@ -125,6 +135,37 @@ class ChatMessageBubble extends StatelessWidget {
   }
 
   Widget _buildUserAvatar() {
+    final photo = userPhoto;
+    if (photo != null && photo.isNotEmpty) {
+      Widget? image;
+      if (photo.startsWith('data:image')) {
+        try {
+          final bytes = base64Decode(photo.split(',').last);
+          image = Image.memory(bytes, width: 32, height: 32, fit: BoxFit.cover);
+        } catch (_) {
+          image = null;
+        }
+      } else {
+        image = CachedNetworkImage(
+          imageUrl: photo,
+          width: 32,
+          height: 32,
+          fit: BoxFit.cover,
+          placeholder: (_, __) => _avatarFallback(),
+          errorWidget: (_, __, ___) => _avatarFallback(),
+        );
+      }
+      if (image != null) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: SizedBox(width: 32, height: 32, child: image),
+        );
+      }
+    }
+    return _avatarFallback();
+  }
+
+  Widget _avatarFallback() {
     return Container(
       width: 32,
       height: 32,
@@ -148,12 +189,45 @@ class ChatMessageBubble extends StatelessWidget {
   }
 
   Widget _buildMessageContent() {
-    return Text(
-      message.text,
-      style: TextStyle(
-        fontSize: 14,
-        color: message.isUser ? Colors.white : Colors.black87,
-        height: 1.4,
+    // User messages are plain text; AI messages render Markdown (bold, lists,
+    // tappable source links).
+    if (message.isUser) {
+      return Text(
+        message.text,
+        style: const TextStyle(
+          fontSize: 14,
+          color: Colors.white,
+          height: 1.4,
+        ),
+      );
+    }
+
+    return MarkdownBody(
+      data: message.text,
+      onTapLink: (text, href, title) async {
+        if (href == null) return;
+        final uri = Uri.tryParse(href);
+        if (uri != null) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      },
+      styleSheet: MarkdownStyleSheet(
+        p: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
+        strong: const TextStyle(
+            fontSize: 14, color: Colors.black87, fontWeight: FontWeight.bold),
+        em: const TextStyle(
+            fontSize: 14, color: Colors.black87, fontStyle: FontStyle.italic),
+        listBullet: const TextStyle(fontSize: 14, color: Colors.black87),
+        a: TextStyle(
+            color: AppTheme.primaryColor,
+            decoration: TextDecoration.underline),
+        h1: const TextStyle(
+            fontSize: 18, color: Colors.black87, fontWeight: FontWeight.bold),
+        h2: const TextStyle(
+            fontSize: 16, color: Colors.black87, fontWeight: FontWeight.bold),
+        h3: const TextStyle(
+            fontSize: 15, color: Colors.black87, fontWeight: FontWeight.bold),
+        blockSpacing: 8,
       ),
     );
   }

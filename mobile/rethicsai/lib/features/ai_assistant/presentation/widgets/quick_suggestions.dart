@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/themes/app_theme.dart';
-import '../../../../core/services/wilson_custom_responses.dart';
 
 class QuickSuggestions extends StatelessWidget {
   final Function(String, {String? customResponse}) onSuggestionTap;
@@ -71,10 +70,7 @@ class QuickSuggestions extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => onSuggestionTap(
-            suggestion.text,
-            customResponse: WilsonCustomResponses.getQuickResponse(suggestion.category),
-          ),
+          onTap: () => onSuggestionTap(suggestion.text),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(12),

@@ -1,0 +1,10 @@
+name = "wilson-worker"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# Public, non-secret config. The Firebase project whose ID tokens we accept.
+[vars]
+FIREBASE_PROJECT_ID = "rethics-d47fa"
+
+# ANTHROPIC_API_KEY is a SECRET — do not put it here.
+# Set it with:  wrangler secret put ANTHROPIC_API_KEY

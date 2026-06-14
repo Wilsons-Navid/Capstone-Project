@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/services/wilson_ai_service.dart';
-import '../../../../core/services/wilson_custom_responses.dart';
 import '../../../../shared/widgets/african_pattern_background.dart';
 import '../widgets/chat_message_bubble.dart';
 import '../widgets/chat_input_field.dart';
@@ -27,6 +28,7 @@ class _AIChatPageState extends State<AIChatPage>
   late AnimationController _animationController;
   bool _isTyping = false;
   String? _currentSessionId;
+  String? _userProfilePicture;
 
   @override
   void initState() {
@@ -36,9 +38,38 @@ class _AIChatPageState extends State<AIChatPage>
       vsync: this,
     );
     _animationController.forward();
-    
+
     // Add welcome message
     _addWelcomeMessage();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      String? picture;
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
+        if (data['profileImageBase64'] != null) {
+          final base64Image = data['profileImageBase64'] as String;
+          final imageType = data['profileImageType'] ?? 'image/jpeg';
+          picture = 'data:$imageType;base64,$base64Image';
+        } else {
+          picture = data['profilePicture'] ?? data['photoURL'];
+        }
+      }
+      picture ??= user.photoURL;
+
+      if (mounted) setState(() => _userProfilePicture = picture);
+    } catch (e) {
+      debugPrint('Error loading user profile for chat: $e');
+    }
   }
 
   @override
@@ -69,25 +100,6 @@ class _AIChatPageState extends State<AIChatPage>
     setState(() {
       _messages.add(welcomeMessage);
       _currentSessionId = _wilsonAI.generateSessionId();
-    });
-    
-    // Add a follow-up tip after a delay
-    Future.delayed(const Duration(milliseconds: 2000), () {
-      final tip = WilsonCustomResponses.getRandomTip();
-      final tipMessage = WilsonChatMessage(
-        id: 'welcome_tip',
-        text: tip,
-        isUser: false,
-        timestamp: DateTime.now(),
-        type: ChatMessageType.text,
-      );
-      
-      if (mounted) {
-        setState(() {
-          _messages.add(tipMessage);
-        });
-        _scrollToBottom();
-      }
     });
   }
 
@@ -344,6 +356,7 @@ class _AIChatPageState extends State<AIChatPage>
         
         return ChatMessageBubble(
           message: _messages[index],
+          userPhoto: _userProfilePicture,
         );
       },
     );
@@ -368,45 +381,13 @@ class _AIChatPageState extends State<AIChatPage>
     _messageController.clear();
     _scrollToBottom();
 
-    // Check for contextual custom responses first
-    final contextualResponse = WilsonCustomResponses.getContextualResponse(text.trim());
-    if (contextualResponse != null) {
-      await _addCustomResponse(contextualResponse);
-    } else {
-      // Get Wilson AI response
-      await _getWilsonResponse(text);
-    }
+    // Always ask the live AI (Wilson via the Cloudflare Worker / Claude).
+    await _getWilsonResponse(text);
   }
   
-  void _handleSendMessageWithCustomResponse(String text, String customResponse) async {
-    if (text.trim().isEmpty) return;
-
-    final userMessage = WilsonChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      text: text.trim(),
-      isUser: true,
-      timestamp: DateTime.now(),
-      type: ChatMessageType.text,
-    );
-
-    setState(() {
-      _messages.add(userMessage);
-      _isTyping = true;
-    });
-
-    _messageController.clear();
-    _scrollToBottom();
-
-    // Use the custom response directly
-    await _addCustomResponse(customResponse);
-  }
-
   void _handleSuggestionTapWithCustomResponse(String suggestion, {String? customResponse}) {
-    if (customResponse != null) {
-      _handleSendMessageWithCustomResponse(suggestion, customResponse);
-    } else {
-      _handleSendMessage(suggestion);
-    }
+    // Route suggestion chips through the live AI too (ignore any canned response).
+    _handleSendMessage(suggestion);
   }
   
   void _handleSuggestionTap(String suggestion) {
@@ -415,9 +396,17 @@ class _AIChatPageState extends State<AIChatPage>
 
   Future<void> _getWilsonResponse(String userMessage) async {
     try {
-      // Prepare conversation history for Wilson AI
-      final conversationMessages = _messages
-          .where((msg) => msg.type == ChatMessageType.text)
+      // Build conversation history starting from the first USER message, so the
+      // API never receives a leading assistant message (the welcome greeting),
+      // which the Claude Messages API rejects.
+      final textMessages =
+          _messages.where((msg) => msg.type == ChatMessageType.text).toList();
+      final firstUserIndex = textMessages.indexWhere((msg) => msg.isUser);
+      final history = firstUserIndex == -1
+          ? <WilsonChatMessage>[]
+          : textMessages.sublist(firstUserIndex);
+
+      final conversationMessages = history
           .map((msg) => ChatMessage(
                 role: msg.isUser ? 'user' : 'assistant',
                 content: msg.text,
@@ -444,20 +433,11 @@ class _AIChatPageState extends State<AIChatPage>
 
       _scrollToBottom();
     } catch (e) {
-      // Try to provide a contextual custom response as fallback
-      String fallbackResponse;
-      final contextualResponse = WilsonCustomResponses.getContextualResponse(userMessage);
-      
-      if (contextualResponse != null) {
-        fallbackResponse = contextualResponse;
-      } else {
-        // Generate a helpful fallback based on common cybersecurity topics
-        fallbackResponse = _generateFallbackResponse(userMessage);
-      }
-
+      // Honest error only — no fabricated/canned answers.
       final aiMessage = WilsonChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        text: fallbackResponse,
+        text:
+            "I'm having trouble reaching the server right now. Please check your internet connection and try again in a moment.",
         isUser: false,
         timestamp: DateTime.now(),
         type: ChatMessageType.text,
@@ -469,102 +449,9 @@ class _AIChatPageState extends State<AIChatPage>
       });
 
       _scrollToBottom();
-      
-      // Add a tip after fallback response
-      Future.delayed(const Duration(milliseconds: 1000), () {
-        final tip = WilsonCustomResponses.getRandomTip();
-        final tipMessage = WilsonChatMessage(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          text: '🔄 Network connection issue, but I can still help! $tip',
-          isUser: false,
-          timestamp: DateTime.now(),
-          type: ChatMessageType.text,
-        );
-        
-        if (mounted) {
-          setState(() {
-            _messages.add(tipMessage);
-          });
-          _scrollToBottom();
-        }
-      });
     }
   }
   
-  Future<void> _addCustomResponse(String customResponse) async {
-    // Add a small delay to simulate thinking
-    await Future.delayed(const Duration(milliseconds: 800));
-    
-    final aiMessage = WilsonChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      text: customResponse,
-      isUser: false,
-      timestamp: DateTime.now(),
-      type: ChatMessageType.text,
-    );
-
-    setState(() {
-      _isTyping = false;
-      _messages.add(aiMessage);
-    });
-
-    _scrollToBottom();
-    
-    // Add a motivational tip after custom response
-    await Future.delayed(const Duration(milliseconds: 1500));
-    final tip = WilsonCustomResponses.getRandomTip();
-    final tipMessage = WilsonChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      text: tip,
-      isUser: false,
-      timestamp: DateTime.now(),
-      type: ChatMessageType.text,
-    );
-    
-    setState(() {
-      _messages.add(tipMessage);
-    });
-    _scrollToBottom();
-  }
-  
-  String _generateFallbackResponse(String userMessage) {
-    final lowerMessage = userMessage.toLowerCase();
-    
-    // Check for common topics and provide relevant responses
-    if (lowerMessage.contains('password') || lowerMessage.contains('pin')) {
-      return WilsonCustomResponses.getQuickResponse('password_security');
-    } else if (lowerMessage.contains('phish') || lowerMessage.contains('scam') || lowerMessage.contains('suspicious')) {
-      return WilsonCustomResponses.getQuickResponse('phishing_awareness');
-    } else if (lowerMessage.contains('wifi') || lowerMessage.contains('network')) {
-      return WilsonCustomResponses.getQuickResponse('wifi_security');
-    } else if (lowerMessage.contains('social') || lowerMessage.contains('facebook') || lowerMessage.contains('whatsapp')) {
-      return WilsonCustomResponses.getQuickResponse('social_media_safety');
-    } else if (lowerMessage.contains('mobile money') || lowerMessage.contains('mpesa') || lowerMessage.contains('banking')) {
-      return WilsonCustomResponses.getQuickResponse('mobile_money_security');
-    } else if (lowerMessage.contains('shopping') || lowerMessage.contains('online') || lowerMessage.contains('payment')) {
-      return WilsonCustomResponses.getQuickResponse('online_shopping_safety');
-    } else {
-      // Default comprehensive cybersecurity response
-      return '''I'm Wilson, your offline-capable cybersecurity assistant! 🛡️ Even without internet connection, I can help you with:
-
-🔐 PASSWORD SECURITY: Creating strong, unique passwords for all your accounts
-📱 MOBILE MONEY SAFETY: Protecting your M-Pesa, MTN Money, and banking apps  
-📧 SCAM DETECTION: Identifying phishing emails and suspicious messages
-📶 WIFI SECURITY: Safe browsing on public networks
-👥 SOCIAL MEDIA PROTECTION: Privacy settings and safe sharing
-🛒 ONLINE SHOPPING: Secure payment practices
-
-🎯 QUICK AFRICAN CYBERSECURITY TIPS:
-• Never share your M-Pesa PIN with anyone
-• Banks will never ask for passwords via SMS
-• Be extra careful on public WiFi in malls/hotels
-• Use different passwords for social media and banking
-• Always verify "winner" messages through official channels
-
-What specific cybersecurity topic would you like to learn about? I can provide detailed, Africa-focused guidance! 🌍''';
-    }
-  }
-
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {

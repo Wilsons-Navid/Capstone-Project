@@ -1,0 +1,135 @@
+[
+  {
+    "country": "nigeria",
+    "org": "ngCERT (Nigeria Computer Emergency Response Team)",
+    "description": "Nigeria's national CERT. Report cyber incidents, phishing, and online fraud.",
+    "url": "https://cert.gov.ng",
+    "email": "incident@cert.gov.ng",
+    "phone": "+234-7044642378",
+    "topics": ["incident", "phishing", "report_fraud", "general"],
+    "verified": true,
+    "source": "cert.gov.ng (official, confirmed 2026-06-14)"
+  },
+  {
+    "country": "nigeria",
+    "org": "EFCC (Economic and Financial Crimes Commission)",
+    "description": "Report financial fraud, advance-fee scams (419), and money laundering.",
+    "url": "https://efcc.gov.ng",
+    "topics": ["report_fraud", "advance_fee", "mobile_money"],
+    "verified": true,
+    "source": "efcc.gov.ng (official)"
+  },
+  {
+    "country": "kenya",
+    "org": "National KE-CIRT/CC",
+    "description": "Kenya's national cyber incident response team (at the Communications Authority). Report cyber threats, phishing, and online fraud, 24/7.",
+    "url": "https://ke-cirt.go.ke",
+    "phone": "+254-703-042700",
+    "topics": ["incident", "phishing", "report_fraud", "general"],
+    "verified": true,
+    "source": "ke-cirt.go.ke / ca.go.ke (official, confirmed 2026-06-14)"
+  },
+  {
+    "country": "ghana",
+    "org": "Cyber Security Authority (CSA) — CERT-GH",
+    "description": "Ghana's national cybersecurity authority. Report any cybercrime or cybersecurity incident.",
+    "url": "https://csa.gov.gh/report",
+    "email": "report@csa.gov.gh",
+    "shortcode": "292 (call or SMS, Ghana only)",
+    "whatsapp": "+233 50 160 3111",
+    "topics": ["incident", "phishing", "report_fraud", "mobile_money", "general"],
+    "verified": true,
+    "source": "CSA Ghana official channel (csa.gov.gh, confirmed 2026-06-14)"
+  },
+  {
+    "country": "south_africa",
+    "org": "SABRIC (South African Banking Risk Information Centre)",
+    "description": "Banking-industry body for combating financial crime. For bank fraud, also contact your bank directly using the number on your card.",
+    "url": "https://www.sabric.co.za",
+    "topics": ["report_fraud", "mobile_money", "banking"],
+    "verified": true,
+    "source": "sabric.co.za (official)"
+  },
+  {
+    "country": "south_africa",
+    "org": "Cybersecurity Hub (national CSIRT)",
+    "description": "South Africa's national cybersecurity hub. Report cyber incidents and threats.",
+    "url": "https://www.cybersecurityhub.gov.za",
+    "topics": ["incident", "phishing", "general"],
+    "verified": true,
+    "source": "cybersecurityhub.gov.za (official)"
+  },
+  {
+    "country": "rwanda",
+    "org": "National Cyber Security Authority (NCSA) — Rw-CSIRT",
+    "description": "Rwanda's national cybersecurity authority and incident response team. Report cyber incidents, phishing, and online fraud.",
+    "url": "https://cyber.gov.rw/report-incident/",
+    "email": "rwcsirt@ncsa.gov.rw",
+    "phone": "9009 (toll-free, Rwanda)",
+    "topics": ["incident", "phishing", "report_fraud", "general"],
+    "verified": true,
+    "source": "cyber.gov.rw (official, confirmed 2026-06-14)"
+  },
+  {
+    "country": "uganda",
+    "org": "CERT.UG/CC (under NITA-U)",
+    "description": "Uganda's national Computer Emergency Response Team. Report cybersecurity incidents and online fraud.",
+    "url": "https://www.cert.ug",
+    "topics": ["incident", "phishing", "report_fraud", "general"],
+    "verified": true,
+    "source": "cert.ug / nita.go.ug (official, confirmed 2026-06-14)"
+  },
+  {
+    "country": "tanzania",
+    "org": "TZ-CERT (under TCRA)",
+    "description": "Tanzania's national Computer Emergency Response Team. Report cyber incidents and mobile-money fraud.",
+    "url": "https://www.tzcert.go.tz",
+    "topics": ["incident", "phishing", "report_fraud", "mobile_money", "general"],
+    "verified": true,
+    "source": "tzcert.go.tz (official, confirmed 2026-06-14)"
+  },
+  {
+    "country": "egypt",
+    "org": "EG-CERT (Egyptian Computer Emergency Readiness Team)",
+    "description": "Egypt's national CERT (under the NTRA). Report cyber incidents, phishing, and attacks.",
+    "url": "https://www.egcert.eg",
+    "email": "incident@egcert.eg",
+    "phone": "+202-3534-4243",
+    "topics": ["incident", "phishing", "general"],
+    "verified": true,
+    "source": "egcert.eg (official, confirmed 2026-06-14)"
+  },
+  {
+    "country": "zambia",
+    "org": "ZM-CIRT (Zambia Computer Incident Response Team, under ZICTA)",
+    "description": "Zambia's national incident response team. Report cybersecurity and data-protection incidents.",
+    "url": "https://www.cirt.zm",
+    "topics": ["incident", "phishing", "report_fraud", "general"],
+    "verified": true,
+    "source": "cirt.zm (official, confirmed 2026-06-14)"
+  },
+  {
+    "country": "morocco",
+    "org": "maCERT (DGSSI)",
+    "description": "Morocco's national Computer Emergency Response Team (under the DGSSI). Report cyber incidents and attacks.",
+    "url": "https://www.dgssi.gov.ma/en/incident-reporting",
+    "email": "incident@macert.gov.ma",
+    "topics": ["incident", "phishing", "general"],
+    "verified": true,
+    "source": "dgssi.gov.ma (official, confirmed 2026-06-14)"
+  },
+  {
+    "country": "general",
+    "org": "Your bank or mobile-money provider",
+    "description": "For account or mobile-money fraud, contact your provider using ONLY the number printed on your bank card or SIM pack, or inside their official app — never a number from a suspicious message.",
+    "topics": ["report_fraud", "mobile_money", "banking", "general"],
+    "verified": true
+  },
+  {
+    "country": "general",
+    "org": "Local police / cybercrime unit",
+    "description": "For threats, theft, or financial loss, report to your nearest police station or your country's cybercrime unit. Keep evidence (screenshots, messages, transaction IDs).",
+    "topics": ["report_fraud", "incident", "general"],
+    "verified": true
+  }
+]

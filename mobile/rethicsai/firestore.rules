@@ -31,14 +31,30 @@ service cloud.firestore {
              permission in get(/databases/$(database)/documents/user_roles/$(request.auth.uid)).data.permissions;
     }
     
-    // Users can read and write their own user documents
+    // Users can read their own document and edit their own profile, but they
+    // CANNOT change their own role (prevents privilege escalation to admin).
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && request.auth.uid == userId;
       // Admins can read all user documents
       allow read: if hasAdminPrivileges();
-      // Only super admins can write to other users' documents
+
+      // Create own document, but only as a normal 'user' (no self-elevation).
+      allow create: if request.auth != null && request.auth.uid == userId
+                    && (!('role' in request.resource.data)
+                        || request.resource.data.role == 'user');
+
+      // Update own document, but role may only stay the same or drop to 'user'
+      // (never self-promote to admin/super_admin/moderator).
+      allow update: if request.auth != null && request.auth.uid == userId
+                    && (request.resource.data.role == resource.data.role
+                        || request.resource.data.role == 'user');
+
+      // Owner may delete their own document.
+      allow delete: if request.auth != null && request.auth.uid == userId;
+
+      // Super admins can manage any user document, including roles.
       allow write: if isSuperAdmin();
-      
+
       // Chat sessions - users can read/write their own chat history
       match /chatSessions/{sessionId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
@@ -140,6 +156,14 @@ service cloud.firestore {
     // Country emergency / cyber-crime authority contacts — readable by any signed-in
     // user (used by the scan "report to authorities" card + emergency page); admin-managed.
     match /emergency_contacts/{contactId} {
+      allow read: if request.auth != null;
+      allow write: if hasAdminPrivileges();
+    }
+
+    // Verified cybersecurity / fraud-reporting contacts consumed by the Wilson AI
+    // chatbot's get_verified_resources tool (read by the Cloudflare Worker via the
+    // caller's ID token). Readable by any signed-in user; admin-managed.
+    match /verified_resources/{resourceId} {
       allow read: if request.auth != null;
       allow write: if hasAdminPrivileges();
     }
