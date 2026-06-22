@@ -66,6 +66,14 @@
           }
         },
         {
+          "client_id": "392328178263-ohpk7vvi10aq5kotdvtecei6aqok9h7h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rethicsai.app.rethicsai",
+            "certificate_hash": "c46c1b89a7c31188ac115494f3db1a727e76967b"
+          }
+        },
+        {
           "client_id": "392328178263-ooor8m87eddq8g38qghte3dt4128bvep.apps.googleusercontent.com",
           "client_type": 3
         }
