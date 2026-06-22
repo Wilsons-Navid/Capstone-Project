@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'core/services/di_service.dart';
 import 'core/services/firebase_service.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/scam_model_service.dart';
 import 'core/services/logging_service.dart';
 import 'core/services/analytics_service.dart';
 import 'core/services/emergency_contacts_service.dart';
@@ -95,7 +98,11 @@ Future<void> _initializeServicesInBackground(bool firebaseReady) async {
   try {
     // Initialize Hive for local storage first
     await Hive.initFlutter();
-    
+
+    // Wake the (sleeping) scam-model Space early so the user's first scan is
+    // fast and shows a model verdict instead of falling back to heuristics.
+    unawaited(ScamModelService().warmUp());
+
     // Initialize other services
     await LoggingService.initialize();
     await AnalyticsService.initialize();

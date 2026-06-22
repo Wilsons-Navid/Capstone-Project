@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/services/threat_scanner_service.dart';
+import '../../../../core/services/scam_model_service.dart';
 import '../../../../core/services/activity_service.dart';
 import '../widgets/ai_model_verdict_card.dart';
 import '../widgets/scam_action_bar.dart';
@@ -57,6 +60,9 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
+    // Pre-warm the scam-model Space when the scanner opens, so the first scan
+    // returns a model verdict instead of timing out into heuristics.
+    unawaited(ScamModelService().warmUp());
     _tabController = TabController(length: _scanTypes.length, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
