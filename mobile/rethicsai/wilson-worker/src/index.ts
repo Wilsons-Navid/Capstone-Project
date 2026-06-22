@@ -13,6 +13,7 @@
  *   /training    -> generate training content
  */
 import { getBearerToken, verifyFirebaseToken } from './auth';
+import { channelForType, getAccessToken, getUserField, sendFcm } from './push';
 import {
   analyzeThreatLevel,
   buildChatSystem,
@@ -28,6 +29,9 @@ import {
 export interface Env {
   ANTHROPIC_API_KEY: string;
   FIREBASE_PROJECT_ID: string;
+  // Firebase service-account JSON (secret) — enables /send-push. Optional: the
+  // chatbot routes work without it.
+  SERVICE_ACCOUNT_JSON?: string;
 }
 
 const CORS_HEADERS: Record<string, string> = {
@@ -60,19 +64,23 @@ export default {
     // --- Authenticate -------------------------------------------------------
     const token = getBearerToken(request);
     if (!token) return json({ error: 'Unauthorized' }, 401);
+    let callerUid: string;
     try {
-      await verifyFirebaseToken(token, env.FIREBASE_PROJECT_ID);
+      const payload = await verifyFirebaseToken(token, env.FIREBASE_PROJECT_ID);
+      callerUid = payload.sub as string;
     } catch (e) {
       return json({ error: 'Unauthorized', detail: (e as Error).message }, 401);
     }
     // `token` is verified; reused to read Firestore (rules enforced) for the
     // verified-resources tool.
 
-    if (!env.ANTHROPIC_API_KEY) {
+    const url = new URL(request.url);
+
+    // Push delivery doesn't need the Anthropic key; the chatbot routes do.
+    if (url.pathname !== '/send-push' && !env.ANTHROPIC_API_KEY) {
       return json({ error: 'Server misconfigured: missing ANTHROPIC_API_KEY' }, 500);
     }
 
-    const url = new URL(request.url);
     let body: any;
     try {
       body = await request.json();
@@ -92,6 +100,8 @@ export default {
           return await handleThreatIntel(body, env);
         case '/training':
           return await handleTraining(body, env);
+        case '/send-push':
+          return await handleSendPush(body, env, callerUid);
         default:
           return json({ error: 'Not found' }, 404);
       }
@@ -272,6 +282,61 @@ Respond with ONLY a JSON object: { "threats": [ { "category": string, "severity"
     timestamp: Date.now(),
     expires_at: Date.now() + 6 * 60 * 60 * 1000,
   });
+}
+
+/**
+ * Deliver a push to a recipient's device. The app writes the notification doc
+ * to Firestore (in-app inbox) and then calls this for delivery. A caller may
+ * push to themselves; pushing to ANOTHER user requires an admin/super_admin
+ * role, which blocks user-to-user spam.
+ */
+async function handleSendPush(body: any, env: Env, callerUid: string): Promise<Response> {
+  if (!env.SERVICE_ACCOUNT_JSON) {
+    return json({ error: 'Push not configured: missing SERVICE_ACCOUNT_JSON' }, 500);
+  }
+
+  const recipientUid: string = body?.recipientUid;
+  const title: string = body?.title;
+  const messageBody: string = body?.body ?? '';
+  if (!recipientUid || !title) {
+    return json({ error: 'recipientUid and title are required' }, 400);
+  }
+
+  const accessToken = await getAccessToken(env.SERVICE_ACCOUNT_JSON);
+
+  if (recipientUid !== callerUid) {
+    const role = await getUserField(env.FIREBASE_PROJECT_ID, accessToken, callerUid, 'role');
+    if (role !== 'admin' && role !== 'super_admin') {
+      return json({ error: 'Forbidden: only admins can push to other users' }, 403);
+    }
+  }
+
+  const fcmToken = await getUserField(env.FIREBASE_PROJECT_ID, accessToken, recipientUid, 'fcmToken');
+  if (!fcmToken) {
+    // Recipient has no registered device — not an error, just nothing to deliver.
+    return json({ ok: true, delivered: false, reason: 'recipient has no fcmToken' });
+  }
+
+  const data: Record<string, string> = { type: String(body?.type ?? 'general') };
+  if (body?.notificationId) data.notificationId = String(body.notificationId);
+  if (body?.data && typeof body.data === 'object') {
+    for (const [k, v] of Object.entries(body.data)) {
+      if (v != null && typeof v !== 'object') data[k] = String(v);
+    }
+  }
+
+  const result = await sendFcm(env.FIREBASE_PROJECT_ID, accessToken, fcmToken, {
+    title,
+    body: messageBody,
+    channelId: channelForType(body?.type),
+    data,
+  });
+
+  if (!result.ok) {
+    if (result.stale) console.warn('stale fcmToken for', recipientUid);
+    return json({ ok: false, delivered: false, status: result.status, stale: result.stale });
+  }
+  return json({ ok: true, delivered: true });
 }
 
 async function handleTraining(body: any, env: Env): Promise<Response> {
