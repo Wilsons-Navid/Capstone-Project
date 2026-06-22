@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../../../../core/themes/app_theme.dart';
+import '../../../../core/services/onboarding_service.dart';
 import '../../../../core/utils/app_router.dart';
 import '../../../../shared/widgets/recent_activity_card.dart';
 import '../../../../shared/widgets/app_drawer.dart';
@@ -29,6 +31,12 @@ class _DashboardPageState extends State<DashboardPage> {
   int _threatsBlocked = 0;
   bool _isLoadingStats = true;
 
+  // First-run coachmark tour targets.
+  final GlobalKey _tourStatsKey = GlobalKey();
+  final GlobalKey _tourFeaturesKey = GlobalKey();
+  final GlobalKey _tourAssistantKey = GlobalKey();
+  bool _tourScheduled = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,8 +45,37 @@ class _DashboardPageState extends State<DashboardPage> {
     _loadUnreadNotifications();
   }
 
+  /// Starts the dashboard coachmark tour once, on first visit. [showcaseContext]
+  /// must be a context beneath the [ShowCaseWidget].
+  void _maybeStartTour(BuildContext showcaseContext) {
+    if (_tourScheduled) return;
+    _tourScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final seen = await OnboardingService.hasSeenDashboardTour();
+      if (!mounted || seen) return;
+      ShowCaseWidget.of(showcaseContext).startShowCase([
+        _tourStatsKey,
+        _tourFeaturesKey,
+        _tourAssistantKey,
+      ]);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    return ShowCaseWidget(
+      onFinish: () {
+        OnboardingService.setDashboardTourSeen();
+      },
+      builder: (showcaseContext) {
+        _maybeStartTour(showcaseContext);
+        return _buildScaffold(context);
+      },
+    );
+  }
+
+  Widget _buildScaffold(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.surfaceLight,
       drawer: const AppDrawer(),
@@ -64,16 +101,28 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Column(
               children: [
                 const SizedBox(height: 8),
-                QuickStatsRow(
-                  totalReports: _totalReports,
-                  resolvedCases: _resolvedCases,
-                  threatsBlocked: _threatsBlocked,
-                  isLoading: _isLoadingStats,
+                Showcase(
+                  key: _tourStatsKey,
+                  title: 'Your security at a glance',
+                  description:
+                      'See how many scams you\'ve reported, cases resolved, and threats blocked.',
+                  child: QuickStatsRow(
+                    totalReports: _totalReports,
+                    resolvedCases: _resolvedCases,
+                    threatsBlocked: _threatsBlocked,
+                    isLoading: _isLoadingStats,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 const WelcomeCard(),
                 const SizedBox(height: 20),
-                const FeatureGrid(),
+                Showcase(
+                  key: _tourFeaturesKey,
+                  title: 'All your tools',
+                  description:
+                      'Scan suspicious messages, report scams, learn to spot fraud, and more.',
+                  child: const FeatureGrid(),
+                ),
                 const SizedBox(height: 20),
                 const ThreatInsightsCard(),
                 const SizedBox(height: 20),
@@ -97,7 +146,13 @@ class _DashboardPageState extends State<DashboardPage> {
           _handleBottomNavTap(index);
         },
       ),
-      floatingActionButton: const AiAssistantFab(),
+      floatingActionButton: Showcase(
+        key: _tourAssistantKey,
+        title: 'Meet Wilson, your AI assistant',
+        description:
+            'Tap here anytime to ask about scams, threats, or how to stay safe.',
+        child: const AiAssistantFab(),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
