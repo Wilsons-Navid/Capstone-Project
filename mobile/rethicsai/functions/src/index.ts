@@ -188,3 +188,99 @@ Respond with ONLY a JSON array. Each item must have: "title", "description", "ca
     expires_at: Date.now() + 24 * 60 * 60 * 1000,
   };
 });
+
+// Map a stored notification `type` (NotificationType.name from the app) to the
+// Android channel the client registered in NotificationService.
+function channelForType(type?: string): string {
+  switch (type) {
+    case 'caseUpdate':
+      return 'case_updates';
+    case 'educationAchievement':
+      return 'education';
+    case 'securityAlert':
+      return 'security_alerts';
+    default:
+      return 'general';
+  }
+}
+
+// Push delivery: when a notification document is created, look up the
+// recipient's FCM token and send a real push so backgrounded/closed devices
+// receive it (the in-app inbox is written by the client; this adds delivery).
+// Ownership field is snake_case `user_id` from the app, but accept `userId` too.
+export const onNotificationCreated = functions.firestore
+  .document('notifications/{notificationId}')
+  .onCreate(async (snap) => {
+    const notif = snap.data() || {};
+    const recipientUid: string | undefined = notif.user_id || notif.userId;
+
+    if (!recipientUid) {
+      functions.logger.warn('notification missing recipient uid', {
+        id: snap.id,
+      });
+      return;
+    }
+
+    const userSnap = await admin
+      .firestore()
+      .collection('users')
+      .doc(recipientUid)
+      .get();
+    const token: string | undefined = userSnap.get('fcmToken');
+
+    if (!token) {
+      functions.logger.info('no fcmToken for recipient; skipping push', {
+        uid: recipientUid,
+      });
+      return;
+    }
+
+    const channelId = channelForType(notif.type);
+
+    // Firestore data must be string->string for FCM data payloads.
+    const dataPayload: Record<string, string> = {
+      type: String(notif.type ?? 'general'),
+      notificationId: snap.id,
+    };
+    const extra = notif.data;
+    if (extra && typeof extra === 'object') {
+      for (const [k, v] of Object.entries(extra)) {
+        if (v != null && typeof v !== 'object') dataPayload[k] = String(v);
+      }
+    }
+
+    try {
+      await admin.messaging().send({
+        token,
+        notification: {
+          title: notif.title ?? 'RethicsAI',
+          body: notif.body ?? '',
+        },
+        data: dataPayload,
+        android: {
+          priority: 'high',
+          notification: { channelId },
+        },
+        apns: {
+          payload: { aps: { sound: 'default' } },
+        },
+      });
+      functions.logger.info('push sent', { uid: recipientUid, channelId });
+    } catch (err) {
+      const code = (err as { code?: string })?.code;
+      // Token went stale (app uninstalled / token rotated) — clean it up.
+      if (
+        code === 'messaging/registration-token-not-registered' ||
+        code === 'messaging/invalid-registration-token'
+      ) {
+        await admin
+          .firestore()
+          .collection('users')
+          .doc(recipientUid)
+          .update({ fcmToken: admin.firestore.FieldValue.delete() });
+        functions.logger.info('removed stale fcmToken', { uid: recipientUid });
+      } else {
+        functions.logger.error('failed to send push', { uid: recipientUid, err });
+      }
+    }
+  });
