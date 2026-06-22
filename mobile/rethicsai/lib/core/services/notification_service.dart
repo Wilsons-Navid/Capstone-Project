@@ -6,11 +6,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../constants/wilson_worker.dart';
+import 'wilson_worker_client.dart';
+
 class NotificationService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+  static final WilsonWorkerClient _workerClient = WilsonWorkerClient();
+
   // Notification channels for different types
   static const String _caseUpdatesChannelId = 'case_updates';
   static const String _educationChannelId = 'education';
@@ -348,7 +352,7 @@ class NotificationService {
   }) async {
     try {
       // Store notification in Firestore for notification history
-      await _firestore.collection('notifications').add({
+      final docRef = await _firestore.collection('notifications').add({
         'user_id': userId,
         'title': title,
         'body': body,
@@ -358,20 +362,63 @@ class NotificationService {
         'created_at': FieldValue.serverTimestamp(),
       });
 
-      // If the user is currently active, show local notification
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser?.uid == userId) {
+        // Recipient is the active user — show it locally right now.
         await _showLocalNotificationDirect(
           title: title,
           body: body,
           type: type,
           data: data,
         );
+      } else {
+        // Recipient is a different user (e.g. an admin updating a case) — push
+        // it to their device in the background via the Cloudflare Worker.
+        await _sendPushViaWorker(
+          recipientUid: userId,
+          title: title,
+          body: body,
+          type: type,
+          data: data,
+          notificationId: docRef.id,
+        );
       }
-      
+
       print('✅ Notification sent to user $userId: $title');
     } catch (e) {
       print('❌ Failed to send notification: $e');
+    }
+  }
+
+  /// Best-effort background push for notifications addressed to another user.
+  /// The in-app inbox entry already exists; a failure here is non-fatal.
+  static Future<void> _sendPushViaWorker({
+    required String recipientUid,
+    required String title,
+    required String body,
+    required NotificationType type,
+    required Map<String, dynamic> data,
+    required String notificationId,
+  }) async {
+    // Strip non-JSON-serializable values (e.g. FieldValue.serverTimestamp()).
+    final cleanData = <String, dynamic>{};
+    data.forEach((key, value) {
+      if (value is String || value is num || value is bool) {
+        cleanData[key] = value;
+      }
+    });
+
+    try {
+      await _workerClient.post(WilsonWorkerConfig.sendPushPath, {
+        'recipientUid': recipientUid,
+        'title': title,
+        'body': body,
+        'type': type.name,
+        'notificationId': notificationId,
+        'data': cleanData,
+      });
+    } catch (e) {
+      print('Push delivery via Worker failed (in-app inbox unaffected): $e');
     }
   }
 

@@ -20,6 +20,9 @@ class WilsonWorkerConfig {
   static const String threatIntelPath = '/threat-intel';
   static const String trainingPath = '/training';
 
+  /// Background push delivery (FCM v1) for notifications sent to other users.
+  static const String sendPushPath = '/send-push';
+
   /// True once a real Worker URL has been configured.
   static bool get isConfigured => !baseUrl.contains('CHANGEME');
 }
