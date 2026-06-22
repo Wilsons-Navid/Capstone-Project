@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../services/onboarding_service.dart';
 import '../../shared/widgets/animated_splash_screen.dart';
 
+import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
@@ -25,6 +27,7 @@ import '../../features/settings/presentation/pages/simple_language_selection_pag
 
 class AppRouter {
   static const String splash = '/';
+  static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
@@ -51,11 +54,26 @@ class AppRouter {
       case splash:
         return PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) => AnimatedSplashScreen(
-            onAnimationComplete: () {
-              Navigator.of(context).pushReplacementNamed(AppRouter.login);
+            onAnimationComplete: () async {
+              // First launch → show the intro carousel once; otherwise go
+              // straight to login.
+              final seenIntro = await OnboardingService.hasSeenIntro();
+              if (!context.mounted) return;
+              Navigator.of(context).pushReplacementNamed(
+                seenIntro ? AppRouter.login : AppRouter.onboarding,
+              );
             },
           ),
           transitionDuration: Duration.zero, // Instant transition
+          reverseTransitionDuration: Duration.zero,
+          settings: settings,
+        );
+
+      case onboarding:
+        return PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const OnboardingPage(),
+          transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
           settings: settings,
         );
