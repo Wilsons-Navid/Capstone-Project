@@ -49,10 +49,14 @@ class EmergencyContactsService {
           countries.add(country);
         }
       }
-      
+
+      // Fall back to bundled defaults when Firestore isn't seeded yet, so the
+      // dropdown is never empty.
+      if (countries.isEmpty) return supportedCountries();
       return countries.toList()..sort();
     } catch (e) {
-      return ['Nigeria', 'Kenya', 'South Africa', 'Ghana', 'Uganda'];
+      // Offline / permission error: use the bundled default country set.
+      return supportedCountries();
     }
   }
 

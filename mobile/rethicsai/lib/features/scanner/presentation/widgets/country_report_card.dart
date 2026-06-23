@@ -28,38 +28,53 @@ class CountryReportCard extends StatefulWidget {
 }
 
 class _CountryReportCardState extends State<CountryReportCard> {
-  late final List<String> _countries;
+  List<String> _countries = [];
   String? _country;
   Future<List<EmergencyContact>>? _future;
 
   @override
   void initState() {
     super.initState();
-    _countries = EmergencyContactsService.supportedCountries();
-    _country = _countries.contains('Nigeria')
-        ? 'Nigeria'
-        : (_countries.isNotEmpty ? _countries.first : null);
-    if (_country != null) {
-      _future = EmergencyContactsService.getContactsByCountry(_country!);
-    }
-    _useProfileCountry();
+    _loadCountries();
   }
 
-  /// If the signed-in user has a (supported) profile country, default to it.
-  Future<void> _useProfileCountry() async {
+  /// Load the selectable countries from Firestore (falls back to bundled
+  /// defaults inside the service), then default to the user's profile country
+  /// when it's available, otherwise Nigeria, otherwise the first country.
+  Future<void> _loadCountries() async {
+    final countries = await EmergencyContactsService.getAvailableCountries();
+    final profile = await _profileCountry();
+    if (!mounted) return;
+
+    String? initial;
+    if (profile != null && countries.contains(profile)) {
+      initial = profile;
+    } else if (countries.contains('Nigeria')) {
+      initial = 'Nigeria';
+    } else if (countries.isNotEmpty) {
+      initial = countries.first;
+    }
+
+    setState(() {
+      _countries = countries;
+      _country = initial;
+      _future = initial != null
+          ? EmergencyContactsService.getContactsByCountry(initial)
+          : null;
+    });
+  }
+
+  /// The signed-in user's profile country, if any.
+  Future<String?> _profileCountry() async {
     try {
       final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid == null) return;
+      if (uid == null) return null;
       final doc =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      final c = doc.data()?['country'] as String?;
-      if (c != null && _countries.contains(c) && c != _country && mounted) {
-        setState(() {
-          _country = c;
-          _future = EmergencyContactsService.getContactsByCountry(c);
-        });
-      }
-    } catch (_) {}
+      return doc.data()?['country'] as String?;
+    } catch (_) {
+      return null;
+    }
   }
 
   void _selectCountry(String? c) {
