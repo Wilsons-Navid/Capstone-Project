@@ -113,21 +113,26 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
             ),
 
-            // Dots
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _slides.length,
-                (i) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  height: 8,
-                  width: i == _index ? 24 : 8,
-                  decoration: BoxDecoration(
-                    color: i == _index
-                        ? AppTheme.secondaryColor
-                        : AppTheme.outline,
-                    borderRadius: BorderRadius.circular(4),
+            // Dots — decorative, announced as a single progress label.
+            Semantics(
+              label: 'Page ${_index + 1} of ${_slides.length}',
+              child: ExcludeSemantics(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    _slides.length,
+                    (i) => AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      height: 8,
+                      width: i == _index ? 24 : 8,
+                      decoration: BoxDecoration(
+                        color: i == _index
+                            ? AppTheme.secondaryColor
+                            : AppTheme.outline,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -172,7 +177,9 @@ class _SlideView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    // Group the icon + title + body so a screen reader reads each slide as one unit.
+    return MergeSemantics(
+      child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -184,7 +191,8 @@ class _SlideView extends StatelessWidget {
               color: slide.color.withOpacity(0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(slide.icon, size: 64, color: slide.color),
+            child: Icon(slide.icon, size: 64, color: slide.color,
+                semanticLabel: ''),
           ),
           const SizedBox(height: 48),
           Text(
@@ -209,7 +217,8 @@ class _SlideView extends StatelessWidget {
           ),
         ],
       ),
-    );
+      ), // Padding
+    ); // MergeSemantics
   }
 }
 
