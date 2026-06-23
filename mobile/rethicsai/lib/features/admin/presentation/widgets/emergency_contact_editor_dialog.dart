@@ -35,6 +35,12 @@ class _EmergencyContactEditorDialogState extends State<EmergencyContactEditorDia
   ContactType _selectedType = ContactType.cyberCrime;
   String _selectedCountry = '';
   List<String> _selectedLanguages = [];
+
+  // Lets the admin register a brand-new country instead of only picking an
+  // existing one. A country is represented by the contacts that carry it.
+  static const String _kAddNewCountry = '__add_new_country__';
+  bool _addingNewCountry = false;
+  late TextEditingController _newCountryController;
   
   final List<String> _availableLanguages = [
     'English', 'Swahili', 'Hausa', 'Yoruba', 'Igbo', 'Afrikaans', 
@@ -61,6 +67,12 @@ class _EmergencyContactEditorDialogState extends State<EmergencyContactEditorDia
     
     _selectedType = contact?.type ?? ContactType.cyberCrime;
     _selectedCountry = contact?.country ?? (widget.countries.isNotEmpty ? widget.countries.first : '');
+    _newCountryController = TextEditingController();
+    // If editing a contact whose country isn't in the known list, treat it as new.
+    if (_selectedCountry.isNotEmpty && !widget.countries.contains(_selectedCountry)) {
+      _addingNewCountry = true;
+      _newCountryController.text = _selectedCountry;
+    }
     _selectedLanguages = List<String>.from(contact?.languages ?? ['English']);
   }
 
@@ -76,6 +88,7 @@ class _EmergencyContactEditorDialogState extends State<EmergencyContactEditorDia
     _descriptionController.dispose();
     _availabilityController.dispose();
     _priorityController.dispose();
+    _newCountryController.dispose();
     super.dispose();
   }
 
@@ -202,26 +215,51 @@ class _EmergencyContactEditorDialogState extends State<EmergencyContactEditorDia
                           Expanded(
                             flex: 2,
                             child: DropdownButtonFormField<String>(
-                              value: _selectedCountry.isEmpty ? null : _selectedCountry,
+                              value: _addingNewCountry
+                                  ? _kAddNewCountry
+                                  : (_selectedCountry.isEmpty ? null : _selectedCountry),
+                              isExpanded: true,
                               decoration: InputDecoration(
                                 labelText: 'Country *',
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                 isDense: true,
                               ),
-                              items: widget.countries.map((country) {
-                                return DropdownMenuItem(
-                                  value: country,
-                                  child: Text(
-                                    country,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 13),
+                              items: [
+                                ...widget.countries.map((country) {
+                                  return DropdownMenuItem(
+                                    value: country,
+                                    child: Text(
+                                      country,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 13),
+                                    ),
+                                  );
+                                }),
+                                const DropdownMenuItem(
+                                  value: _kAddNewCountry,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.add, size: 14, color: AppTheme.primaryColor),
+                                      SizedBox(width: 4),
+                                      Text('Add new country',
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              color: AppTheme.primaryColor,
+                                              fontWeight: FontWeight.w600)),
+                                    ],
                                   ),
-                                );
-                              }).toList(),
+                                ),
+                              ],
                               onChanged: (value) {
                                 setState(() {
-                                  _selectedCountry = value!;
+                                  if (value == _kAddNewCountry) {
+                                    _addingNewCountry = true;
+                                  } else {
+                                    _addingNewCountry = false;
+                                    _selectedCountry = value ?? '';
+                                  }
                                 });
                               },
                               validator: (value) => value == null ? 'Country is required' : null,
@@ -229,7 +267,21 @@ class _EmergencyContactEditorDialogState extends State<EmergencyContactEditorDia
                           ),
                         ],
                       ),
-                      
+
+                      // New-country name field (shown when "Add new country" is picked).
+                      if (_addingNewCountry) ...[
+                        const SizedBox(height: 8),
+                        _buildTextFormField(
+                          controller: _newCountryController,
+                          label: 'New country name *',
+                          hint: 'e.g., Zambia',
+                          validator: (value) => _addingNewCountry &&
+                                  (value == null || value.trim().isEmpty)
+                              ? 'Country name is required'
+                              : null,
+                        ),
+                      ],
+
                       const SizedBox(height: 10),
                       
                       // Contact Information
@@ -498,7 +550,21 @@ class _EmergencyContactEditorDialogState extends State<EmergencyContactEditorDia
 
   void _saveContact() {
     if (!_formKey.currentState!.validate()) return;
-    
+
+    // Resolve the country: a freshly typed one when adding, else the picked one.
+    final country = _addingNewCountry
+        ? _newCountryController.text.trim()
+        : _selectedCountry;
+    if (country.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please choose or enter a country'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (_selectedLanguages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -530,7 +596,7 @@ class _EmergencyContactEditorDialogState extends State<EmergencyContactEditorDia
       description: _descriptionController.text.trim(),
       availability: _availabilityController.text.trim(),
       languages: _selectedLanguages,
-      country: _selectedCountry,
+      country: country,
       priority: int.parse(_priorityController.text.trim()),
       createdAt: _isEditing ? widget.contact!.createdAt : DateTime.now(),
       updatedAt: DateTime.now(),
