@@ -50,9 +50,11 @@ class EmergencyContactsService {
         }
       }
 
-      // Fall back to bundled defaults when Firestore isn't seeded yet, so the
-      // dropdown is never empty.
-      if (countries.isEmpty) return supportedCountries();
+      // Union with the bundled defaults: every country we can serve contacts for
+      // must be selectable, even if Firestore was only partially seeded (e.g.
+      // only Kenya present). getContactsByCountry() falls back to bundled
+      // contacts per-country, so unseeded countries still work.
+      countries.addAll(supportedCountries());
       return countries.toList()..sort();
     } catch (e) {
       // Offline / permission error: use the bundled default country set.
@@ -158,26 +160,31 @@ class EmergencyContactsService {
     }
   }
 
-  // Seed default data
+  // Seed/backfill default data.
+  // Backfills only the default contacts whose doc id is MISSING, so partially
+  // seeded databases (e.g. only Kenya present) get the other countries added
+  // without overwriting existing entries or admin edits.
   static Future<void> seedDefaultData() async {
     try {
-      final snapshot = await _contacts.limit(1).get();
-      if (snapshot.docs.isNotEmpty) {
-        print('Emergency contacts already exist, skipping seeding');
-        return; // Data already exists
+      final snapshot = await _contacts.get();
+      final existingIds = snapshot.docs.map((d) => d.id).toSet();
+
+      final missing = _getAllDefaultContacts()
+          .where((c) => !existingIds.contains(c.id))
+          .toList();
+
+      if (missing.isEmpty) {
+        print('Emergency contacts up to date (${existingIds.length} present), nothing to backfill');
+        return;
       }
-      
-      print('Seeding default emergency contacts...');
-      final defaultContacts = _getAllDefaultContacts();
-      
+
+      print('Backfilling ${missing.length} missing emergency contacts...');
       final batch = FirebaseFirestore.instance.batch();
-      for (final contact in defaultContacts) {
-        final docRef = _contacts.doc(contact.id);
-        batch.set(docRef, contact.toJson());
+      for (final contact in missing) {
+        batch.set(_contacts.doc(contact.id), contact.toJson());
       }
-      
       await batch.commit();
-      print('Successfully seeded ${defaultContacts.length} emergency contacts');
+      print('Successfully backfilled ${missing.length} emergency contacts');
     } catch (e) {
       print('Failed to seed emergency contacts: $e');
       // Try to add contacts individually as fallback
