@@ -120,11 +120,22 @@ Run the app on at least two configurations and record the result:
 | **Obj 2 — Deliver a working detection & reporting platform** | A production Flutter app (v1.0.6) with scanner, 14-country authority reporting, education, assistant and admin console; deployed as an installable APK. | **Achieved.** |
 | **Obj 3 — Train & evaluate a scam classifier** | A TF-IDF + multilingual e5 soft-voting ensemble reaching **macro-F1 0.955** in-distribution, served behind an API and wired into the scanner. | **Achieved (with caveats below).** |
 
-**Where results fell short of the ideal:** the 0.955 figure is *in-distribution*. On out-of-distribution
-messages accuracy drops, and the training corpus is skewed toward phishing — so some genuine
-mobile-money / advance-fee scams are mislabelled as phishing. Controlled re-balancing experiments did
-**not** fix the same hard cases, indicating the binding constraint is the volume of authentic
-minority-class data, not the algorithm.
+**Where results fell short of the ideal — and what the ML experiments showed:** the 0.955 figure is
+*in-distribution*. The training corpus is **class-imbalanced** (phishing ≈ 2,401 ≫ not-a-scam ≈ 1,200 ≫
+mobile-money ≈ 538 ≫ advance-fee ≈ 283), and the model inherits a **majority-class (phishing) bias**: on
+out-of-distribution messages, genuine mobile-money and advance-fee scams — and occasionally even a
+legitimate message — drift toward "phishing" at low confidence.
+
+A controlled **re-balancing ablation** (a dedicated notebook testing four strategies — class-weighting,
+over-sampling, under-sampling, and combined) found that the deployed class-weighting model was already
+the best in-distribution, and that **all four strategies failed the same out-of-distribution cases.** That
+is the key research finding: re-balancing the existing data cannot manufacture signal that isn't there —
+the binding constraint is the **volume of authentic minority-class data**, not the algorithm.
+
+A separate **serving-reliability** finding: the model is hosted on a managed Space that sleeps when idle,
+so the first request after idle could time out and the app would silently fall back to weaker keyword
+heuristics. This was fixed with a **warm-up ping** (fired on app launch and when the scanner opens) plus
+longer timeouts — so the model verdict, not the fallback, is what users see.
 
 ---
 
@@ -136,6 +147,13 @@ minority-class data, not the algorithm.
 - **Owning the model matters.** Building a custom classifier (rather than calling a third-party LLM)
   means the intelligence is tuned to African scam vectors and languages, and every confirmed report
   can improve it — a data advantage competitors cannot copy by translating a UI.
+- **A negative result with real value.** Proving that no re-balancing strategy fixes the
+  out-of-distribution failures is itself a contribution: it redirects effort away from algorithmic
+  tweaking and toward the thing that actually moves the needle — acquiring real, labelled, local scam
+  data. Knowing *what won't work* saved the project from chasing a dead end.
+- **Engineering reliability is part of the result.** A 0.955 model is worthless if the user sees a
+  heuristic fallback because the service was cold. The warm-up fix is a reminder that for a deployed ML
+  product, serving reliability matters as much as offline accuracy.
 - **Trust is the product.** Accessibility and clarity decisions (verdicts shown by icon **and** colour
   **and** text, WCAG-AA contrast, 11 languages) are not cosmetic; for non-technical users they are the
   difference between guidance that is understood and guidance that is ignored.
@@ -146,7 +164,9 @@ minority-class data, not the algorithm.
 
 - **Confidence-aware verdicts:** surface model confidence and add an explicit “unsure — treat with
   caution” state to cut false positives and raise trust.
-- **Collect authentic minority-class data** (mobile-money, advance-fee) — the single biggest lever on accuracy.
+- **Collect authentic minority-class data** (mobile-money, advance-fee) — the single biggest lever on
+  accuracy, as the re-balancing ablation showed. A data-access request to a regional smishing-research
+  network (CMU-Africa's Upanzi) is already in progress to source real English mobile-money scam messages.
 - **On-device inference:** a quantised model for offline, private screening in low-connectivity contexts.
 - **Multi-modal detection:** images, link-reputation and voice-note analysis.
 - **Consent-based escalation tiers:** from helping the user act (live today) to partnerships with operators and regulators.
