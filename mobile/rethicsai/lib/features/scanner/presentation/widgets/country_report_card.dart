@@ -31,6 +31,7 @@ class _CountryReportCardState extends State<CountryReportCard> {
   List<String> _countries = [];
   String? _country;
   Future<List<EmergencyContact>>? _future;
+  bool _loading = true;
 
   @override
   void initState() {
@@ -58,6 +59,7 @@ class _CountryReportCardState extends State<CountryReportCard> {
     setState(() {
       _countries = countries;
       _country = initial;
+      _loading = false;
       _future = initial != null
           ? EmergencyContactsService.getContactsByCountry(initial)
           : null;
@@ -104,34 +106,38 @@ class _CountryReportCardState extends State<CountryReportCard> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.isThreat || _country == null) return const SizedBox.shrink();
+    if (!widget.isThreat) return const SizedBox.shrink();
     final amber = AppTheme.secondaryDark;
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppTheme.secondaryColor.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.3)),
-      ),
+    // While countries are loading, show the card shell with a spinner so it
+    // doesn't pop in late.
+    if (_loading) {
+      return _shell(
+        amber,
+        child: Row(
+          children: [
+            const SizedBox(
+              height: 14,
+              width: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              'Loading authority contacts…',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_country == null) return const SizedBox.shrink();
+
+    return _shell(
+      amber,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.account_balance, size: 18, color: amber),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  'scanner.report_to_authorities'.tr(),
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: amber),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
           // Country picker
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -184,6 +190,41 @@ class _CountryReportCardState extends State<CountryReportCard> {
               );
             },
           ),
+        ],
+      ),
+    );
+  }
+
+  /// Shared card chrome (background + "Report to authorities" header) wrapping
+  /// either the loading spinner or the loaded picker + contacts.
+  Widget _shell(Color amber, {required Widget child}) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppTheme.secondaryColor.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.secondaryColor.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.account_balance, size: 18, color: amber),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'scanner.report_to_authorities'.tr(),
+                  style: TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.bold, color: amber),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          child,
         ],
       ),
     );
