@@ -69,6 +69,33 @@ The app ships with its Firebase configuration; no extra backend setup is needed 
 
 ---
 
+## 3.5 How it's built — two parts and their intersection
+
+RethicsAI is **two engineered systems that meet at one screen.**
+
+- **Part 1 — the mobile app** (`mobile/rethicsai/`): a Flutter / Material 3 client — the scanner UI,
+  structured reporting, case tracking, education hub, Wilson assistant, admin console, the 14-country
+  authority directory, and 11 languages — backed by Firebase (Auth, Firestore, Cloud Functions, FCM).
+- **Part 2 — the ML system** (`ml/`): the research core — a hand-labelled four-class scam **corpus**, the
+  training/evaluation **notebooks**, and the trained **classifier** (TF-IDF + multilingual e5 soft-voting
+  ensemble) served behind a `/predict` API.
+- **The intersection — the scanner.** This is where the two parts meet and where the project's thesis
+  lives. A user pastes a message → the app's `ScamModelService` calls the model's `/predict` endpoint →
+  the returned **category + confidence** is rendered in the verdict card. A **warm-up ping** fired on app
+  launch keeps the hosted model responsive, so the live model verdict — not a keyword fallback — is what
+  the user sees.
+
+```text
+ ┌──────────────────┐   paste message    ┌──────────────────┐   POST /predict   ┌─────────────────────┐
+ │   MOBILE APP     │ ─────────────────► │  ScamModelService │ ────────────────► │   ML ENSEMBLE API    │
+ │  scanner UI      │                    │  (warm-up + call) │                   │  TF-IDF + e5 (0.955) │
+ │  verdict card    │ ◄───────────────── │                   │ ◄──────────────── │                     │
+ └──────────────────┘  category + conf.  └──────────────────┘   prediction      └─────────────────────┘
+        Part 1                                INTERSECTION                              Part 2
+```
+
+---
+
 ## 4. Testing Results
 
 > _Screenshots referenced below live in `docs/assets/` — add your captured images there._
@@ -114,14 +141,43 @@ Run the app on at least two configurations and record the result:
 
 ## 5. Analysis — results vs. project objectives
 
-| Objective (proposal) | Result | Achieved? |
-|---|---|---|
-| **Obj 1 — Build a labelled scam corpus** | A 4,422-row, four-class corpus (advance-fee, mobile-money, phishing, not-a-scam) assembled from public and African-context sources. | **Achieved.** |
-| **Obj 2 — Deliver a working detection & reporting platform** | A production Flutter app (v1.0.6) with scanner, 14-country authority reporting, education, assistant and admin console; deployed as an installable APK. | **Achieved.** |
-| **Obj 3 — Train & evaluate a scam classifier** | A TF-IDF + multilingual e5 soft-voting ensemble reaching **macro-F1 0.955** in-distribution, served behind an API and wired into the scanner. | **Achieved (with caveats below).** |
+### 5.1 What the proposal committed to vs. what was delivered
 
-**Where results fell short of the ideal — and what the ML experiments showed:** the 0.955 figure is
-*in-distribution*. The training corpus is **class-imbalanced** (phishing ≈ 2,401 ≫ not-a-scam ≈ 1,200 ≫
+The proposal (Chapter 1) set three SMART objectives. The implementation **met or exceeded all three.**
+
+| Proposal objective | Committed to | Delivered | Verdict |
+|---|---|---|---|
+| **Obj 1 — Corpus** | A labelled West African scam corpus of **≥ 500 incidents** across the typology. | **4,422** labelled messages across **4 classes** (advance-fee, mobile-money, phishing, not-a-scam), from Nazario, UCI-SMS, Mozambique & Mendeley smishing, regional news. | **Exceeded** (≈ 9× the target) |
+| **Obj 2 — Platform** | Deploy a mobile platform integrating reporting + classification + risk assessment + education. | Flutter app **v1.0.6** with all four, plus assistant, admin console and 14-country authority reporting; installable APK. | **Exceeded** |
+| **Obj 3 — Model comparison** | Compare **two classical baselines** (TF-IDF + logistic regression vs TF-IDF + random forest), per-category metrics. | Compared **six** models (the two baselines + e5-embedding LR/RF + soft-vote + stacking ensembles); deployed the soft-vote ensemble at **0.955** macro-F1. | **Exceeded scope** |
+| Regional scope | Nigeria + Cameroon | Authority reporting for **14** countries | Exceeded |
+| Language scope | English + French (Pidgin where possible) | App localised to **11** languages; corpus is English + Portuguese | Partly diverged |
+
+**Honest deviations from the proposal:**
+- Obj 3 was scoped as a *classical-only* two-baseline comparison. The delivered work went **beyond** it by adding multilingual e5 embeddings and ensembles. This strengthens the result, but the final report should frame the ensemble as an *extension* beyond the proposed classical baselines.
+- The corpus language mix is **English + Portuguese** (from the Mozambique smishing set), not the English + French the proposal targeted; French / Pidgin coverage in the **model** remains thin, even though the **app** localises to 11 languages.
+
+### 5.2 The ML analysis (figures from `ml/notebooks/`)
+
+**Corpus & class imbalance** — phishing dominates; mobile-money and advance-fee are the minority classes (the root cause of the bias discussed below):
+
+![Corpus class, source and language distribution](docs/assets/ml/ml_class_distribution.png)
+
+**Model comparison** — of six models, the soft-voting ensemble wins at **macro-F1 0.955**, above the 0.943 TF-IDF + logistic-regression baseline:
+
+![Macro-F1 by model on the test split](docs/assets/ml/ml_model_comparison.png)
+
+**Confusion matrix (deployed ensemble)** — strong on the diagonal in-distribution; the visible leakage is advance-fee → phishing:
+
+![Confusion matrix of the deployed soft-voting ensemble](docs/assets/ml/ml_confusion_matrix.png)
+
+**Re-balancing ablation** — class-weighting, over-sampling and the combined strategy all converge to the same per-class recall; none beats the others on the hard advance-fee class, confirming that **data, not the algorithm, is the limit**:
+
+![Per-class recall across re-balancing strategies](docs/assets/ml/ml_rebalance_ablation.png)
+
+### 5.3 Where results fell short — and what the ML experiments showed
+
+The 0.955 figure is *in-distribution*. The training corpus is **class-imbalanced** (phishing ≈ 2,401 ≫ not-a-scam ≈ 1,200 ≫
 mobile-money ≈ 538 ≫ advance-fee ≈ 283), and the model inherits a **majority-class (phishing) bias**: on
 out-of-distribution messages, genuine mobile-money and advance-fee scams — and occasionally even a
 legitimate message — drift toward "phishing" at low confidence.
