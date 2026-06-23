@@ -19,6 +19,11 @@ class AppTheme {
   static const Color secondaryDark = Color(0xFFB8860B); // Dark Amber (≈3.3:1 — large text / UI glyphs only)
   // AA-safe amber for TEXT on light surfaces (≈6:1). #CC8800 as text fails WCAG AA (2.96:1).
   static const Color amberText = Color(0xFF7A5C00);
+
+  // Verdict tokens — AA-safe on light surfaces for scanner threat levels.
+  // (caution reuses amberText, unknown reuses onSurfaceVariant.)
+  static const Color verdictSafe = Color(0xFF2E7D32); // dark green ≈5.3:1
+  static const Color verdictDanger = Color(0xFFB3261E); // M3 error-dark ≈5.7:1
   
   static const Color accentColor = Color(0xFF9CAF88); // Acacia Green
   static const Color accentLight = Color(0xFFAED581); // Light Acacia

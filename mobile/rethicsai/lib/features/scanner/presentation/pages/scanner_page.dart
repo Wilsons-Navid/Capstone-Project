@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/services/threat_scanner_service.dart';
@@ -25,6 +26,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
   
   ScanResult? _lastScanResult;
   bool _isScanning = false;
+  String? _lastError;
 
   final List<ScanTypeData> _scanTypes = [
     ScanTypeData(
@@ -69,6 +71,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
         setState(() {
           _inputController.clear();
           _lastScanResult = null;
+          _lastError = null;
         });
       }
     });
@@ -240,9 +243,97 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
           
           const SizedBox(height: 24),
           
-          // Results Section
-          if (_lastScanResult != null) _buildResultsCard(_lastScanResult!),
+          // Results Section — skeleton while scanning, error state on failure,
+          // otherwise the verdict card.
+          if (_isScanning)
+            _buildResultSkeleton()
+          else if (_lastError != null)
+            _buildErrorState(scanType.type)
+          else if (_lastScanResult != null)
+            _buildResultsCard(_lastScanResult!),
         ],
+      ),
+    );
+  }
+
+  /// Shimmer skeleton shown while a scan is in flight (MASTER §5: never a blank gap).
+  Widget _buildResultSkeleton() {
+    Widget bar(double w, double h) => Container(
+          width: w,
+          height: h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6),
+          ),
+        );
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  bar(22, 22),
+                  const SizedBox(width: 8),
+                  bar(120, 14),
+                  const Spacer(),
+                  bar(70, 22),
+                ],
+              ),
+              const SizedBox(height: 20),
+              bar(double.infinity, 12),
+              const SizedBox(height: 8),
+              bar(double.infinity, 12),
+              const SizedBox(height: 8),
+              bar(220, 12),
+              const SizedBox(height: 20),
+              bar(double.infinity, 56),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Inline error state with a retry action (MASTER §5) — no raw exception text.
+  Widget _buildErrorState(ScanType type) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Icon(Icons.cloud_off, size: 40, color: AppTheme.errorColor),
+            const SizedBox(height: 12),
+            Text(
+              'scanner.scan_failed_title'.tr(),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _lastError ?? 'scanner.scan_failed_body'.tr(),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () => _performScan(type),
+              icon: const Icon(Icons.refresh),
+              label: Text('scanner.retry'.tr()),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -255,42 +346,45 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: _getThreatLevelColor(result.threatLevel),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'scanner.threat_level'.tr(),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getThreatLevelColor(result.threatLevel).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _getThreatLevelString(result.threatLevel),
-                    style: TextStyle(
-                      color: _getThreatLevelColor(result.threatLevel),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+            // Header — verdict conveyed by icon + colour + text (not colour alone).
+            Builder(builder: (context) {
+              final color = _getThreatLevelColor(result.threatLevel);
+              final label = _getThreatLevelString(result.threatLevel);
+              return Semantics(
+                label: '${'scanner.threat_level'.tr()}: $label',
+                child: Row(
+                  children: [
+                    Icon(_getThreatLevelIcon(result.threatLevel),
+                        color: color, size: 22),
+                    const SizedBox(width: 8),
+                    Text(
+                      'scanner.threat_level'.tr(),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
-                  ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: color.withOpacity(0.4)),
+                      ),
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            }),
             
             const SizedBox(height: 16),
             
@@ -325,7 +419,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
             if (result.recommendations.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
-                'Recommendations:',
+                'scanner.recommendations'.tr(),
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -367,6 +461,7 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     setState(() {
       _isScanning = true;
       _lastScanResult = null;
+      _lastError = null;
     });
 
     try {
@@ -415,9 +510,10 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
       });
 
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Scan failed: $e')),
-      );
+      // Surface a friendly inline error state (no raw exception text to the user).
+      if (mounted) {
+        setState(() => _lastError = 'scanner.scan_failed_body'.tr());
+      }
     } finally {
       setState(() {
         _isScanning = false;
@@ -425,20 +521,38 @@ class _ScannerPageState extends State<ScannerPage> with SingleTickerProviderStat
     }
   }
 
+  // Verdict colors come from AA-safe semantic tokens (see design-system/MASTER.md §6),
+  // never raw Colors.* — Colors.yellow in particular is near-invisible on white.
   Color _getThreatLevelColor(ThreatLevel level) {
     switch (level) {
       case ThreatLevel.safe:
-        return Colors.green;
+        return AppTheme.verdictSafe;
       case ThreatLevel.low:
-        return Colors.yellow;
       case ThreatLevel.medium:
-        return Colors.orange;
+        return AppTheme.amberText; // caution
       case ThreatLevel.high:
-        return Colors.red;
       case ThreatLevel.critical:
-        return Colors.red.shade900;
+        return AppTheme.verdictDanger;
       case ThreatLevel.unknown:
-        return Colors.grey;
+        return AppTheme.onSurfaceVariant;
+    }
+  }
+
+  // Verdict must not rely on colour alone (MASTER §6) — pair it with an icon.
+  IconData _getThreatLevelIcon(ThreatLevel level) {
+    switch (level) {
+      case ThreatLevel.safe:
+        return Icons.verified_user;
+      case ThreatLevel.low:
+        return Icons.info_outline;
+      case ThreatLevel.medium:
+        return Icons.warning_amber_rounded;
+      case ThreatLevel.high:
+        return Icons.gpp_bad;
+      case ThreatLevel.critical:
+        return Icons.dangerous;
+      case ThreatLevel.unknown:
+        return Icons.help_outline;
     }
   }
 
