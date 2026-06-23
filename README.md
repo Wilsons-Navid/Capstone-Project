@@ -1,91 +1,186 @@
-# Capstone — AI-Powered Cybercrime Reporting & Scam Detection in West Africa
+# RethicsAI — AI-Powered Scam Detection & Cybercrime Reporting for Africa
 
 **Author:** Wilsons Navid Wado Tiwa — BSc Software Engineering, African Leadership University
-**Today:** 2026-05-22
-**Status:** New supervisor assigned 2026-05-22. **Research proposal being rewritten from scratch** under the new course templates. Working deadline ~31/5/26.
+**Product:** RethicsAI mobile app (Flutter + Firebase + a custom Python ML scam classifier)
+**Status:** Implementation & Testing milestone — deployed Android build available below.
+
+RethicsAI turns the everyday question *“Is this message a scam?”* into an instant, explainable
+verdict — then helps the user act on it: verify, block, and report to the right national authority.
+It pairs a custom-trained scam classifier (not a wrapped LLM) with an education hub, an AI
+assistant, and an authority-reporting directory covering 14 African countries.
 
 ---
 
-## 📱 Download the app (Android APK)
+## 1. Deployed version — download & install (Android)
 
-Scan the QR code or use the link below to install the RethicsAI mobile app on an Android device.
+> **Direct APK download:**
+> https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.6/rethicsai-v1.0.6.apk
+>
+> **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.6
 
-<img src="docs/assets/rethicsai_apk_qr.png" alt="QR code to download RethicsAI Android APK" width="220" />
+**Step-by-step install:**
+1. On an Android phone, open the **direct APK link** above in a browser.
+2. Tap **Download**; when it finishes, tap the file to open it.
+3. Android may warn about **“Install from unknown sources”** — tap **Settings → Allow from this source** (normal for apps installed outside an app store).
+4. If Google **Play Protect** shows a warning, tap **More details → Install anyway** (the build requests SMS-reading permissions, which Play Protect flags for sideloaded apps).
+5. Open **RethicsAI**, create an account or sign in with Google, and you're in.
 
-- **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.2
-- **Direct download:** https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.2/RethicsAI-v1.0.2.apk
-
-> On first install, Android may ask you to allow **“Install from unknown sources.”** This is normal for apps installed outside the Play Store. Signed release build — Google Sign-In works.
-
----
-
-## Current focus — `proposal/`
-
-The active workspace is `proposal/`. Section-by-section drafting:
-
-1. Chapter 2 — Literature Review (drafted first per template)
-2. Chapter 1 — Introduction
-3. Chapter 3 — System Analysis & Design
-4. Front matter (abstract, ToC, lists)
-5. References (APA)
-
-See `proposal/README.md` for status, rubric checkpoints, and the formatting/template spec.
+No desktop or developer tools are required to run the deployed app — just the APK.
 
 ---
 
-## Course timeline (from `docs/IMG-20260522-WA0000.jpg`)
+## 2. Run / build from source (developers)
 
-| Phase | Weeks | Dates | Weight |
-|---|---|---|---:|
-| Research proposal | W1–W3 | 4/5 – 22/5/26 | 19% |
-| Initial Design & Development | W4–W5 | 25/5 – 5/6/26 | 0% |
-| Final Capstone Implementation | W6–W8 | 8/6 – 26/6/26 | 15% |
-| Final capstone project report | W9–W10 | 29/6 – 10/7/26 | 26% |
-| Workshop Attendance | WK2–WK11 | 11/5 – 17/7/26 | 5% |
-| Supervisor's Grade | W11 | 14/7 – 17/7/26 | 10% |
-| Capstone Defense | W12–WK13 | 20/7 – 24/7/26 | 20% |
-| Final Capstone Report Submission | WK13 | 27/7 – 31/7/26 | 5% |
+**Prerequisites:** [Flutter](https://docs.flutter.dev/get-started/install) 3.x, Android Studio or the Android SDK, a device/emulator.
+
+```bash
+# 1. Clone
+git clone https://github.com/Wilsons-Navid/Capstone-Project.git
+cd Capstone-Project/mobile/rethicsai
+
+# 2. Install dependencies
+flutter pub get
+
+# 3. Run on a connected device / emulator
+flutter run
+
+# 4. (optional) Build your own release APK
+flutter build apk --release
+# output: build/app/outputs/flutter-apk/app-release.apk
+```
+
+The app ships with its Firebase configuration; no extra backend setup is needed to run it.
 
 ---
 
-## Workspace map
+## 3. What the app does (core functionality)
+
+| Feature | What it does |
+|---|---|
+| **Scanner** | Paste an SMS, email, URL, phone number or message → AI returns a **threat level + category + explanation**. |
+| **Report to Authorities** | Country-aware directory (14 countries) of police / cyber-crime / financial-crime units — call, email, or report online with a pre-filled message. |
+| **Incident Reporting** | Structured report with evidence upload, geolocation and priority. |
+| **Case Tracking** | Status timeline for submitted cases. |
+| **Education Hub** | Lessons (video + interactive) with gamification and certificates. |
+| **Wilson AI Assistant** | Conversational cyber-safety Q&A (Claude Haiku). |
+| **Notifications & Dashboard** | Real-time alerts; a personal security overview. |
+| **Admin Console** | Manage authority contacts (add/edit/delete countries), moderate content, review cases. |
+| **11 languages** | English, French, Swahili, Hausa, Yoruba, Igbo, Zulu, Xhosa, Afrikaans, Arabic, Duala. |
+
+---
+
+## 4. Testing Results
+
+> _Screenshots referenced below live in `docs/assets/` — add your captured images there._
+
+### 4.1 Testing strategies
+
+| Strategy | What it covers | How to run / evidence |
+|---|---|---|
+| **Automated unit tests** | Validation & sanitization logic (`SecurityUtils`), bundled authority-contacts data, theme tokens. | `cd mobile/rethicsai && flutter test` |
+| **Automated widget tests** | Theme renders, `EarthColors` extension resolves, Material 3 enabled. | included in `flutter test` |
+| **Manual / functional testing** | Core user flows: scan → verdict → report; dashboard; admin CRUD. | screenshots (§4.2) |
+
+**Automated test run — all green:**
+
+```text
+$ flutter test
+00:03 +36: All tests passed!
+```
+
+_(Screenshot slot: `docs/assets/test_run.png`)_
+
+### 4.2 Functionality with different data values (the scanner)
+
+The classifier returns one of four categories with a risk level. Capture a screenshot of each:
+
+| Input (example) | Expected category | Expected verdict | Screenshot |
+|---|---|---|---|
+| “Congrats! You won ₦2,000,000 in the MTN promo. Send your BVN + ₦5,000 fee to claim.” | Advance-fee fraud | HIGH RISK | `docs/assets/scan_advance_fee.png` |
+| “Your MoMo account will be blocked. Dial *123*PIN# now to verify.” | Mobile-money fraud | HIGH RISK | `docs/assets/scan_momo.png` |
+| “Dear customer, your bank account is suspended. Click http://bit.ly/secure to reactivate.” | Phishing | HIGH RISK | `docs/assets/scan_phishing.png` |
+| “Hi, are we still meeting at 3pm tomorrow?” | Not a scam | SAFE | `docs/assets/scan_safe.png` |
+
+### 4.3 Performance on different hardware / software
+
+Run the app on at least two configurations and record the result:
+
+| Device / emulator | Android version | RAM | Result (launch, scan, report) | Screenshot |
+|---|---|---|---|---|
+| _e.g. Physical phone_ | _e.g. Android 14_ | _e.g. 8 GB_ | _smooth / acceptable_ | `docs/assets/perf_phone.png` |
+| _e.g. Emulator (Pixel)_ | _e.g. Android 11_ | _e.g. 4 GB_ | _smooth / acceptable_ | `docs/assets/perf_emulator.png` |
+
+---
+
+## 5. Analysis — results vs. project objectives
+
+| Objective (proposal) | Result | Achieved? |
+|---|---|---|
+| **Obj 1 — Build a labelled scam corpus** | A 4,422-row, four-class corpus (advance-fee, mobile-money, phishing, not-a-scam) assembled from public and African-context sources. | **Achieved.** |
+| **Obj 2 — Deliver a working detection & reporting platform** | A production Flutter app (v1.0.6) with scanner, 14-country authority reporting, education, assistant and admin console; deployed as an installable APK. | **Achieved.** |
+| **Obj 3 — Train & evaluate a scam classifier** | A TF-IDF + multilingual e5 soft-voting ensemble reaching **macro-F1 0.955** in-distribution, served behind an API and wired into the scanner. | **Achieved (with caveats below).** |
+
+**Where results fell short of the ideal:** the 0.955 figure is *in-distribution*. On out-of-distribution
+messages accuracy drops, and the training corpus is skewed toward phishing — so some genuine
+mobile-money / advance-fee scams are mislabelled as phishing. Controlled re-balancing experiments did
+**not** fix the same hard cases, indicating the binding constraint is the volume of authentic
+minority-class data, not the algorithm.
+
+---
+
+## 6. Discussion — why the milestones matter
+
+- **Detection without action is half a solution.** The real impact of this milestone is not just a
+  classifier that labels a message, but a product that closes the loop — turning a verdict into a
+  one-tap report to a real authority in the user's country. That is the differentiator.
+- **Owning the model matters.** Building a custom classifier (rather than calling a third-party LLM)
+  means the intelligence is tuned to African scam vectors and languages, and every confirmed report
+  can improve it — a data advantage competitors cannot copy by translating a UI.
+- **Trust is the product.** Accessibility and clarity decisions (verdicts shown by icon **and** colour
+  **and** text, WCAG-AA contrast, 11 languages) are not cosmetic; for non-technical users they are the
+  difference between guidance that is understood and guidance that is ignored.
+
+---
+
+## 7. Recommendations & Future Work
+
+- **Confidence-aware verdicts:** surface model confidence and add an explicit “unsure — treat with
+  caution” state to cut false positives and raise trust.
+- **Collect authentic minority-class data** (mobile-money, advance-fee) — the single biggest lever on accuracy.
+- **On-device inference:** a quantised model for offline, private screening in low-connectivity contexts.
+- **Multi-modal detection:** images, link-reputation and voice-note analysis.
+- **Consent-based escalation tiers:** from helping the user act (live today) to partnerships with operators and regulators.
+- **Community guidance:** promote Rethics through telco and community-organisation channels where scam exposure is highest.
+
+---
+
+## 8. Repository map (related files)
 
 ```
 Capstone-Project/
-├── README.md                ← this file
-├── proposal/                ← ACTIVE: new proposal under new supervisor
-│   ├── README.md            ← section status board, rubric, formatting spec
-│   ├── sections/            ← one .md per section, drafted iteratively
-│   └── assets/              ← diagrams + figures for the proposal
-├── docs/                    ← templates, guideline, course timeline images
-│   ├── Proposal Guidline.docx
-│   ├── Copy of Machine Learnin Proposal_mission Capstone.docx   ← primary template
-│   ├── Copy of Proposal_mission Capstone.docx                   ← general template
-│   ├── IMG-20260522-WA0000.jpg   ← course assessments timeline
-│   ├── Wilsodev.png              ← week-by-week module structure
-│   └── archive/             ← obsolete old-supervisor-track docs (mineable, not deleted)
-│       ├── old_supervisor_track/ (reconciliation memos, briefing slides, onboarding)
-│       ├── pre_capstone_units/   (Units 1–4 + Pre-Capstone Major Assessment)
-│       └── legacy_misc/          (older drafts, old workspace README)
-├── mobile/                  ← Rethicssec Flutter app (existing implementation)
-├── ml/                      ← ML research scaffold (skeleton code)
-├── meetings/                ← weekly supervisor meeting notes (template)
-├── pilot/                   ← placeholder (later phase)
-└── dissertation/            ← placeholder (later phase)
+├── README.md                     ← this file (submission entry point)
+├── mobile/rethicsai/             ← the RethicsAI Flutter app
+│   ├── lib/                      ← app source (features/, core/, shared/)
+│   ├── test/                     ← automated tests (flutter test → 36 passing)
+│   └── design-system/MASTER.md   ← the design-system contract
+├── ml/                           ← scam-classifier research (corpus, notebooks, serving)
+├── docs/                         ← reports, assets/ (screenshots), templates
+│   └── Rethics_Product_Brand_Report.docx
+└── proposal/                     ← academic proposal workspace
 ```
-
-Reference exemplar: `Mission Capstone Proposal_Chambeline Nkah.pdf` at workspace root.
 
 ---
 
-## What carries forward, what doesn't
+## 9. Tech stack
 
-**Carries forward (still relevant):**
-- Project topic: AI for cybercrime reporting + scam detection in West Africa
-- Existing app at `mobile/rethicsai/` — Rethicssec v1.0.2+3, Flutter + Firebase
-- ML scaffold under `ml/` — skeleton modules for baselines / LLM eval / dataset handling
+Flutter (Dart) · Material 3 · Firebase (Auth, Firestore, Cloud Functions, FCM) ·
+Python ML service (TF-IDF + e5 ensemble) · Claude Haiku (assistant) · 11 locales.
 
-**Archived (obsolete framing under previous supervisor):**
-- Reconciliation Memo v1/v2/v3 + briefing slides + onboarding report → `docs/archive/old_supervisor_track/`
-- Pre-Capstone Unit 1–4 deliverables → `docs/archive/pre_capstone_units/` (content mineable for the new lit review)
-- Older miscellaneous drafts → `docs/archive/legacy_misc/`
+---
+
+## 10. Demo video
+
+**5-minute demo (core functionality):** _add link here_
+
+> The video focuses on the core flows — scanning different messages, the verdict, reporting to
+> authorities, the education hub and the assistant — rather than sign-up / sign-in.
