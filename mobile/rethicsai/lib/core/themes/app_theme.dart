@@ -14,9 +14,11 @@ class AppTheme {
   static const Color primaryLight = Color(0xFF3E2723); // Warm Dark Brown
   static const Color primaryDark = Color(0xFF1A0E0A); // Deep Earth
   
-  static const Color secondaryColor = Color(0xFFCC8800); // Sunset Amber
+  static const Color secondaryColor = Color(0xFFCC8800); // Sunset Amber — fills/icons/accents only
   static const Color secondaryLight = Color(0xFFD4A158); // Soft Amber
-  static const Color secondaryDark = Color(0xFFB8860B); // Dark Amber
+  static const Color secondaryDark = Color(0xFFB8860B); // Dark Amber (≈3.3:1 — large text / UI glyphs only)
+  // AA-safe amber for TEXT on light surfaces (≈6:1). #CC8800 as text fails WCAG AA (2.96:1).
+  static const Color amberText = Color(0xFF7A5C00);
   
   static const Color accentColor = Color(0xFF9CAF88); // Acacia Green
   static const Color accentLight = Color(0xFFAED581); // Light Acacia
@@ -193,9 +195,25 @@ class AppTheme {
     stops: [0.0, 1.0],
   );
 
+  // Theme-aware brand tokens. Use via `context.earth` so colors that should adapt
+  // between light/dark (e.g. amber text) resolve correctly, while brand hues stay constant.
+  static const EarthColors _earthLight = EarthColors(
+    amberText: amberText,
+    success: successColor,
+    warning: warningColor,
+    info: infoColor,
+  );
+  static const EarthColors _earthDark = EarthColors(
+    amberText: secondaryLight, // lighter amber reads on dark surfaces
+    success: successLight,
+    warning: warningLight,
+    info: infoLight,
+  );
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
+      extensions: const [_earthLight],
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.light,
@@ -365,7 +383,8 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingM),
         hintStyle: TextStyle(color: onSurfaceVariant.withOpacity(0.6)),
         labelStyle: const TextStyle(color: onSurface),
-        floatingLabelStyle: const TextStyle(color: secondaryColor),
+        // amberText (not secondaryColor) so the floating label meets WCAG AA on white.
+        floatingLabelStyle: const TextStyle(color: amberText),
       ),
       cardTheme: CardThemeData(
         elevation: elevationS,
@@ -395,6 +414,7 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
+      extensions: const [_earthDark],
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         brightness: Brightness.dark,
@@ -522,9 +542,57 @@ class AppTheme {
   }
 }
 
-// Custom extension for theme context
-extension ThemeExtension on BuildContext {
+/// Theme-aware brand colors that need to adapt between light and dark surfaces.
+/// Brand hues that are intentionally constant stay as `AppTheme.*` static consts.
+@immutable
+class EarthColors extends ThemeExtension<EarthColors> {
+  final Color amberText;
+  final Color success;
+  final Color warning;
+  final Color info;
+
+  const EarthColors({
+    required this.amberText,
+    required this.success,
+    required this.warning,
+    required this.info,
+  });
+
+  @override
+  EarthColors copyWith({
+    Color? amberText,
+    Color? success,
+    Color? warning,
+    Color? info,
+  }) {
+    return EarthColors(
+      amberText: amberText ?? this.amberText,
+      success: success ?? this.success,
+      warning: warning ?? this.warning,
+      info: info ?? this.info,
+    );
+  }
+
+  @override
+  EarthColors lerp(ThemeExtension<EarthColors>? other, double t) {
+    if (other is! EarthColors) return this;
+    return EarthColors(
+      amberText: Color.lerp(amberText, other.amberText, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      info: Color.lerp(info, other.info, t)!,
+    );
+  }
+}
+
+// Custom extension for theme context.
+// NOTE: must NOT be named `ThemeExtension` — that shadows Flutter's ThemeExtension<T> class.
+extension AppThemeContext on BuildContext {
   ThemeData get theme => Theme.of(this);
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
   TextTheme get textTheme => Theme.of(this).textTheme;
+
+  /// Theme-aware brand colors (falls back to light values if unset).
+  EarthColors get earth =>
+      Theme.of(this).extension<EarthColors>() ?? AppTheme._earthLight;
 }

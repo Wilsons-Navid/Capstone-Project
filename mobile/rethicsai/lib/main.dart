@@ -33,7 +33,7 @@ void main() async {
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Color(0xFF1a237e),
+      systemNavigationBarColor: AppTheme.primaryDark, // brand deep-earth (was off-brand indigo)
       systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
