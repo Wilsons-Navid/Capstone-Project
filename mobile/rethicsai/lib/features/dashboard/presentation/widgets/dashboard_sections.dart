@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/utils/app_router.dart';
@@ -109,12 +110,16 @@ class _StatCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           isLoading && value == '--'
-              ? SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: color,
+              ? Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(
+                    width: 40,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
                 )
               : Text(
@@ -288,15 +293,13 @@ class _FeatureTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        Navigator.pushNamed(context, feature.route);
-      },
+    // Shadow on the outer Container; Material+InkWell give a clipped ripple +
+    // press feedback (MASTER §5). Wrapped in Semantics as a button.
+    return Semantics(
+      button: true,
+      label: feature.title.tr(),
       child: Container(
-        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -311,9 +314,20 @@ class _FeatureTile extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.pushNamed(context, feature.route);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             Container(
               width: 48,
               height: 48,
@@ -361,10 +375,13 @@ class _FeatureTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          ],
-        ),
-      ),
-    );
+                ],
+              ), // Column
+            ), // Padding
+          ), // InkWell
+        ), // Material
+      ), // Container
+    ); // Semantics
   }
 }
 
@@ -440,7 +457,7 @@ class ThreatInsightsCard extends StatelessWidget {
                 Expanded(
                   child: _ThreatStat(
                     title: 'MoMo Scams',
-                    value: '\$1.3B Lost',
+                    value: 'Billions Lost',
                     icon: Icons.phone_android_rounded,
                   ),
                 ),

@@ -50,20 +50,25 @@ class DashboardBottomNav extends StatelessWidget {
 
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isSelected = selectedIndex == index;
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap(index);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryColor.withOpacity(0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: label,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap(index);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppTheme.primaryColor.withOpacity(0.1)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
@@ -81,9 +86,10 @@ class DashboardBottomNav extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
+          ), // Column
+        ), // Container
+      ), // InkWell
+    ); // Semantics
   }
 }
 
