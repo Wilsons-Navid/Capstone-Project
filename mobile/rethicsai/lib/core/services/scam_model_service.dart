@@ -3,8 +3,9 @@ import 'package:flutter/foundation.dart';
 
 import '../config/api_config.dart';
 
-/// One prediction from the hosted scam-classifier ensemble
-/// (TF-IDF + multilingual-e5-small soft-voting model, macro-F1 0.955).
+/// One prediction from the hosted scam-classifier API
+/// (v2: TF-IDF + Logistic Regression, the best model on the expanded
+/// English / Portuguese / Swahili corpus, test macro-F1 0.946).
 class ScamModelResult {
   /// advance_fee_fraud | mobile_money_fraud | phishing | not_a_scam
   final String category;
@@ -62,10 +63,10 @@ class ScamModelService {
   final Dio _dio;
 
   // The model is hosted on a free Hugging Face Space that sleeps when idle.
-  // The first request after idle has to wake the container AND lazy-load the
-  // e5 weights, which can take 30-60s+. Without a warm-up, that first real scan
-  // would exceed the timeout and silently fall back to heuristics (no model
-  // verdict). We pre-warm once per session so the user's first scan is fast.
+  // The v2 model is pure scikit-learn (~1.5 MB, no embedder download), so a warm
+  // container answers in ~1s; only the container wake from idle adds a few
+  // seconds. We still pre-warm once per session so the user's first scan after
+  // the app opens is fast rather than waiting on the cold container.
   static bool _warmStarted = false;
 
   /// Fire-and-forget warm-up of the (sleeping) model Space. Hitting POST

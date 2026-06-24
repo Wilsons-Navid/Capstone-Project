@@ -54,12 +54,14 @@ class ApiConfig {
     return '';
   }
 
-  // ---- Scam-classifier model API (the project's e5 + ensemble model) ----
-  // Default points at the deployed Hugging Face Space; override at build time with:
-  // flutter run --dart-define=SCAM_MODEL_API=https://<space>.hf.space
+  // ---- Scam-classifier model API (the project's v2 multilingual model) ----
+  // Default points at the deployed Hugging Face Space (v2: TF-IDF + LogReg, the
+  // best model on the expanded en/pt/sw corpus, test macro-F1 0.946; pure
+  // scikit-learn so there is no cold-start model download). Override at build
+  // time with: flutter run --dart-define=SCAM_MODEL_API=https://<space>.hf.space
   static const String _scamModelBuildTimeUrl = String.fromEnvironment(
     'SCAM_MODEL_API',
-    defaultValue: 'https://wadotuh-scam-classifier-api.hf.space',
+    defaultValue: 'https://wilsons579-scam-classifier-api-v2.hf.space',
   );
 
   /// Base URL of the hosted scam-classifier API (e.g. a Hugging Face Space or
