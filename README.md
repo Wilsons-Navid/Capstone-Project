@@ -65,17 +65,19 @@ The app ships with its Firebase configuration, so no extra backend setup is need
 
 ## 3. What the app does (core functionality)
 
-| Feature | What it does |
+| Feature (name in the app) | What it does |
 |---|---|
-| Scanner | Paste an SMS, email, URL, phone number or message; the AI returns a threat level, a category, and an explanation. |
+| Threat Scanner | Paste an SMS, email, URL, phone number or message; the AI returns a threat level, a category, and an explanation. |
+| SMS Protection | Scan your inbox or live-classify incoming SMS with the model (Android only). |
 | Report to authorities | Country-aware directory (14 countries) of police, cyber-crime, and financial-crime units. Call, email, or report online with a pre-filled message. |
-| Incident reporting | Structured report with evidence upload, geolocation, and priority. |
-| Case tracking | Status timeline for submitted cases. |
-| Education hub | Lessons (video and interactive) with gamification and certificates. |
-| Wilson AI assistant | Conversational cyber-safety questions and answers (Claude Haiku). |
-| Notifications and dashboard | Real-time alerts and a personal security overview. |
-| Admin console | Manage authority contacts (add, edit, delete countries), moderate content, review cases. |
-| 11 languages | English, French, Swahili, Hausa, Yoruba, Igbo, Zulu, Xhosa, Afrikaans, Arabic, Duala. |
+| Report Incident | Structured report with evidence upload, geolocation, and priority. |
+| Track Cases | Status timeline for submitted cases. |
+| Learn & Protect | Lessons (video and interactive) with gamification and certificates. |
+| CyberGuard AI (the Wilson assistant) | Conversational cyber-safety questions and answers (Claude Haiku). |
+| Need Immediate Help? | Emergency-contacts directory for quick access during an active fraud. |
+| Dashboard and Notifications | Personal security overview and a real-time alerts inbox. |
+| Admin Panel | Manage authority contacts (add, edit, delete countries), moderate content, review cases. |
+| Language | 11 locales: English, French, Swahili, Hausa, Yoruba, Igbo, Zulu, Xhosa, Afrikaans, Arabic, Duala. |
 
 ### 3.1 App screenshots
 
