@@ -73,7 +73,7 @@ The app ships with its Firebase configuration, so no extra backend setup is need
 | Report Incident | Structured report with evidence upload, geolocation, and priority. |
 | Track Cases | Status timeline for submitted cases. |
 | Learn & Protect | Lessons (video and interactive) with gamification and certificates. |
-| Wilson AI (the Wilson assistant) | Conversational cyber-safety questions and answers (Claude Haiku). |
+| Wilson AI | Conversational cyber-safety questions and answers (Claude Haiku). |
 | Need Immediate Help? | Emergency-contacts directory for quick access during an active fraud. |
 | Dashboard and Notifications | Personal security overview and a real-time alerts inbox. |
 | Admin Panel | Manage authority contacts (add, edit, delete countries), moderate content, review cases. |
