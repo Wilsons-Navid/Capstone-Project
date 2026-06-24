@@ -196,6 +196,20 @@ The proposal (Chapter 1) set three SMART objectives. The implementation **met or
 
 ### 5.2 The ML analysis (figures from `ml/notebooks/`)
 
+**Example messages from the corpus (one per class).** Verbatim rows from `ml/data/labelled/demo_labeled.jsonl`
+(original spelling/encoding preserved):
+
+| Category | Example message | Source |
+|---|---|---|
+| `advance_fee_fraud` | “URGENT! We are trying to contact U. Todays draw shows that you have won a £2000 prize GUARANTEED. Call 09058094507 from land line. Claim 3030. Valid 12hrs only” | uci_sms |
+| `mobile_money_fraud` | “Transfere me neste numero M-Pesa 858809051, esta em nome de MANUEL TOMAS FERRO.” *(Portuguese — “Transfer to this M-Pesa number 858809051, in the name of Manuel Tomas Ferro.”)* | moz_smishing |
+| `phishing` | “Fifth Third Bank: account confirmation procedure.” | nazario_email |
+| `not_a_scam` | “Was really good to see you the other day dudette, been missing you!” | uci_sms |
+
+> Note: the `mobile_money_fraud` class is sourced almost entirely from Mozambican M-Pesa smishing and is
+> therefore in **Portuguese** — which is exactly why the corpus is English + Portuguese, and why French /
+> Pidgin coverage in the model is still thin (see §5.1).
+
 **Corpus & class imbalance** — phishing dominates; mobile-money and advance-fee are the minority classes (the root cause of the bias discussed below):
 
 ![Corpus class, source and language distribution](docs/assets/ml/ml_class_distribution.png)
