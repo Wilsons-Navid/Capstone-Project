@@ -214,7 +214,7 @@ and report) ran smoothly on the device.
 
 | Device / emulator | Android version | RAM | Result (launch, scan, report) | Screenshot |
 |---|---|---|---|---|
-| Infinix Note 50 Pro (X6855), physical | _confirm_ | _confirm_ | Smooth; all core flows worked | `docs/assets/perf_phone.png` |
+| Infinix Note 50 Pro (X6855), physical | Android 15 | 8 GB | Smooth; all core flows worked | `docs/assets/perf_phone.png` |
 | _Second config (a different phone or an emulator)_ | _e.g. Android 11_ | _e.g. 4 GB_ | _add result_ | `docs/assets/perf_emulator.png` |
 
 <p align="center"><img src="docs/assets/perf_phone.png" width="240" alt="RethicsAI running on an Infinix Note 50 Pro"></p>
