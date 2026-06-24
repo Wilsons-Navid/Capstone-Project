@@ -77,6 +77,35 @@ The app ships with its Firebase configuration, so no extra backend setup is need
 | Admin console | Manage authority contacts (add, edit, delete countries), moderate content, review cases. |
 | 11 languages | English, French, Swahili, Hausa, Yoruba, Igbo, Zulu, Xhosa, Afrikaans, Arabic, Duala. |
 
+### 3.1 App screenshots
+
+<p align="center">
+  <img src="docs/assets/screenshots/dashboard.png" width="200" alt="Dashboard">
+  <img src="docs/assets/screenshots/scanner.png" width="200" alt="Threat scanner">
+  <img src="docs/assets/screenshots/scanner_input.png" width="200" alt="Scanner input">
+</p>
+<p align="center"><em>Dashboard, the threat scanner, and the scan input.</em></p>
+
+<p align="center">
+  <img src="docs/assets/screenshots/advance_fee_actions.png" width="200" alt="Report-to-authorities actions">
+  <img src="docs/assets/screenshots/mobile_money_2.png" width="200" alt="A mobile-money scan">
+  <img src="docs/assets/screenshots/security_features.png" width="200" alt="Security features">
+</p>
+<p align="center"><em>Report-to-authorities actions, a mobile-money scan, and the security features.</em></p>
+
+<p align="center">
+  <img src="docs/assets/screenshots/education.png" width="200" alt="Education hub">
+  <img src="docs/assets/screenshots/ai_assistant.png" width="200" alt="Wilson AI assistant">
+  <img src="docs/assets/screenshots/admin.png" width="200" alt="Admin dashboard">
+</p>
+<p align="center"><em>The education hub, the Wilson AI assistant, and the admin dashboard.</em></p>
+
+<p align="center">
+  <img src="docs/assets/screenshots/report_incident.png" width="200" alt="Report an incident">
+  <img src="docs/assets/screenshots/incident_report_2.png" width="200" alt="Incident report form">
+</p>
+<p align="center"><em>Incident reporting.</em></p>
+
 ---
 
 ## 4. How it's built: two parts and their intersection
@@ -158,23 +187,37 @@ $ flutter test
 
 ### 5.2 Functionality with different data values (the scanner)
 
-The classifier returns one of four categories with a risk level. Capture a screenshot of each:
+The scanner was tested with one real message per class (taken from the corpus). Each returned the correct
+category and risk level from the AI model, with the model's confidence shown on screen:
 
-| Input (example) | Expected category | Expected verdict | Screenshot |
+| Input (corpus message) | Model category | Verdict | Confidence |
 |---|---|---|---|
-| "Congrats! You won ₦2,000,000 in the MTN promo. Send your BVN + ₦5,000 fee to claim." | Advance-fee fraud | HIGH RISK | `docs/assets/scan_advance_fee.png` |
-| "Your MoMo account will be blocked. Dial *123*PIN# now to verify." | Mobile-money fraud | HIGH RISK | `docs/assets/scan_momo.png` |
-| "Dear customer, your bank account is suspended. Click http://bit.ly/secure to reactivate." | Phishing | HIGH RISK | `docs/assets/scan_phishing.png` |
-| "Hi, are we still meeting at 3pm tomorrow?" | Not a scam | SAFE | `docs/assets/scan_safe.png` |
+| "URGENT! ...you have won a £900 prize GUARANTEED. Call 09061701939. Claim code S89. Valid 12hrs only" | Advance-fee fraud | HIGH RISK | 96% |
+| "...FAIZAL ALBERTO BERNADO" (Mozambican M-Pesa lure, Portuguese) | Mobile-money fraud | HIGH RISK | 85% |
+| "TKO NOTICE: Compromised Accounts - eBay Registration Suspension" | Phishing | HIGH RISK | 97% |
+| "Okey dokey, i'll be over in a bit just sorting some stuff out." | Not a scam | SAFE | 97% |
+
+<p align="center">
+  <img src="docs/assets/scan_advance_fee.png" width="210" alt="Advance-fee fraud verdict, high risk, 96%">
+  <img src="docs/assets/scan_momo.png" width="210" alt="Mobile-money fraud verdict, high risk, 85%">
+  <img src="docs/assets/scan_phishing.png" width="210" alt="Phishing verdict, high risk, 97%">
+  <img src="docs/assets/scan_safe.png" width="210" alt="Not a scam verdict, safe, 97%">
+</p>
+
+The verdicts use the deployed model (the cards read "AI Model Verdict" with a confidence bar), and each
+verdict is shown by icon, colour, and text together (red for scam, green for safe).
 
 ### 5.3 Performance on different hardware / software
 
-Run the app on at least two configurations and record the result:
+The app was run on a physical Infinix Note 50 Pro (model X6855). All core flows (launch, navigation, scan,
+and report) ran smoothly on the device.
 
 | Device / emulator | Android version | RAM | Result (launch, scan, report) | Screenshot |
 |---|---|---|---|---|
-| _e.g. Physical phone_ | _e.g. Android 14_ | _e.g. 8 GB_ | _smooth / acceptable_ | `docs/assets/perf_phone.png` |
-| _e.g. Emulator (Pixel)_ | _e.g. Android 11_ | _e.g. 4 GB_ | _smooth / acceptable_ | `docs/assets/perf_emulator.png` |
+| Infinix Note 50 Pro (X6855), physical | _confirm_ | _confirm_ | Smooth; all core flows worked | `docs/assets/perf_phone.png` |
+| _Second config (a different phone or an emulator)_ | _e.g. Android 11_ | _e.g. 4 GB_ | _add result_ | `docs/assets/perf_emulator.png` |
+
+<p align="center"><img src="docs/assets/perf_phone.png" width="240" alt="RethicsAI running on an Infinix Note 50 Pro"></p>
 
 ---
 
