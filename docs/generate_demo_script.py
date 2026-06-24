@@ -1,4 +1,4 @@
-"""Generates the RethicsAI 5-minute demo video script as a Microsoft Word .docx."""
+"""Generates the Rethicsec 5-minute demo video script as a Microsoft Word .docx."""
 from docx import Document
 from docx.shared import Pt, RGBColor, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -66,7 +66,7 @@ def table(headers, rows, widths=None):
 
 # Title
 tp = doc.add_paragraph(); tp.alignment = WD_ALIGN_PARAGRAPH.CENTER
-tr = tp.add_run("RethicsAI — 5-Minute Demo Video Script"); tr.bold = True; tr.font.size = Pt(20); tr.font.color.rgb = BROWN
+tr = tp.add_run("Rethicsec — 5-Minute Demo Video Script"); tr.bold = True; tr.font.size = Pt(20); tr.font.color.rgb = BROWN
 sp = doc.add_paragraph(); sp.alignment = WD_ALIGN_PARAGRAPH.CENTER
 sr = sp.add_run("Shot list for the Implementation & Testing submission"); sr.italic = True; sr.font.color.rgb = AMBER
 doc.add_paragraph()
@@ -86,13 +86,13 @@ table(
     ["Time", "On screen", "Say this (narration)"],
     [
         ["0:00–0:20\n(Hook)", "App icon / splash, then dashboard.",
-         "This is RethicsAI — a scam-defence app for Africa. Across the continent, mobile-money, advance-fee and phishing scams cost everyday users real money. RethicsAI answers one question instantly: is this message a scam? — and helps you act on it."],
+         "This is Rethicsec — a scam-defence app for Africa. Across the continent, mobile-money, advance-fee and phishing scams cost everyday users real money. Rethicsec answers one question instantly: is this message a scam? — and helps you act on it."],
         ["0:20–0:35\n(Orientation)", "Dashboard: stats, feature grid.",
          "When I open the app I land on my dashboard — reports filed, cases resolved, threats blocked — and quick access to every tool."],
         ["0:35–2:05\n(CORE: Scanner)", "Tap Scanner. Paste each of the 4 messages, scan, let the verdict appear.",
          "The heart of the app is the scanner. Let me test it with different kinds of messages. [advance-fee] Here's an advance-fee scam — the AI flags it HIGH RISK and tells me why. [repeat for mobile-money, phishing] [safe] And a normal message comes back SAFE — so it doesn't cry wolf."],
         ["2:05–2:50\n(CORE: Report)", "On a scam result, scroll to Report to authorities. Open the country dropdown (show full list). Tap Call / Email / Report online.",
-         "A verdict isn't enough — RethicsAI helps me act. It shows the real cyber-crime and police units for my country, and I can switch country here; all 14 are covered. One tap calls them, emails a report, or opens the official portal, pre-filled."],
+         "A verdict isn't enough — Rethicsec helps me act. It shows the real cyber-crime and police units for my country, and I can switch country here; all 14 are covered. One tap calls them, emails a report, or opens the official portal, pre-filled."],
         ["2:50–3:20\n(Education)", "Open Education, show a lesson + progress.",
          "To stop the next scam, the education hub has short lessons, with progress and certificates — prevention, not just detection."],
         ["3:20–3:50\n(Assistant)", "Open Wilson, ask: 'How do I know if a MoMo message is fake?'",
@@ -102,7 +102,7 @@ table(
         ["4:20–4:40\n(Testing + HW)", "Terminal showing `flutter test` → All 36 passed. Then a quick clip on a second device/emulator.",
          "On the engineering side: the app has an automated test suite — unit and widget tests — that passes green, and it runs smoothly across different Android devices."],
         ["4:40–5:00\n(Close)", "Back to dashboard / logo.",
-         "All three objectives are met: a labelled scam corpus, a working detection-and-reporting platform, and a custom classifier at 0.955 macro-F1. The next step is collecting more local scam data. RethicsAI — know the scam, stop the scam."],
+         "All three objectives are met: a labelled scam corpus, a working detection-and-reporting platform, and a custom classifier at 0.955 macro-F1. The next step is collecting more local scam data. Rethicsec — know the scam, stop the scam."],
     ],
     widths=[1.0, 2.3, 3.7],
 )
@@ -139,8 +139,8 @@ quote("“To wrap up: all three objectives were met. I built a labelled, four-cl
       "a custom classifier that reaches a macro-F1 of about 0.955. The honest limit is that this score "
       "holds best on familiar messages — newer or rarer scams are harder, mainly because the training data "
       "is still light on mobile-money and advance-fee examples. That's also the clearest way forward: more "
-      "real, local scam data will lift accuracy the most. What makes RethicsAI matter is that it doesn't "
-      "stop at a verdict — it turns detection into action, in the user's own language. RethicsAI: know the "
+      "real, local scam data will lift accuracy the most. What makes Rethicsec matter is that it doesn't "
+      "stop at a verdict — it turns detection into action, in the user's own language. Rethicsec: know the "
       "scam, stop the scam.”")
 
 para("Option B — fuller analysis + discussion (~45 seconds, if you add a dedicated segment)", bold=True, color=BROWN)
