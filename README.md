@@ -200,19 +200,26 @@ Honest deviations from the proposal:
 
 ### 6.2 The ML analysis (figures from `ml/notebooks/`)
 
-Example messages from the corpus, one per class. These are verbatim rows from
-`ml/data/labelled/demo_labeled.jsonl`, with the original spelling and encoding preserved:
+Example messages from the corpus, two per class. These are verbatim records from
+`ml/data/labelled/demo_labeled.jsonl` (the JSON Lines training file), in their stored dictionary form,
+with the original spelling and encoding preserved:
 
-| Category | Example message | Source |
-|---|---|---|
-| `advance_fee_fraud` | "URGENT! We are trying to contact U. Todays draw shows that you have won a £2000 prize GUARANTEED. Call 09058094507 from land line. Claim 3030. Valid 12hrs only" | uci_sms |
-| `mobile_money_fraud` | "Transfere me neste numero M-Pesa 858809051, esta em nome de MANUEL TOMAS FERRO." (Portuguese: "Transfer to this M-Pesa number 858809051, in the name of Manuel Tomas Ferro.") | moz_smishing |
-| `phishing` | "Fifth Third Bank: account confirmation procedure." | nazario_email |
-| `not_a_scam` | "Was really good to see you the other day dudette, been missing you!" | uci_sms |
+```json
+{"id": "13766c415bc9", "text": "FREE entry into our £250 weekly competition just text the word WIN to 80086 NOW. 18 T&C www.txttowin.co.uk", "language": "en", "category": "advance_fee_fraud", "source": "uci_sms"}
+{"id": "cfba88227a34", "text": "As a valued customer, I am pleased to advise you that following recent draw of your Mobile No. you are awarded with a Rs.2,00,000 Bonus Prize, call 6200992462", "language": "en", "category": "advance_fee_fraud", "source": "mendeley_smishing"}
+{"id": "22b1f0f110b5", "text": "boa tarda, o valor pod-me mandar neste nr: 857217192, na conta M-Pesa vem em nome de FAIZAL ALBERTO BERNADO.", "language": "pt", "category": "mobile_money_fraud", "source": "moz_smishing"}
+{"id": "938101622afe", "text": "A Minha Conta Tem Problema, Transfere Neste Número 857857934 Porfavor Aparece Nome Da Monica Rui.", "language": "pt", "category": "mobile_money_fraud", "source": "moz_smishing"}
+{"id": "90369829fb76", "text": "Notification Of your eBay Internet Account Security", "language": "en", "category": "phishing", "source": "nazario_email"}
+{"id": "b314f26279d8", "text": "Verify Your Details With SouthTrust Bank [Sun, 22 May 2005 13:21:14 +0200]", "language": "en", "category": "phishing", "source": "nazario_email"}
+{"id": "afb1a063028b", "text": "Wif my family booking tour package.", "language": "en", "category": "not_a_scam", "source": "uci_sms"}
+{"id": "e08140acbb70", "text": "How abt making some of the pics bigger?", "language": "en", "category": "not_a_scam", "source": "uci_sms"}
+```
 
-> Note: the `mobile_money_fraud` class is sourced almost entirely from Mozambican M-Pesa smishing, so it
-> is in Portuguese. That is why the corpus is English and Portuguese, and why French and Pidgin coverage in
-> the model is still thin (see §6.1).
+> Note: each record has `id`, `text`, `language`, `category`, and `source`. The `mobile_money_fraud` class
+> is sourced almost entirely from Mozambican M-Pesa smishing, so it is in Portuguese (for example,
+> "A Minha Conta Tem Problema, Transfere Neste Número 857857934 ... Aparece Nome Da Monica Rui" means
+> "my account has a problem, transfer to this number, in the name of Monica Rui"). That is why the corpus
+> is English and Portuguese, and why French and Pidgin coverage in the model is still thin (see §6.1).
 
 Corpus and class imbalance. Phishing dominates; mobile-money and advance-fee are the minority classes, which is the root cause of the bias discussed below:
 
