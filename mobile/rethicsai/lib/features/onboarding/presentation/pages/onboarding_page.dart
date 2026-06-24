@@ -24,7 +24,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       color: AppTheme.primaryColor,
       title: 'Stay a step ahead of scammers',
       body:
-          'Rethicssec helps you spot fraud, phishing and mobile-money scams '
+          'Rethicsec helps you spot fraud, phishing and mobile-money scams '
           'before they cost you. Let\'s show you around.',
     ),
     _OnboardingSlide(

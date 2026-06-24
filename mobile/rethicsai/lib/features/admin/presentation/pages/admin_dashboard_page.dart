@@ -100,7 +100,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   // Premium Header
                   PremiumSectionHeader(
                     title: 'Admin Dashboard',
-                    subtitle: 'Manage Rethicssec Platform',
+                    subtitle: 'Manage Rethicsec Platform',
                     icon: Icons.admin_panel_settings,
                     gradient: AppTheme.primaryGradient,
                     action: IconButton(

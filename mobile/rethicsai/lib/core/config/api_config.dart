@@ -109,7 +109,7 @@ class ApiConfig {
   // Security headers for API requests
   static Map<String, String> getSecurityHeaders() {
     return {
-      'User-Agent': 'Rethicssec-Security-Scanner/1.0',
+      'User-Agent': 'Rethicsec-Security-Scanner/1.0',
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache',

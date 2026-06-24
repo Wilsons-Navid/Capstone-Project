@@ -1,6 +1,6 @@
 class AppConstants {
   // App Info
-  static const String appName = 'Rethicssec';
+  static const String appName = 'Rethicsec';
   static const String appVersion = '1.0.0';
   static const String appDescription = 'Comprehensive cybercrime reporting platform for Africa';
   

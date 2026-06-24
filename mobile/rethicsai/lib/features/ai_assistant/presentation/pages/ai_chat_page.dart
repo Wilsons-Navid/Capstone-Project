@@ -84,7 +84,7 @@ class _AIChatPageState extends State<AIChatPage>
     final welcomeMessages = [
       'Hello! 👋 I\'m Wilson, your AI cybersecurity expert for Africa. I understand M-Pesa, local scams, and digital threats across the continent. Ready to make your digital life safer?',
       'Hi there! 🛡️ Wilson here - your personal cybersecurity assistant. I specialize in African digital security challenges, from mobile money protection to social media safety. How can I help you today?',
-      'Welcome! 🌍 I\'m Wilson from Rethicssec. I\'m trained specifically on African cybersecurity challenges - mobile banking, local scams, WiFi security, and more. What security topic interests you?',
+      'Welcome! 🌍 I\'m Wilson from Rethicsec. I\'m trained specifically on African cybersecurity challenges - mobile banking, local scams, WiFi security, and more. What security topic interests you?',
     ];
     
     final random = DateTime.now().millisecondsSinceEpoch % welcomeMessages.length;

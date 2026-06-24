@@ -115,7 +115,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Rethicssec Logo
+                              // Rethicsec Logo
                               Container(
                                 width: 65,
                                 height: 65,
@@ -146,8 +146,8 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                               // Welcome text with improved accessibility
                               Text(
                                 _themeMode == DrawerThemeMode.emergency 
-                                  ? 'Rethicssec Security Center'
-                                  : 'Welcome to Rethicssec',
+                                  ? 'Rethicsec Security Center'
+                                  : 'Welcome to Rethicsec',
                                 style: TextStyle(
                                   color: AppTheme.getDrawerTextColor(_themeMode),
                                   fontSize: 19,
@@ -241,7 +241,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Rethicssec v1.0.0',
+                            'Rethicsec v1.0.0',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -753,7 +753,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Rethicssec Help Center',
+                'Rethicsec Help Center',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -762,7 +762,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
               const SizedBox(height: 16),
               _buildHelpSection(
                 'Getting Started',
-                'Learn how to navigate and use Rethicssec effectively for cybersecurity protection.',
+                'Learn how to navigate and use Rethicsec effectively for cybersecurity protection.',
               ),
               const SizedBox(height: 12),
               _buildHelpSection(
@@ -885,7 +885,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
             const SizedBox(width: 12),
             const Expanded(
               child: Text(
-                'About Rethicssec',
+                'About Rethicsec',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -921,7 +921,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
               const SizedBox(height: 16),
               const Center(
                 child: Text(
-                  'Rethicssec',
+                  'Rethicsec',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -939,7 +939,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Rethicssec is a comprehensive cybersecurity platform designed specifically for Africa. Our mission is to protect African communities from digital threats through advanced technology and education.',
+                'Rethicsec is a comprehensive cybersecurity platform designed specifically for Africa. Our mission is to protect African communities from digital threats through advanced technology and education.',
                 style: TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -1036,7 +1036,7 @@ class _AppDrawerState extends State<AppDrawer> with TickerProviderStateMixin {
           ],
         ),
         content: const Text(
-          'Are you sure you want to sign out of Rethicssec?\n\nYou can always sign back in to continue protecting your digital life.',
+          'Are you sure you want to sign out of Rethicsec?\n\nYou can always sign back in to continue protecting your digital life.',
           style: TextStyle(fontSize: 16),
         ),
         actions: [

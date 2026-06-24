@@ -1,17 +1,17 @@
-# RethicsAI: AI-powered scam detection and cybercrime reporting for Africa
+# Rethicsec: AI-powered scam detection and cybercrime reporting for Africa
 
 **Author:** Wilsons Navid Wado Tiwa, BSc Software Engineering, African Leadership University
-**Product:** RethicsAI mobile app (Flutter + Firebase + a custom Python ML scam classifier)
+**Product:** Rethicsec mobile app (Flutter + Firebase + a custom Python ML scam classifier)
 **Status:** Implementation and Testing milestone. The deployed Android build is linked below.
 
-RethicsAI answers a simple question for everyday users: is this message a scam? It gives a clear verdict
+Rethicsec answers a simple question for everyday users: is this message a scam? It gives a clear verdict
 in seconds and then helps the user act on it, including reporting the scam to the right national authority.
 The app uses a custom-trained scam classifier rather than a general-purpose LLM, together with an
 education hub, an AI assistant, and an authority-reporting directory that covers 14 African countries.
 
 **Why it matters: the reporting gap.** Cybercrime in Africa is badly under-reported. INTERPOL estimates
 that fewer than 20% of incidents are ever formally logged, so the official statistics, and the
-institutional response built on them, cover only a fraction of what actually happens. RethicsAI is built
+institutional response built on them, cover only a fraction of what actually happens. Rethicsec is built
 to lower the barrier to reporting. It reaches victims where the scam reaches them, on their phone and in
 their language, converts a confusing message into a clear verdict, and routes a structured report to the
 right authority in one tap. Each report also adds to a regional scam dataset the field currently lacks, so
@@ -33,7 +33,7 @@ the platform works on the reporting gap and the data gap at the same time.
 2. Tap Download; when it finishes, tap the file to open it.
 3. Android may warn about "Install from unknown sources". Tap Settings, then Allow from this source. This is normal for apps installed outside an app store.
 4. If Google Play Protect shows a warning, tap More details, then Install anyway. The build requests SMS-reading permissions, which Play Protect flags for sideloaded apps.
-5. Open RethicsAI, create an account or sign in with Google, and you are in.
+5. Open Rethicsec, create an account or sign in with Google, and you are in.
 
 No desktop or developer tools are needed to run the deployed app. The APK is enough.
 
@@ -73,7 +73,7 @@ The app ships with its Firebase configuration, so no extra backend setup is need
 | Report Incident | Structured report with evidence upload, geolocation, and priority. |
 | Track Cases | Status timeline for submitted cases. |
 | Learn & Protect | Lessons (video and interactive) with gamification and certificates. |
-| CyberGuard AI (the Wilson assistant) | Conversational cyber-safety questions and answers (Claude Haiku). |
+| Wilson AI (the Wilson assistant) | Conversational cyber-safety questions and answers (Claude Haiku). |
 | Need Immediate Help? | Emergency-contacts directory for quick access during an active fraud. |
 | Dashboard and Notifications | Personal security overview and a real-time alerts inbox. |
 | Admin Panel | Manage authority contacts (add, edit, delete countries), moderate content, review cases. |
@@ -112,7 +112,7 @@ The app ships with its Firebase configuration, so no extra backend setup is need
 
 ## 4. How it's built: two parts and their intersection
 
-RethicsAI has two engineered parts that meet at one screen.
+Rethicsec has two engineered parts that meet at one screen.
 
 - **Part 1, the mobile app** (`mobile/rethicsai/`): a Flutter and Material 3 client. It holds the scanner
   UI, structured reporting, case tracking, the education hub, the Wilson assistant, the admin console, the
@@ -126,7 +126,7 @@ RethicsAI has two engineered parts that meet at one screen.
   shown in the verdict card. A warm-up ping on app launch keeps the hosted model responsive, so the user
   sees the live model verdict instead of a keyword fallback.
 
-![RethicsAI architecture: the mobile app, the ML system, and the scanner that joins them](docs/assets/architecture.png)
+![Rethicsec architecture: the mobile app, the ML system, and the scanner that joins them](docs/assets/architecture.png)
 
 ### Try the model API directly
 
@@ -219,7 +219,7 @@ and report) ran smoothly on the device.
 | Infinix Note 50 Pro (X6855), physical | Android 15 | 8 GB | Smooth; all core flows worked | `docs/assets/perf_phone.png` |
 | _Second config (a different phone or an emulator)_ | _e.g. Android 11_ | _e.g. 4 GB_ | _add result_ | `docs/assets/perf_emulator.png` |
 
-<p align="center"><img src="docs/assets/perf_phone.png" height="420" alt="RethicsAI running on an Infinix Note 50 Pro"></p>
+<p align="center"><img src="docs/assets/perf_phone.png" height="420" alt="Rethicsec running on an Infinix Note 50 Pro"></p>
 
 ---
 
@@ -305,7 +305,7 @@ this, so users see the model verdict rather than the fallback.
 ## 7. Discussion: why the milestones matter
 
 - Because fewer than 20% of African cybercrime incidents are ever formally reported, the harder problem is
-  not only detecting scams but giving people a low-friction way to report them. RethicsAI provides that
+  not only detecting scams but giving people a low-friction way to report them. Rethicsec provides that
   path: a non-technical victim can report a scam in their own language, in one tap, the moment it happens.
   That reporting data is also what downstream institutional responses depend on.
 - Detection on its own is only half the job. This milestone matters because it closes the loop: a verdict
@@ -340,7 +340,7 @@ this, so users see the model verdict rather than the fallback.
 ```
 Capstone-Project/
 ├── README.md                     ← this file (submission entry point)
-├── mobile/rethicsai/             ← the RethicsAI Flutter app
+├── mobile/rethicsai/             ← the Rethicsec Flutter app
 │   ├── lib/                      ← app source (features/, core/, shared/)
 │   ├── test/                     ← automated tests (flutter test, 36 passing)
 │   └── design-system/MASTER.md   ← the design-system contract

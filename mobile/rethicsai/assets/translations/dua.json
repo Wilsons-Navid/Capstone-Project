@@ -43,7 +43,7 @@
     "choose_preferred": "Choose your preferred language"
   },
   "dashboard": {
-    "welcome": "Welcome to Rethicssec",
+    "welcome": "Welcome to Rethicsec",
     "greeting": "Stay Protected, Stay Informed",
     "subtitle": "Your comprehensive cybersecurity platform for Africa. Report incidents, get AI assistance, and stay educated about digital threats.",
     "features_title": "Security Features",
@@ -81,7 +81,7 @@
     "assigned_officer": "Assigned Officer"
   },
   "ai": {
-    "assistant_name": "CyberGuard AI",
+    "assistant_name": "Wilson AI",
     "how_can_help": "How can I help you today?",
     "ask_question": "Ask a cybersecurity question...",
     "send": "Send",
@@ -140,6 +140,6 @@
     "security_settings": "Security Settings",
     "privacy_settings": "Privacy Settings",
     "help_support": "Help & Support",
-    "about": "About Rethicssec"
+    "about": "About Rethicsec"
   }
 }

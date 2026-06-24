@@ -530,13 +530,13 @@ class NotificationService {
   static Color? _getNotificationColor(String channelId) {
     switch (channelId) {
       case _caseUpdatesChannelId:
-        return const Color(0xFF1a237e); // Rethicssec Primary Blue
+        return const Color(0xFF1a237e); // Rethicsec Primary Blue
       case _educationChannelId:
         return const Color(0xFFDAA520); // Sahara Gold
       case _securityAlertsChannelId:
         return const Color(0xFFCD853F); // Copper Accent
       default:
-        return const Color(0xFF3f51b5); // Rethicssec Secondary Blue
+        return const Color(0xFF3f51b5); // Rethicsec Secondary Blue
     }
   }
 

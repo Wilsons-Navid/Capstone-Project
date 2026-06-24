@@ -85,7 +85,7 @@ void main() async {
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('en'),
-        child: const RethicssecApp(),
+        child: const RethicsecApp(),
       ),
     ),
   );
@@ -126,8 +126,8 @@ Future<void> _initializeServicesInBackground(bool firebaseReady) async {
   }
 }
 
-class RethicssecApp extends StatelessWidget {
-  const RethicssecApp({super.key});
+class RethicsecApp extends StatelessWidget {
+  const RethicsecApp({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -47,7 +47,7 @@
     <!-- Microphone feature declaration -->
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
     <application
-        android:label="Rethicssec"
+        android:label="Rethicsec"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="false"

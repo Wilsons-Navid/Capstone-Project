@@ -144,7 +144,7 @@ class EducationService {
     }
     
     // Add achievement for milestones and send notifications
-    List<String> achievements = List.from(currentProgress?.achievements ?? ['Welcome to Rethicssec Academy!']);
+    List<String> achievements = List.from(currentProgress?.achievements ?? ['Welcome to Rethicsec Academy!']);
     List<String> newAchievements = [];
     
     if (newCompletedModules == 5 && !achievements.contains('First 5 Modules Complete')) {
@@ -1392,7 +1392,7 @@ Stay informed, stay protected! 🇦🇫🇬🇭🇰🇪🇳🇬🇿🇦
       );
       
       // Save certificate to device
-      final fileName = 'RethicsAI_${category.title.replaceAll(' ', '_')}_Certificate';
+      final fileName = 'Rethicsec_${category.title.replaceAll(' ', '_')}_Certificate';
       final filePath = await CertificateService.saveCertificateToDevice(certificateBytes, fileName);
       
       // Store certificate data in Firestore

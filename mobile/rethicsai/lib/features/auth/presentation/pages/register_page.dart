@@ -270,7 +270,7 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                                   color: AppTheme.primaryColor,
                                 ),
                                 textAlign: TextAlign.center,
-                                semanticsLabel: 'Create your Rethicssec account',
+                                semanticsLabel: 'Create your Rethicsec account',
                               ),
                               
                               const SizedBox(height: 8),

@@ -2471,7 +2471,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
 
   Future<pw.Widget> _buildPDFLogo() async {
     try {
-      // Load the RethicsAI logo from assets
+      // Load the Rethicsec logo from assets
       final ByteData logoData = await rootBundle.load('assets/images/Rethicsec.png');
       final Uint8List logoBytes = logoData.buffer.asUint8List();
       final pw.ImageProvider logoImage = pw.MemoryImage(logoBytes);

@@ -1,5 +1,5 @@
 /// Application Image Assets
-/// Centralized image constants for Rethicssec application
+/// Centralized image constants for Rethicsec application
 class AppImages {
   AppImages._();
 

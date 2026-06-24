@@ -27,7 +27,7 @@
     "retry": "Réessayer"
   },
   "auth": {
-    "welcome_back": "Welcome back to Rethicssec",
+    "welcome_back": "Welcome back to Rethicsec",
     "secure_login_subtitle": "Your secure gateway to digital safety",
     "sign_in": "Sign In",
     "sign_up": "Sign Up",
@@ -56,7 +56,7 @@
     "passwords_dont_match": "Passwords don't match",
     "login_error": "Login failed. Please try again.",
     "registration_error": "Registration failed. Please try again.",
-    "welcome_to_rethicsai": "Bienvenue sur Rethicssec !",
+    "welcome_to_rethicsai": "Bienvenue sur Rethicsec !",
     "join_africa_cybersecurity": "Rejoignez la première plateforme de cybersécurité d'Afrique",
     "first_name_required": "Prénom requis",
     "last_name_required": "Nom requis",
@@ -78,7 +78,7 @@
     "signout": "Se déconnecter"
   },
   "dashboard": {
-    "welcome": "Bienvenue sur Rethicssec",
+    "welcome": "Bienvenue sur Rethicsec",
     "greeting": "Restez protégé, restez informé",
     "subtitle": "Votre plateforme de cybersécurité complète pour l'Afrique. Signalez des incidents, obtenez l'aide de l'IA et restez informé des menaces numériques.",
     "features_title": "Fonctionnalités de sécurité",
@@ -170,7 +170,7 @@
     "assigned_officer": "Assigned Officer"
   },
   "ai": {
-    "assistant_name": "CyberGuard AI",
+    "assistant_name": "Wilson AI",
     "how_can_help": "How can I help you today?",
     "ask_question": "Ask a cybersecurity question...",
     "send": "Send",
@@ -213,7 +213,7 @@
     "security_settings": "Security Settings",
     "privacy_settings": "Privacy Settings",
     "help_support": "Help & Support",
-    "about": "About Rethicssec"
+    "about": "About Rethicsec"
   },
   "sms": {
     "title": "Protection SMS",

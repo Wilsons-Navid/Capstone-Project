@@ -92,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: 24),
                             
                             Text(
-                              'Rethicssec',
+                              'Rethicsec',
                               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                 color: AppTheme.primaryColor,
                                 fontWeight: FontWeight.bold,

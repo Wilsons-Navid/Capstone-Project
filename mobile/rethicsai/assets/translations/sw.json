@@ -27,7 +27,7 @@
     "retry": "Jaribu tena"
   },
   "auth": {
-    "welcome_back": "Karibu tena Rethicssec",
+    "welcome_back": "Karibu tena Rethicsec",
     "secure_login_subtitle": "Lango lako salama la usalama wa kidijitali",
     "sign_in": "Ingia",
     "sign_up": "Jisajili",
@@ -56,7 +56,7 @@
     "passwords_dont_match": "Maneno ya siri hayalingani",
     "login_error": "Kuingia kumeshindwa. Tafadhali jaribu tena.",
     "registration_error": "Usajili umeshindwa. Tafadhali jaribu tena.",
-    "welcome_to_rethicsai": "Karibu Rethicssec!",
+    "welcome_to_rethicsai": "Karibu Rethicsec!",
     "join_africa_cybersecurity": "Jiunge na jukwaa kuu la usalama wa kidijitali Afrika",
     "first_name_required": "Jina la kwanza linahitajika",
     "last_name_required": "Jina la mwisho linahitajika",
@@ -82,7 +82,7 @@
     "choose_preferred": "Chagua lugha unayopendelea"
   },
   "dashboard": {
-    "welcome": "Karibu Rethicssec",
+    "welcome": "Karibu Rethicsec",
     "greeting": "Kaa Ukilindwa, Kaa Ukifahamu",
     "subtitle": "Jukwaa lako kamili la usalama wa saibaa kwa Afrika. Ripoti matukio, pata msaada wa AI, na jifunze kuhusu vitisho vya kidijitali.",
     "features_title": "Vipengele vya Usalama",
@@ -181,6 +181,6 @@
     "security_settings": "Mipangilio ya Usalama",
     "privacy_settings": "Mipangilio ya Faragha",
     "help_support": "Msaada na Uongozi",
-    "about": "Kuhusu Rethicssec"
+    "about": "Kuhusu Rethicsec"
   }
 }

@@ -73,7 +73,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
         final data = doc.data()!;
         setState(() {
           _systemSettings = data;
-          _platformNameController.text = data['platform_name'] ?? 'Rethicssec';
+          _platformNameController.text = data['platform_name'] ?? 'Rethicsec';
           _supportEmailController.text = data['support_email'] ?? 'support@rethicsai.com';
           _maxFileUploadSizeController.text = data['max_file_upload_size']?.toString() ?? '10';
           _sessionTimeoutController.text = data['session_timeout']?.toString() ?? '60';
@@ -106,7 +106,7 @@ class _SystemSettingsPageState extends State<SystemSettingsPage> with TickerProv
   Future<void> _createDefaultSettings() async {
     try {
       final defaultSettings = {
-        'platform_name': 'Rethicssec',
+        'platform_name': 'Rethicsec',
         'support_email': 'support@rethicsai.com',
         'max_file_upload_size': 10,
         'session_timeout': 60,

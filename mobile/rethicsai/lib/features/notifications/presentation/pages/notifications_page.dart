@@ -321,7 +321,7 @@ class _NotificationsPageState extends State<NotificationsPage>
             const SizedBox(height: 32),
             
             PremiumButton(
-              text: 'Explore Rethicssec',
+              text: 'Explore Rethicsec',
               icon: Icons.explore,
               onPressed: () => Navigator.pop(context),
               gradient: AppTheme.primaryGradient,

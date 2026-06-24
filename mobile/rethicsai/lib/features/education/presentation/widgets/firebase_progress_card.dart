@@ -147,7 +147,7 @@ class _FirebaseProgressCardState extends State<FirebaseProgressCard> {
                     Text(
                       _isInitializing 
                         ? 'Setting up your progress...'
-                        : 'Welcome to Rethicssec Academy!',
+                        : 'Welcome to Rethicsec Academy!',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: MediaQuery.of(context).size.width < 350 ? 18 : 20,
@@ -662,7 +662,7 @@ class _FirebaseProgressCardState extends State<FirebaseProgressCard> {
       categoryProgress: {},
       lastAccessedContent: {},
       totalMinutesLearned: 0,
-      achievements: ['Welcome to Rethicssec Academy!'],
+      achievements: ['Welcome to Rethicsec Academy!'],
       lastActiveDate: DateTime.now(),
       weeklyStats: {
         'week_start': DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)),

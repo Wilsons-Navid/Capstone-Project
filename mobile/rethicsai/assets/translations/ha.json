@@ -27,7 +27,7 @@
     "retry": "QDialogButtonBox"
   },
   "auth": {
-    "welcome_back": "Welcome back to Rethicssec",
+    "welcome_back": "Welcome back to Rethicsec",
     "secure_login_subtitle": "Your secure gateway to digital safety",
     "sign_in": "Sign In",
     "sign_up": "Sign Up",
@@ -56,7 +56,7 @@
     "passwords_dont_match": "Passwords don't match",
     "login_error": "Login failed. Please try again.",
     "registration_error": "Registration failed. Please try again.",
-    "welcome_to_rethicsai": "Barka da zuwa Rethicssec!",
+    "welcome_to_rethicsai": "Barka da zuwa Rethicsec!",
     "join_africa_cybersecurity": "Shiga cikin dandalin tsaron yanar gizo na Afirka",
     "first_name_required": "Ana buƙatar sunan farko",
     "last_name_required": "Sunan karshe da ake bukata",
@@ -78,7 +78,7 @@
     "signout": "Fita"
   },
   "dashboard": {
-    "welcome": "Welcome to Rethicssec",
+    "welcome": "Welcome to Rethicsec",
     "greeting": "Stay Protected, Stay Informed",
     "subtitle": "Your comprehensive cybersecurity platform for Africa. Report incidents, get AI assistance, and stay educated about digital threats.",
     "features_title": "Security Features",
@@ -120,7 +120,7 @@
     "assigned_officer": "Assigned Officer"
   },
   "ai": {
-    "assistant_name": "CyberGuard AI",
+    "assistant_name": "Wilson AI",
     "how_can_help": "How can I help you today?",
     "ask_question": "Ask a cybersecurity question...",
     "send": "Send",
@@ -179,6 +179,6 @@
     "security_settings": "Security Settings",
     "privacy_settings": "Privacy Settings",
     "help_support": "Help & Support",
-    "about": "About Rethicssec"
+    "about": "About Rethicsec"
   }
 }
