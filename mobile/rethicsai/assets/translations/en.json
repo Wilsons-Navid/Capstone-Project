@@ -230,6 +230,9 @@
     "live": "Live",
     "no_messages": "No messages scanned yet.",
     "not_analyzed": "Not analyzed",
-    "suspicious_from": "Suspicious SMS from {sender}: {category}"
+    "suspicious_from": "Suspicious SMS from {sender}: {category}",
+    "permission_needed": "SMS permission is required to scan messages. Enable it in Settings.",
+    "open_settings": "Open settings",
+    "scan_failed": "Could not scan your messages. Please try again."
   }
 }

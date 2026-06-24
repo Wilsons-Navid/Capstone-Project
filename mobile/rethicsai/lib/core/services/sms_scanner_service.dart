@@ -49,6 +49,9 @@ class SmsScannerService {
   /// Classify the most recent [limit] inbox messages (newest first).
   Future<List<SmsScanItem>> scanInbox({int limit = 20}) async {
     if (!isSupported) return [];
+    // Wake the model first so the per-message classify calls don't each pay the
+    // cold-start cost (a sleeping Space would otherwise stall the whole scan).
+    await _model.warmUp();
     final messages = await _telephony.getInboxSms(
       columns: [SmsColumn.ADDRESS, SmsColumn.BODY, SmsColumn.DATE],
     );
@@ -65,6 +68,7 @@ class SmsScannerService {
   /// Live detections are persisted for the admin dashboard.
   void startListening(void Function(SmsScanItem) onResult) {
     if (!isSupported) return;
+    _model.warmUp(); // warm the model so the first incoming SMS classifies fast
     _telephony.listenIncomingSms(
       onNewMessage: (SmsMessage message) async {
         onResult(await _classify(message.address, message.body, null, record: true));

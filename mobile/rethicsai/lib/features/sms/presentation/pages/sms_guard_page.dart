@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/themes/app_theme.dart';
 import '../../../../core/services/sms_scanner_service.dart';
@@ -27,25 +28,52 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
     return known.contains(c) ? 'scanner.cat_$c'.tr() : c;
   }
 
-  Future<void> _grant() async {
+  /// Requests the SMS permission. On denial, tells the user why and offers a
+  /// shortcut to app settings (so the failure is never silent).
+  Future<bool> _grant() async {
     final ok = await _service.requestPermission();
     if (mounted) setState(() => _granted = ok);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppTheme.errorColor,
+          duration: const Duration(seconds: 6),
+          content: Text('sms.permission_needed'.tr()),
+          action: SnackBarAction(
+            label: 'sms.open_settings'.tr(),
+            textColor: Colors.white,
+            onPressed: openAppSettings,
+          ),
+        ),
+      );
+    }
+    return ok;
   }
 
   Future<void> _scanInbox() async {
-    if (!_granted) {
-      await _grant();
-      if (!_granted) return;
-    }
+    if (!_granted && !await _grant()) return;
     setState(() => _loading = true);
     try {
       final results = await _service.scanInbox(limit: 30);
+      if (!mounted) return;
+      setState(() {
+        _items
+          ..clear()
+          ..addAll(results);
+      });
+      if (results.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('sms.no_messages'.tr())),
+        );
+      }
+    } catch (e) {
       if (mounted) {
-        setState(() {
-          _items
-            ..clear()
-            ..addAll(results);
-        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: AppTheme.errorColor,
+            content: Text('sms.scan_failed'.tr()),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -53,10 +81,7 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
   }
 
   Future<void> _toggleLive(bool value) async {
-    if (value && !_granted) {
-      await _grant();
-      if (!_granted) return;
-    }
+    if (value && !_granted && !await _grant()) return;
     if (value) {
       _service.startListening((item) {
         if (!mounted) return;
