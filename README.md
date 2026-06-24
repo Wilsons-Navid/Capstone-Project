@@ -80,29 +80,29 @@ The app ships with its Firebase configuration, so no extra backend setup is need
 ### 3.1 App screenshots
 
 <p align="center">
-  <img src="docs/assets/screenshots/dashboard.png" width="200" alt="Dashboard">
-  <img src="docs/assets/screenshots/scanner.png" width="200" alt="Threat scanner">
-  <img src="docs/assets/screenshots/scanner_input.png" width="200" alt="Scanner input">
+  <img src="docs/assets/screenshots/dashboard.png" height="380" alt="Dashboard">
+  <img src="docs/assets/screenshots/scanner.png" height="380" alt="Threat scanner">
+  <img src="docs/assets/screenshots/scanner_input.png" height="380" alt="Scanner input">
 </p>
 <p align="center"><em>Dashboard, the threat scanner, and the scan input.</em></p>
 
 <p align="center">
-  <img src="docs/assets/screenshots/advance_fee_actions.png" width="200" alt="Report-to-authorities actions">
-  <img src="docs/assets/screenshots/mobile_money_2.png" width="200" alt="A mobile-money scan">
-  <img src="docs/assets/screenshots/security_features.png" width="200" alt="Security features">
+  <img src="docs/assets/screenshots/advance_fee_actions.png" height="380" alt="Report-to-authorities actions">
+  <img src="docs/assets/screenshots/mobile_money_2.png" height="380" alt="A mobile-money scan">
+  <img src="docs/assets/screenshots/security_features.png" height="380" alt="Security features">
 </p>
 <p align="center"><em>Report-to-authorities actions, a mobile-money scan, and the security features.</em></p>
 
 <p align="center">
-  <img src="docs/assets/screenshots/education.png" width="200" alt="Education hub">
-  <img src="docs/assets/screenshots/ai_assistant.png" width="200" alt="Wilson AI assistant">
-  <img src="docs/assets/screenshots/admin.png" width="200" alt="Admin dashboard">
+  <img src="docs/assets/screenshots/education.png" height="380" alt="Education hub">
+  <img src="docs/assets/screenshots/ai_assistant.png" height="380" alt="Wilson AI assistant">
+  <img src="docs/assets/screenshots/admin.png" height="380" alt="Admin dashboard">
 </p>
 <p align="center"><em>The education hub, the Wilson AI assistant, and the admin dashboard.</em></p>
 
 <p align="center">
-  <img src="docs/assets/screenshots/report_incident.png" width="200" alt="Report an incident">
-  <img src="docs/assets/screenshots/incident_report_2.png" width="200" alt="Incident report form">
+  <img src="docs/assets/screenshots/report_incident.png" height="380" alt="Report an incident">
+  <img src="docs/assets/screenshots/incident_report_2.png" height="380" alt="Incident report form">
 </p>
 <p align="center"><em>Incident reporting.</em></p>
 
@@ -198,10 +198,10 @@ category and risk level from the AI model, with the model's confidence shown on 
 | "Okey dokey, i'll be over in a bit just sorting some stuff out." | Not a scam | SAFE | 97% |
 
 <p align="center">
-  <img src="docs/assets/scan_advance_fee.png" width="210" alt="Advance-fee fraud verdict, high risk, 96%">
-  <img src="docs/assets/scan_momo.png" width="210" alt="Mobile-money fraud verdict, high risk, 85%">
-  <img src="docs/assets/scan_phishing.png" width="210" alt="Phishing verdict, high risk, 97%">
-  <img src="docs/assets/scan_safe.png" width="210" alt="Not a scam verdict, safe, 97%">
+  <img src="docs/assets/scan_advance_fee.png" height="380" alt="Advance-fee fraud verdict, high risk, 96%">
+  <img src="docs/assets/scan_momo.png" height="380" alt="Mobile-money fraud verdict, high risk, 85%">
+  <img src="docs/assets/scan_phishing.png" height="380" alt="Phishing verdict, high risk, 97%">
+  <img src="docs/assets/scan_safe.png" height="380" alt="Not a scam verdict, safe, 97%">
 </p>
 
 The verdicts use the deployed model (the cards read "AI Model Verdict" with a confidence bar), and each
@@ -217,7 +217,7 @@ and report) ran smoothly on the device.
 | Infinix Note 50 Pro (X6855), physical | Android 15 | 8 GB | Smooth; all core flows worked | `docs/assets/perf_phone.png` |
 | _Second config (a different phone or an emulator)_ | _e.g. Android 11_ | _e.g. 4 GB_ | _add result_ | `docs/assets/perf_emulator.png` |
 
-<p align="center"><img src="docs/assets/perf_phone.png" width="240" alt="RethicsAI running on an Infinix Note 50 Pro"></p>
+<p align="center"><img src="docs/assets/perf_phone.png" height="420" alt="RethicsAI running on an Infinix Note 50 Pro"></p>
 
 ---
 
