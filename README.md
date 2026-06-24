@@ -26,7 +26,7 @@ the platform works on the reporting gap and the data gap at the same time.
 >
 > **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.6
 >
-> **Model API (Hugging Face):** https://wadotuh-scam-classifier-api.hf.space (usage in §3.5)
+> **Model API (Hugging Face):** https://wadotuh-scam-classifier-api.hf.space (usage in §4)
 
 **Step-by-step install:**
 1. On an Android phone, open the direct APK link above in a browser.
@@ -79,7 +79,7 @@ The app ships with its Firebase configuration, so no extra backend setup is need
 
 ---
 
-## 3.5 How it's built: two parts and their intersection
+## 4. How it's built: two parts and their intersection
 
 RethicsAI has two engineered parts that meet at one screen.
 
@@ -135,17 +135,17 @@ curl -X POST https://wadotuh-scam-classifier-api.hf.space/predict \
 
 ---
 
-## 4. Testing results
+## 5. Testing results
 
 > Screenshots referenced below live in `docs/assets/`. Add your captured images there.
 
-### 4.1 Testing strategies
+### 5.1 Testing strategies
 
 | Strategy | What it covers | How to run / evidence |
 |---|---|---|
 | Automated unit tests | Validation and sanitization logic (`SecurityUtils`), bundled authority-contacts data, theme tokens. | `cd mobile/rethicsai && flutter test` |
 | Automated widget tests | Theme renders, `EarthColors` extension resolves, Material 3 enabled. | included in `flutter test` |
-| Manual / functional testing | Core user flows: scan, verdict, report; dashboard; admin CRUD. | screenshots (§4.2) |
+| Manual / functional testing | Core user flows: scan, verdict, report; dashboard; admin CRUD. | screenshots (§5.2) |
 
 Automated test run (all green):
 
@@ -156,7 +156,7 @@ $ flutter test
 
 _(Screenshot slot: `docs/assets/test_run.png`)_
 
-### 4.2 Functionality with different data values (the scanner)
+### 5.2 Functionality with different data values (the scanner)
 
 The classifier returns one of four categories with a risk level. Capture a screenshot of each:
 
@@ -167,7 +167,7 @@ The classifier returns one of four categories with a risk level. Capture a scree
 | "Dear customer, your bank account is suspended. Click http://bit.ly/secure to reactivate." | Phishing | HIGH RISK | `docs/assets/scan_phishing.png` |
 | "Hi, are we still meeting at 3pm tomorrow?" | Not a scam | SAFE | `docs/assets/scan_safe.png` |
 
-### 4.3 Performance on different hardware / software
+### 5.3 Performance on different hardware / software
 
 Run the app on at least two configurations and record the result:
 
@@ -178,9 +178,9 @@ Run the app on at least two configurations and record the result:
 
 ---
 
-## 5. Analysis: results vs. project objectives
+## 6. Analysis: results vs. project objectives
 
-### 5.1 What the proposal committed to vs. what was delivered
+### 6.1 What the proposal committed to vs. what was delivered
 
 The proposal (Chapter 1) set three SMART objectives. The implementation met or exceeded all three.
 
@@ -196,8 +196,9 @@ Honest deviations from the proposal:
 
 - Obj 3 was scoped as a classical-only, two-baseline comparison. The delivered work went beyond it by adding multilingual e5 embeddings and ensembles. This strengthens the result, but the final report should frame the ensemble as an extension beyond the proposed classical baselines.
 - The corpus language mix is English and Portuguese (from the Mozambique smishing set), not the English and French the proposal targeted. French and Pidgin coverage in the model remains thin, even though the app localises to 11 languages.
+- Corpus provenance: the corpus is labelled by scam typology, but most rows come from public English and Portuguese smishing and phishing datasets (UCI SMS, Nazario, and the Mozambican M-Pesa set), used as a proxy for the target distribution. A corpus collected specifically from West African sources is future work, so the "West African corpus" framing should be read as typology-aligned rather than fully region-native.
 
-### 5.2 The ML analysis (figures from `ml/notebooks/`)
+### 6.2 The ML analysis (figures from `ml/notebooks/`)
 
 Example messages from the corpus, one per class. These are verbatim rows from
 `ml/data/labelled/demo_labeled.jsonl`, with the original spelling and encoding preserved:
@@ -211,7 +212,7 @@ Example messages from the corpus, one per class. These are verbatim rows from
 
 > Note: the `mobile_money_fraud` class is sourced almost entirely from Mozambican M-Pesa smishing, so it
 > is in Portuguese. That is why the corpus is English and Portuguese, and why French and Pidgin coverage in
-> the model is still thin (see §5.1).
+> the model is still thin (see §6.1).
 
 Corpus and class imbalance. Phishing dominates; mobile-money and advance-fee are the minority classes, which is the root cause of the bias discussed below:
 
@@ -229,7 +230,7 @@ Re-balancing ablation. Class-weighting, over-sampling, and the combined strategy
 
 ![Per-class recall across re-balancing strategies](docs/assets/ml/ml_rebalance_ablation.png)
 
-### 5.3 Where results fell short, and what the ML experiments showed
+### 6.3 Where results fell short, and what the ML experiments showed
 
 The 0.955 figure is in-distribution. The training corpus is class-imbalanced (phishing about 2,401, then
 not-a-scam about 1,200, then mobile-money about 538, then advance-fee about 283), and the model inherits a
@@ -249,7 +250,7 @@ this, so users see the model verdict rather than the fallback.
 
 ---
 
-## 6. Discussion: why the milestones matter
+## 7. Discussion: why the milestones matter
 
 - Because fewer than 20% of African cybercrime incidents are ever formally reported, the harder problem is
   not only detecting scams but giving people a low-friction way to report them. RethicsAI provides that
@@ -271,7 +272,7 @@ this, so users see the model verdict rather than the fallback.
 
 ---
 
-## 7. Recommendations and future work
+## 8. Recommendations and future work
 
 - Confidence-aware verdicts: show the model's confidence and add an explicit "unsure, treat with caution" state to cut false positives and build trust.
 - Collect authentic minority-class data (mobile-money and advance-fee). This is the single biggest lever on accuracy, as the re-balancing ablation showed. A data-access request to a regional smishing-research network (CMU-Africa's Upanzi) is already in progress to source real English mobile-money scam messages.
@@ -282,7 +283,7 @@ this, so users see the model verdict rather than the fallback.
 
 ---
 
-## 8. Repository map (related files)
+## 9. Repository map (related files)
 
 ```
 Capstone-Project/
@@ -299,14 +300,14 @@ Capstone-Project/
 
 ---
 
-## 9. Tech stack
+## 10. Tech stack
 
 Flutter (Dart), Material 3, Firebase (Auth, Firestore, Cloud Functions, FCM), a Python ML service
 (TF-IDF + e5 ensemble), Claude Haiku for the assistant, and 11 locales.
 
 ---
 
-## 10. Demo video
+## 11. Demo video
 
 **5-minute demo (core functionality):** _add link here_
 
