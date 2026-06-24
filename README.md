@@ -9,6 +9,15 @@ verdict — then helps the user act on it: verify, block, and report to the righ
 It pairs a custom-trained scam classifier (not a wrapped LLM) with an education hub, an AI
 assistant, and an authority-reporting directory covering 14 African countries.
 
+**Why it matters — the reporting gap.** Cybercrime in Africa is chronically **under-reported**: INTERPOL
+estimates that fewer than **20%** of incidents are ever formally logged, so the official statistics — and
+the institutional response built on them — rest on a fraction of reality. At its core, RethicsAI is
+**infrastructure that lowers the barrier to reporting**: it meets victims where the scam reaches them
+(their phone, in their language), converts a confusing moment into a clear verdict, and routes a
+structured report to the right authority in a single tap. Every report also enriches a regional scam
+dataset the field currently lacks — so the platform helps close the reporting gap *and* the data gap at
+once.
+
 ---
 
 ## 1. Deployed version — download & install (Android)
@@ -85,14 +94,42 @@ RethicsAI is **two engineered systems that meet at one screen.**
   launch keeps the hosted model responsive, so the live model verdict — not a keyword fallback — is what
   the user sees.
 
-```text
- ┌──────────────────┐   paste message    ┌──────────────────┐   POST /predict   ┌─────────────────────┐
- │   MOBILE APP     │ ─────────────────► │  ScamModelService │ ────────────────► │   ML ENSEMBLE API    │
- │  scanner UI      │                    │  (warm-up + call) │                   │  TF-IDF + e5 (0.955) │
- │  verdict card    │ ◄───────────────── │                   │ ◄──────────────── │                     │
- └──────────────────┘  category + conf.  └──────────────────┘   prediction      └─────────────────────┘
-        Part 1                                INTERSECTION                              Part 2
+![RethicsAI architecture — the mobile app, the ML system, and the scanner that joins them](docs/assets/architecture.png)
+
+### Try the model API directly
+
+The scam classifier is hosted as a public Hugging Face Space — the same endpoint the app calls.
+
+- **Model API base URL:** https://wadotuh-scam-classifier-api.hf.space
+- **Endpoint:** `POST /predict`
+- **Request body:** `{ "text": "<message to classify>" }`
+
+**Example (curl):**
+
+```bash
+curl -X POST https://wadotuh-scam-classifier-api.hf.space/predict \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Congratulations! You won 2000000 in the MTN promo. Send your BVN and a 5000 activation fee to claim now."}'
 ```
+
+**Example response:**
+
+```json
+{
+  "predicted_category": "advance_fee_fraud",
+  "confidence": 0.6993,
+  "scores": {
+    "advance_fee_fraud": 0.6993,
+    "mobile_money_fraud": 0.015,
+    "phishing": 0.1862,
+    "not_a_scam": 0.0995
+  }
+}
+```
+
+> The Space **sleeps when idle**, so the *first* request after a pause can take 30–90 seconds to wake the
+> model (the app hides this with a warm-up ping). In the mobile app the URL is configurable via the
+> `SCAM_MODEL_API` dart-define — e.g. `flutter run --dart-define=SCAM_MODEL_API=https://<your-space>.hf.space`.
 
 ---
 
@@ -197,6 +234,11 @@ longer timeouts — so the model verdict, not the fallback, is what users see.
 
 ## 6. Discussion — why the milestones matter
 
+- **The deeper contribution is a reporting on-ramp.** Because fewer than 20% of African cybercrime
+  incidents are ever formally reported, the binding societal problem isn't only *detecting* scams — it's
+  the missing, low-friction path to *report* them. RethicsAI is infrastructure for that on-ramp: it turns
+  reporting into something a non-technical victim can do in their language, in one tap, the moment it
+  happens. Better reporting data is also what every downstream institutional response depends on.
 - **Detection without action is half a solution.** The real impact of this milestone is not just a
   classifier that labels a message, but a product that closes the loop — turning a verdict into a
   one-tap report to a real authority in the user's country. That is the differentiator.
