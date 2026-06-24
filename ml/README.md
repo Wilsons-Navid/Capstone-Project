@@ -10,7 +10,11 @@ The project classifier scores a short message as **advance_fee_fraud**, **mobile
 2. **Semantic upgrade** — multilingual **e5-small** sentence embeddings → Logistic Regression / Random Forest (`src/embed_model.py`).
 3. **Ensemble** — soft-voting + stacking over the lexical + semantic models.
 
-**Result (held-out test, macro-F1):** TF-IDF baseline **0.943** → **soft-voting ensemble 0.955** (best; lifts every class). Embeddings alone do *not* beat the lexical baseline on this corpus, but they contribute complementary signal that the ensemble exploits — see the finding in the notebook.
+**Result (held-out test, macro-F1):**
+- **v1 corpus (4,422 msgs, en/pt):** TF-IDF baseline **0.943** → **soft-voting ensemble 0.955** (best on this corpus).
+- **v2 corpus (9,623 msgs, en/pt/sw — adds the ExAIS + BongoScam African SMS sets):** **TF-IDF + LogReg 0.946** is the best single model; soft-vote 0.941, embeddings-only 0.899. Mobile-money fraud becomes the strongest class (F1 0.983) and per-language accuracy is en 0.95 / pt 1.00 / sw 0.98. See `notebooks/scam_detection_main_v2.ipynb`; the deployed v2 API is `serve_v2/` (embedder-free, instant cold start).
+
+On both corpora the multilingual embeddings do *not* beat the lexical baseline — scam messages reuse give-away keywords TF-IDF already catches — but they contribute complementary cross-lingual signal. See the finding in the notebook.
 
 ```bash
 python src/embed_model.py                       # train the full ladder, print the comparison table
@@ -21,8 +25,10 @@ The canonical write-up is **`notebooks/scam_detection_main.ipynb`**. `notebooks/
 
 ## Corpus scope
 
-- Two data streams: public (Nazario / UCI SMS Spam / Kaggle / etc.) and regional (ngCERT / ANTIC / EFCC / West African news)
-- No live pilot; no LLM comparison (both retained as future work)
+- Public stream: Nazario / UCI SMS Spam / Mendeley smishing / MOZ-Smishing (Portuguese M-Pesa).
+- Regional stream: West African news (ngCERT / ANTIC / EFCC probed but blocked).
+- **African SMS additions (v2):** ExAIS African-English SMS (Nigeria) + BongoScam Tanzanian Swahili, relabelled to the 4-class taxonomy by `scripts/11_relabel_african.py` and merged by `scripts/12_build_corpus_v2.py` → `data/labelled/demo_labeled_v2.jsonl`. Full source links in `../docs/DATA_SOURCES.md`.
+- No live pilot; no LLM comparison (both retained as future work).
 
 ## Binding deadlines (from proposal §1.3.1)
 
