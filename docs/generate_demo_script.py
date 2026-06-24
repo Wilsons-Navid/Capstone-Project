@@ -75,7 +75,7 @@ para("Goal: demonstrate the core functionality under the rubric — different te
      "(the rubric says so).", italic=True, color=GREY)
 
 h("Before you hit record (2-minute prep)", 1)
-check("Warm up the model first: open the Scanner and run any scan, then wait ~30–60s. The ML Space sleeps when idle; warming it up means your demo scans show the AI model verdict, not the heuristic fallback.")
+check("Warm up the model first: open the Scanner and run any scan, then wait ~5–10s. The v2 model is lightweight (no large download), so it only needs the idle Space to wake; warming it up means your demo scans show the AI model verdict, not the heuristic fallback.")
 check("Have the 4 example messages ready to paste (copy them from the table below into a notes app on the phone).")
 check("Sign in before recording so you can open straight onto the dashboard.")
 check("Screen-record in portrait, clean status bar; speak slowly and clearly.")
@@ -86,11 +86,11 @@ table(
     ["Time", "On screen", "Say this (narration)"],
     [
         ["0:00–0:20\n(Hook)", "App icon / splash, then dashboard.",
-         "This is Rethicsec — a scam-defence app for Africa. Across the continent, mobile-money, advance-fee and phishing scams cost everyday users real money. Rethicsec answers one question instantly: is this message a scam? — and helps you act on it."],
+         "This is Rethicsec — a scam-defence app for Africa. Across the continent, mobile-money, advance-fee and phishing scams cost everyday users real money — in many local languages. Rethicsec answers one question instantly, in English, Swahili or Portuguese: is this message a scam? — and helps you act on it."],
         ["0:20–0:35\n(Orientation)", "Dashboard: stats, feature grid.",
          "When I open the app I land on my dashboard — reports filed, cases resolved, threats blocked — and quick access to every tool."],
-        ["0:35–2:05\n(CORE: Scanner)", "Tap Scanner. Paste each of the 4 messages, scan, let the verdict appear.",
-         "The heart of the app is the scanner. Let me test it with different kinds of messages. [advance-fee] Here's an advance-fee scam — the AI flags it HIGH RISK and tells me why. [repeat for mobile-money, phishing] [safe] And a normal message comes back SAFE — so it doesn't cry wolf."],
+        ["0:35–2:05\n(CORE: Scanner)", "Tap Scanner. Paste each of the 4 messages, scan, let the verdict appear. (Message 2 is in Swahili.)",
+         "The heart of the app is the scanner. Let me test it with different kinds of messages. [advance-fee] Here's an advance-fee scam — the AI flags it HIGH RISK and tells me why. [mobile-money, Swahili] This next one is a mobile-money scam written in Swahili — and the model still catches it as mobile-money fraud, because it's trained on real African messages in three languages. [phishing] [safe] And a normal message comes back SAFE — so it doesn't cry wolf."],
         ["2:05–2:50\n(CORE: Report)", "On a scam result, scroll to Report to authorities. Open the country dropdown (show full list). Tap Call / Email / Report online.",
          "A verdict isn't enough — Rethicsec helps me act. It shows the real cyber-crime and police units for my country, and I can switch country here; all 14 are covered. One tap calls them, emails a report, or opens the official portal, pre-filled."],
         ["2:50–3:20\n(Education)", "Open Education, show a lesson + progress.",
@@ -102,7 +102,7 @@ table(
         ["4:20–4:40\n(Testing + HW)", "Terminal showing `flutter test` → All 36 passed. Then a quick clip on a second device/emulator.",
          "On the engineering side: the app has an automated test suite — unit and widget tests — that passes green, and it runs smoothly across different Android devices."],
         ["4:40–5:00\n(Close)", "Back to dashboard / logo.",
-         "All three objectives are met: a labelled scam corpus, a working detection-and-reporting platform, and a custom classifier at 0.955 macro-F1. The next step is collecting more local scam data. Rethicsec — know the scam, stop the scam."],
+         "All three objectives are met: a labelled, three-language scam corpus, a working detection-and-reporting platform, and a custom classifier at 0.946 macro-F1 that now reads English, Portuguese and Swahili. Adding real African data made mobile-money fraud our strongest class. Rethicsec — know the scam, stop the scam."],
     ],
     widths=[1.0, 2.3, 3.7],
 )
@@ -111,10 +111,10 @@ h("The 4 scanner inputs (copy these to the phone)", 1)
 table(
     ["#", "Type", "Message"],
     [
-        ["1", "Advance-fee", "Congratulations! You have won 2,000,000 in the MTN promo. Send your BVN and a 5,000 activation fee to claim your prize now."],
-        ["2", "Mobile-money", "Your MoMo account will be blocked today. Dial *123*PIN# now to verify your wallet and avoid suspension."],
-        ["3", "Phishing", "Dear customer, your bank account has been suspended. Click http://bit.ly/secure-restore to reactivate immediately."],
-        ["4", "Safe", "Hi, are we still meeting at 3pm tomorrow at the office?"],
+        ["1", "Advance-fee (EN)", "Congratulations! You have won 2,000,000 in the MTN promo. Send your BVN and a 5,000 activation fee to claim your prize now."],
+        ["2", "Mobile-money (Swahili)", "Iyo pesa itume kwenye namba hii ya Airtel 0689933027, jina PETER NYANGE.  (Swahili: “Send that money to this Airtel number, name Peter Nyange.” — a real Tanzanian mobile-money lure.)"],
+        ["3", "Phishing (EN)", "Dear customer, your bank account has been suspended. Click http://bit.ly/secure-restore to reactivate immediately."],
+        ["4", "Safe (EN)", "Hi, are we still meeting at 3pm tomorrow at the office?"],
     ],
     widths=[0.4, 1.3, 5.3],
 )
@@ -124,39 +124,44 @@ table(
     ["Rubric item", "Covered by"],
     [
         ["Different testing strategies", "4:20 shot — flutter test (unit + widget) + manual functional walkthrough"],
-        ["Different data values", "0:35–2:05 — four different scanner inputs → four verdicts"],
+        ["Different data values", "0:35–2:05 — four different scanner inputs across two languages (incl. a Swahili scam) → four verdicts"],
         ["Performance on different hardware/software", "4:20 shot — app on a second device/emulator (also fill the README matrix)"],
         ["Analysis vs objectives", "4:40 close — Obj 1/2/3 recap"],
-        ["Recommendation / future work", "4:40 close — collect more local scam data"],
+        ["Recommendation / future work", "4:40 close — collect more English mobile-money + advance-fee data (the remaining gaps)"],
     ],
     widths=[2.5, 4.5],
 )
 
 h("Analysis & Discussion — read verbatim (closing shot)", 1)
 para("Option A — tight close (~20 seconds, for the 4:40–5:00 slot)", bold=True, color=BROWN)
-quote("“To wrap up: all three objectives were met. I built a labelled, four-class scam corpus; I "
-      "delivered a working detection-and-reporting platform that's deployed and installable; and I trained "
-      "a custom classifier that reaches a macro-F1 of about 0.955. The honest limit is that this score "
-      "holds best on familiar messages — newer or rarer scams are harder, mainly because the training data "
-      "is still light on mobile-money and advance-fee examples. That's also the clearest way forward: more "
-      "real, local scam data will lift accuracy the most. What makes Rethicsec matter is that it doesn't "
-      "stop at a verdict — it turns detection into action, in the user's own language. Rethicsec: know the "
-      "scam, stop the scam.”")
+quote("“To wrap up: all three objectives were met. I built a labelled, four-class scam corpus that now "
+      "spans three languages — English, Portuguese and Swahili; I delivered a working "
+      "detection-and-reporting platform that's deployed and installable; and I trained a custom classifier "
+      "that reaches a macro-F1 of about 0.946. After adding real African data, mobile-money fraud became "
+      "the model's strongest class, and it works across all three languages. The honest limit that remains "
+      "is advance-fee fraud and English mobile-money messages, where data is still thinner — so the clearest "
+      "way forward is collecting more of that local scam data. What makes Rethicsec matter is that it "
+      "doesn't stop at a verdict — it turns detection into action, in the user's own language. Rethicsec: "
+      "know the scam, stop the scam.”")
 
 para("Option B — fuller analysis + discussion (~45 seconds, if you add a dedicated segment)", bold=True, color=BROWN)
 quote("“Let me analyse the results against the proposal. Objective one, the labelled scam corpus, was "
-      "achieved: roughly four thousand four hundred messages across four classes — advance-fee, "
-      "mobile-money, phishing, and not-a-scam. Objective two, a working platform, was achieved and is what "
-      "you've just seen: scanning, country-aware reporting, education, an assistant, and an admin console, "
-      "deployed as an installable app. Objective three, the classifier, was also achieved — a TF-IDF and "
-      "multilingual embedding ensemble at about 0.955 macro-F1.”")
-quote("“Where it fell short of the ideal is on unfamiliar messages: the model inherits a bias toward "
-      "phishing because that class dominates the data, so some genuine mobile-money scams get mislabelled. "
-      "Importantly, re-balancing experiments did not fix those cases — which tells me the real constraint "
-      "is the amount of authentic local data, not the algorithm.”")
+      "achieved and then grown: about nine thousand six hundred messages across four classes — advance-fee, "
+      "mobile-money, phishing, and not-a-scam — and across three languages, English, Portuguese and Swahili, "
+      "after I added two real African SMS datasets. Objective two, a working platform, was achieved and is "
+      "what you've just seen: scanning, country-aware reporting, education, an assistant, and an admin "
+      "console, deployed as an installable app. Objective three, the classifier, was also achieved — I "
+      "compared six models, and the best on this larger corpus is a TF-IDF and logistic-regression model at "
+      "about 0.946 macro-F1, served as a lightweight API.”")
+quote("“At the first milestone the model was biased toward phishing because that class dominated the data, "
+      "and re-balancing experiments did not fix it — which told me the real constraint was the amount of "
+      "authentic local data, not the algorithm. So I acted on that: I added real African messages, including "
+      "Swahili mobile-money lures, and the result is direct — mobile-money fraud went from the weakest class "
+      "to the strongest, and per-language accuracy is strong across all three languages. The remaining gaps "
+      "are advance-fee volume and English mobile-money data.”")
 quote("“Why does this milestone matter? Because detection alone doesn't protect anyone. The impact here "
-      "is the full loop — a verdict a non-technical user can read, in their language, plus a one-tap path "
-      "to report it to a real authority. My recommendation is to keep collecting verified local scam "
+      "is the full loop — a verdict a non-technical user can read, in their own language, plus a one-tap "
+      "path to report it to a real authority. My recommendation is to keep collecting verified local scam "
       "reports, which both improves the model and builds a data advantage no competitor can copy by adding "
       "a language pack.”")
 
