@@ -154,7 +154,7 @@ $ flutter test
 00:03 +36: All tests passed!
 ```
 
-_(Screenshot slot: `docs/assets/test_run.png`)_
+![flutter test output showing all 36 tests passing](docs/assets/test_run.png)
 
 ### 5.2 Functionality with different data values (the scanner)
 
