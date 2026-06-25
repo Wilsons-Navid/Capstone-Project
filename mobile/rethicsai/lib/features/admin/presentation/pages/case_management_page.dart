@@ -80,6 +80,7 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
           ],
           investigationStatus: 'pending_review',
           assignedInvestigator: data['assigned_officer'],
+          assignedToUid: data['assignedTo'],
           evidenceCount: (data['evidence_files'] as List?)?.length ?? 0,
         );
       }).toList();
@@ -852,42 +853,83 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
     );
   }
 
-  void _assignInvestigator(CaseModel caseModel) {
-    final investigatorController = TextEditingController(text: caseModel.assignedInvestigator);
-    
-    showDialog(
+  Future<void> _assignInvestigator(CaseModel caseModel) async {
+    // Load assignable staff (moderators + admins) from the users collection.
+    // A single whereIn on `role` avoids needing a composite index.
+    List<Map<String, dynamic>> staff;
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('users')
+          .where('role', whereIn: ['moderator', 'admin'])
+          .get();
+      staff = snap.docs.map((d) => {...d.data(), 'id': d.id}).toList();
+    } catch (e) {
+      _showErrorSnackBar('Failed to load staff: $e');
+      return;
+    }
+
+    if (!mounted) return;
+
+    if (staff.isEmpty) {
+      _showErrorSnackBar('No moderators or admins available to assign');
+      return;
+    }
+
+    String uidOf(Map<String, dynamic> u) => (u['uid'] ?? u['id'] ?? '') as String;
+    String nameOf(Map<String, dynamic> u) {
+      final name = '${u['firstName'] ?? ''} ${u['lastName'] ?? ''}'.trim();
+      return name.isEmpty ? (u['email'] as String? ?? uidOf(u)) : name;
+    }
+
+    // Pre-select the current assignee only if they are still in the staff list.
+    String? selectedUid =
+        staff.any((u) => uidOf(u) == caseModel.assignedToUid) ? caseModel.assignedToUid : null;
+
+    await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Assign Investigator - ${caseModel.caseNumber}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: investigatorController,
-              decoration: const InputDecoration(
-                labelText: 'Investigator Name/ID',
-                border: OutlineInputBorder(),
-                hintText: 'Enter investigator name or ID',
+      builder: (context) => StatefulBuilder(
+        builder: (context, setLocalState) => AlertDialog(
+          title: Text('Assign Investigator - ${caseModel.caseNumber}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: selectedUid,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Assign to (moderator or admin)',
+                  border: OutlineInputBorder(),
+                ),
+                items: staff.map((u) {
+                  final role = (u['role'] as String? ?? 'user');
+                  return DropdownMenuItem(
+                    value: uidOf(u),
+                    child: Text('${nameOf(u)} ($role)',
+                        maxLines: 1, overflow: TextOverflow.ellipsis),
+                  );
+                }).toList(),
+                onChanged: (value) => setLocalState(() => selectedUid = value),
               ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: selectedUid == null
+                  ? null
+                  : () async {
+                      final chosen = staff.firstWhere((u) => uidOf(u) == selectedUid);
+                      Navigator.pop(context);
+                      await _updateCaseAssignment(
+                          caseModel.id, selectedUid!, nameOf(chosen));
+                    },
+              child: const Text('Assign'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final investigator = investigatorController.text.trim();
-              if (investigator.isNotEmpty) {
-                await _updateCaseAssignment(caseModel.id, investigator);
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Assign'),
-          ),
-        ],
       ),
     );
   }
@@ -949,14 +991,19 @@ class _CaseManagementPageState extends State<CaseManagementPage> with TickerProv
     );
   }
 
-  Future<void> _updateCaseAssignment(String caseId, String investigator) async {
+  Future<void> _updateCaseAssignment(
+      String caseId, String assigneeUid, String assigneeName) async {
     try {
+      // Store both the display name (assigned_officer) and the UID (assignedTo).
+      // assignedTo is what the Firestore rules use to let the assigned staff
+      // member update their own case.
       await FirebaseFirestore.instance.collection('incidents').doc(caseId).update({
-        'assigned_officer': investigator,
+        'assigned_officer': assigneeName,
+        'assignedTo': assigneeUid,
         'status': 'assigned',
         'updated_at': DateTime.now().toIso8601String(),
       });
-      
+
       _showSuccessSnackBar('Investigator assigned successfully');
       _loadCases();
       _loadCaseStatistics();
@@ -1021,6 +1068,7 @@ class CaseModel {
   final List<Map<String, dynamic>> timeline;
   final String investigationStatus;
   final String? assignedInvestigator;
+  final String? assignedToUid;
   final int evidenceCount;
 
   CaseModel({
@@ -1043,6 +1091,7 @@ class CaseModel {
     required this.timeline,
     required this.investigationStatus,
     this.assignedInvestigator,
+    this.assignedToUid,
     required this.evidenceCount,
   });
 
@@ -1067,6 +1116,7 @@ class CaseModel {
       timeline: List<Map<String, dynamic>>.from(json['timeline'] ?? []),
       investigationStatus: json['investigation_status'] as String,
       assignedInvestigator: json['assigned_investigator'] as String?,
+      assignedToUid: json['assignedTo'] as String?,
       evidenceCount: json['evidence_count'] as int,
     );
   }

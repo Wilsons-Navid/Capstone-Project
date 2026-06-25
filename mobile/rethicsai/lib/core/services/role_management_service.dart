@@ -146,37 +146,47 @@ class RoleManagementService {
         throw Exception('Invalid role: $newRole');
       }
 
-      // Get current role data
+      // Get current role data. The user_roles doc is the canonical store, but
+      // older or console-created accounts may not have one yet — fall back to
+      // the users doc and create the role doc below instead of failing.
       final roleDoc = await _roles.doc(targetUserId).get();
-      if (!roleDoc.exists) {
-        throw Exception('User role document not found');
-      }
+      final userDoc = await _users.doc(targetUserId).get();
 
-      final roleData = roleDoc.data() as Map<String, dynamic>;
-      final currentRole = roleData['current_role'] as String;
+      final String currentRole;
+      if (roleDoc.exists) {
+        currentRole =
+            (roleDoc.data() as Map<String, dynamic>)['current_role'] as String? ?? 'user';
+      } else if (userDoc.exists) {
+        currentRole =
+            (userDoc.data() as Map<String, dynamic>)['role'] as String? ?? 'user';
+      } else {
+        currentRole = 'user';
+      }
 
       if (currentRole == newRole) {
         throw Exception('User already has role: $newRole');
       }
 
       // Get user email for logging
-      final userDoc = await _users.doc(targetUserId).get();
-      final userEmail = userDoc.exists 
-          ? (userDoc.data() as Map<String, dynamic>)['email'] as String
+      final userEmail = userDoc.exists
+          ? ((userDoc.data() as Map<String, dynamic>)['email'] as String? ?? 'unknown')
           : 'unknown';
 
       final now = DateTime.now();
       final batch = FirebaseFirestore.instance.batch();
 
-      // Update role document
-      batch.update(_roles.doc(targetUserId), {
+      // Write role document (set+merge so it is created if it did not exist).
+      batch.set(_roles.doc(targetUserId), {
+        'user_id': targetUserId,
+        'email': userEmail,
         'previous_role': currentRole,
         'current_role': newRole,
         'assigned_by': currentUser.uid,
         'assigned_at': now.toIso8601String(),
         'updated_at': now.toIso8601String(),
+        'is_active': true,
         'permissions': rolePermissions[newRole] ?? rolePermissions['user'],
-      });
+      }, SetOptions(merge: true));
 
       // Create role history entry
       final historyDoc = _roleHistory.doc();
@@ -191,12 +201,13 @@ class RoleManagementService {
         'reason': reason ?? 'Role change by admin',
       });
 
-      // Update user document
-      batch.update(_users.doc(targetUserId), {
+      // Update user document (set+merge so a missing users doc is created
+      // rather than throwing, keeping users.role and user_roles in sync).
+      batch.set(_users.doc(targetUserId), {
         'role': newRole,
         'permissions': rolePermissions[newRole] ?? rolePermissions['user'],
         'updated_at': FieldValue.serverTimestamp(),
-      });
+      }, SetOptions(merge: true));
 
       await batch.commit();
       print('RoleManagementService: Role changed for user: $targetUserId from $currentRole to $newRole');
@@ -221,13 +232,33 @@ class RoleManagementService {
   }
 
   /// Check if user has a specific permission
+  ///
+  /// Permissions live in the `user_roles/{uid}` document, but accounts promoted
+  /// directly in the Firebase console (or created before this collection
+  /// existed) may have no role document, or a stale one still holding the
+  /// permissions of a plain `user`. In that case we derive the permission set
+  /// from `users/{uid}.role` so the role and its permissions can never drift
+  /// apart. This is what lets a console-promoted super_admin actually use their
+  /// privileges (e.g. change_user_roles).
   static Future<bool> hasPermission(String userId, String permission) async {
     try {
       final roleInfo = await getUserRoleInfo(userId);
-      if (roleInfo == null) return false;
+      if (roleInfo != null && roleInfo['permissions'] != null) {
+        final permissions = List<String>.from(roleInfo['permissions'] ?? []);
+        if (permissions.isNotEmpty) {
+          return permissions.contains(permission);
+        }
+      }
 
-      final permissions = List<String>.from(roleInfo['permissions'] ?? []);
-      return permissions.contains(permission);
+      // Fallback: derive permissions from the users-doc role.
+      final userDoc = await _users.doc(userId).get();
+      if (userDoc.exists) {
+        final data = userDoc.data() as Map<String, dynamic>;
+        final role = data['role'] as String? ?? 'user';
+        final perms = rolePermissions[role] ?? rolePermissions['user']!;
+        return perms.contains(permission);
+      }
+      return false;
     } catch (e) {
       print('RoleManagementService: Error checking permission: $e');
       return false;
