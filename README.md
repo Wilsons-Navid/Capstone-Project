@@ -141,7 +141,7 @@ The scam classifier is hosted as a public Hugging Face Space, the same endpoint 
 - **Endpoint:** `POST /predict`
 - **Request body:** `{ "text": "<message to classify>" }`
 
-**Example (curl) — a Swahili mobile-money lure:**
+**Example (curl), a Swahili mobile-money lure:**
 
 ```bash
 curl -X POST https://wilsons579-scam-classifier-api-v2.hf.space/predict \
@@ -248,7 +248,7 @@ The proposal (Chapter 1) set three SMART objectives. The implementation met or e
 Honest deviations from the proposal:
 
 - Obj 3 was scoped as a classical-only, two-baseline comparison. The delivered work went beyond it by adding multilingual e5 embeddings and ensembles. Interestingly, on the larger, keyword-rich African corpus the classical TF-IDF + logistic-regression model is again the strongest single model (macro-F1 0.946), narrowly ahead of the ensemble; the embeddings act as cross-lingual insurance rather than a leaderboard win. The final report should frame the embeddings/ensembles as an extension beyond, and a fair comparison against, the proposed classical baselines.
-- The corpus language mix is English, Portuguese, and Swahili, not the English and French the proposal targeted. Two real African sources were added since the first milestone — the ExAIS African-English SMS set (Nigeria) and the BongoScam Tanzanian Swahili set — which materially improved African coverage. French and Pidgin coverage in the model remains thin, even though the app localises to 11 languages.
+- The corpus language mix is English, Portuguese, and Swahili, not the English and French the proposal targeted. Two real African sources were added since the first milestone (the ExAIS African-English SMS set from Nigeria and the BongoScam Tanzanian Swahili set), which materially improved African coverage. French and Pidgin coverage in the model remains thin, even though the app localises to 11 languages.
 - Corpus provenance: the corpus is labelled by scam typology. It now combines public English/Portuguese smishing and phishing datasets (UCI SMS, Nazario, the Mozambican M-Pesa set, Mendeley) with two real African SMS datasets (ExAIS, BongoScam). The African additions are relabelled from their native binary labels into the four-class typology by a documented, auditable rule set (`ml/scripts/11_relabel_african.py`), and these remain heuristic/provenance labels pending the inter-rater κ audit. A corpus collected first-hand from West African victims is still future work, so the "West African corpus" framing should be read as typology-aligned and now partly region-native rather than fully field-collected. Full source links are in `docs/DATA_SOURCES.md`.
 
 ### 6.2 The ML analysis (figures from `ml/notebooks/`)
@@ -295,7 +295,7 @@ Re-balancing ablation (v1). Class-weighting, over-sampling, and the combined str
 
 ![Per-class recall across re-balancing strategies](docs/assets/ml/ml_rebalance_ablation.png)
 
-**v2 results — after adding the African data.** Retraining the same model ladder on the expanded
+**v2 results, after adding the African data.** Retraining the same model ladder on the expanded
 9,623-message corpus (English, Portuguese, Swahili) gives:
 
 | Model | Accuracy | Macro-F1 |
@@ -325,8 +325,8 @@ re-balancing ablation (testing class-weighting, over-sampling, under-sampling, a
 re-balancing the existing data could not create signal that was not there: the binding constraint was the
 **volume of authentic minority-class data, not the algorithm**.
 
-That diagnosis drove the v2 work. Acting on it, two real African SMS datasets were sourced and added — the
-ExAIS African-English set and the Tanzanian Swahili BongoScam set — which roughly doubled the two scarce
+That diagnosis drove the v2 work. Acting on it, two real African SMS datasets were sourced and added (the
+ExAIS African-English set and the Tanzanian Swahili BongoScam set), which roughly doubled the two scarce
 classes (mobile-money 538 → 1,166, advance-fee 283 → 597) and added a third language. The payoff is direct:
 **mobile-money fraud became the strongest class (F1 0.983)** and the model now reads Swahili and Portuguese,
 not just English. The minority-data constraint the ablation identified has been substantially eased, though
@@ -346,7 +346,7 @@ model verdict rather than the fallback.
 ## 7. Discussion: why the milestones matter
 
 - Because fewer than 20% of African cybercrime incidents are ever formally reported, the harder problem is
-  not only detecting scams but giving people a low-friction way to report them. Rethicsec provides that
+  not detecting scams but giving people a low-friction way to report them. Rethicsec provides that
   path: a non-technical victim can report a scam in their own language, in one tap, the moment it happens.
   That reporting data is also what downstream institutional responses depend on.
 - Detection on its own is only half the job. This milestone matters because it closes the loop: a verdict
@@ -368,7 +368,7 @@ model verdict rather than the fallback.
 ## 8. Recommendations and future work
 
 - Confidence-aware verdicts: show the model's confidence and add an explicit "unsure, treat with caution" state to cut false positives and build trust.
-- Collect authentic minority-class data (mobile-money and advance-fee). This was the single biggest lever on accuracy, as the re-balancing ablation showed, and v2 acted on it by adding the ExAIS and BongoScam African SMS sets — mobile-money is now the strongest class. The remaining gaps are advance-fee volume and English (rather than Swahili/Portuguese) mobile-money data; a data-access request to a regional smishing-research network (CMU-Africa's Upanzi) is in progress to source the latter.
+- Collect authentic minority-class data (mobile-money and advance-fee). This was the single biggest lever on accuracy, as the re-balancing ablation showed, and v2 acted on it by adding the ExAIS and BongoScam African SMS sets, so mobile-money is now the strongest class. The remaining gaps are advance-fee volume and English (rather than Swahili/Portuguese) mobile-money data; a data-access request to a regional smishing-research network (CMU-Africa's Upanzi) is in progress to source the latter.
 - On-device inference: a quantised model for offline, private screening on low-connectivity networks.
 - Multi-modal detection: images, link reputation, and voice notes.
 - Consent-based escalation tiers: from helping the user act today to partnerships with operators and regulators.
