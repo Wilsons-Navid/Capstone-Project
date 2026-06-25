@@ -403,7 +403,7 @@ it), FastAPI on a Hugging Face Docker Space, Claude Haiku for the assistant, and
 
 ## 11. Demo video
 
-**5-minute demo (core functionality):** _add link here_
+**5-minute demo (core functionality):** https://drive.google.com/file/d/1oKkNTARQLZ0C4FiUFOgcdcH0d9YUOo9e/view?usp=sharing
 
 > The video focuses on the core flows (scanning different messages, the verdict, reporting to authorities,
 > the education hub, and the assistant) rather than sign-up or sign-in.
