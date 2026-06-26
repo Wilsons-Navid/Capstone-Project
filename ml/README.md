@@ -140,15 +140,7 @@ documented baseline and the semantic comparison.
 
 ## How the pieces fit together
 
-```
-data/        the corpus
-  |   scripts/ 01..13  (download, normalise, label, audit and kappa, split, relabel African data, export)
-  v
-notebooks/   each notebook trains and saves its own model
-  initial_demo  ->  scam_classifier.joblib       ->  initial_serve/  ->  /predict
-  embed_demo    ->  embed_models.joblib           ->  embed_serve/    ->  /predict
-  final_model   ->  scam_tfidf_v2.joblib (shipped) ->  final_serve/    ->  /predict  ->  mobile app
-```
+![From the corpus, through the scripts and the three notebooks, to the serve apps, the predict API, and the mobile app](../docs/assets/ml/ml_pipeline.png)
 
 Each notebook contains its own training code; there is no shared `demo_model` or
 `embed_model` module to import. A notebook writes its artifacts into its own folder, and
