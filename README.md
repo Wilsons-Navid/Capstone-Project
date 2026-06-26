@@ -425,9 +425,10 @@ Capstone-Project/
 │   └── design-system/MASTER.md   ← the design-system contract
 ├── ml/                           ← scam-classifier research (corpus, notebooks, serving)
 │   └── README.md                 ← the three models, the results, and why the final one ships
-├── docs/                         ← reports, assets/ (screenshots), templates
-│   └── DATA_SOURCES.md           ← source links and licences for every dataset
-└── proposal/                     ← academic proposal workspace
+├── docs/
+│   ├── DATA_SOURCES.md           ← source links and licences for every dataset
+│   └── assets/                   ← screenshots and the architecture diagrams used in this README
+└── scripts/                      ← repository utilities (for example, the release QR generator)
 ```
 
 ## 10. Tech stack
