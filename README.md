@@ -148,19 +148,12 @@ Rethicsec has two engineered parts that meet at one screen.
   shown in the verdict card. A warm-up ping on app launch keeps the hosted model responsive, so the user
   sees the live model verdict instead of a keyword fallback.
 
-```
-   mobile/rethicsai/  (Flutter + Firebase)            ml/  (Python + scikit-learn)
-   scanner UI, reporting, education,                  corpus -> notebooks -> trained model
-   assistant, admin, 14-country directory                          |
-            |                                                       v
-            |  user pastes a message                       /predict API (Hugging Face)
-            +----------------> ScamModelService -------------------+
-                                      |
-                                      v
-                          verdict card: category + confidence
-```
+![Rethicsec build view: the mobile app, the ML pipeline, and the scanner that joins them](docs/assets/build_architecture.png)
+<p align="center"><em>Build view: each part is developed on its own, and the scanner is the screen where the app calls the served model.</em></p>
 
-![Rethicsec architecture: the mobile app, the ML system, and the scanner that joins them](docs/assets/architecture.png)
+The diagram below traces the same idea at run time: a pasted message makes a round trip from the app to the hosted model and back to the verdict card.
+
+![Rethicsec runtime flow: a pasted message round-trips from the app to the model and back](docs/assets/architecture.png)
 
 ### 4.1 Try the model APIs directly
 
