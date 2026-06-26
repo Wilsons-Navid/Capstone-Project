@@ -1,4 +1,14 @@
-# `ml/`: the scam-message classifier
+<h1 align="center"><code>ml/</code>: the scam-message classifier</h1>
+
+<p align="center"><strong>The research core of Rethicsec: corpus, modelling experiments, and the deployed classifier</strong></p>
+
+<p align="center">
+  <a href="https://wadotuh-scam-classifier-api-final.hf.space"><img alt="Final model API" src="https://img.shields.io/badge/Final%20API-live-2E7D34?style=for-the-badge&logo=huggingface&logoColor=white"></a>
+  <img alt="Model macro-F1 0.946" src="https://img.shields.io/badge/Model-macro--F1%200.946-C8851A?style=for-the-badge">
+  <img alt="Corpus languages" src="https://img.shields.io/badge/Corpus-EN%20%7C%20PT%20%7C%20SW-5C4536?style=for-the-badge">
+  <img alt="Corpus size" src="https://img.shields.io/badge/Messages-9%2C623-3E2B20?style=for-the-badge">
+  <img alt="Framework scikit-learn" src="https://img.shields.io/badge/Framework-scikit--learn-A66E12?style=for-the-badge&logo=scikitlearn&logoColor=white">
+</p>
 
 This directory holds the research core of Rethicsec: the corpus, the modelling
 experiments, and the trained classifier that the mobile app's scanner calls. Given a
