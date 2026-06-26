@@ -28,7 +28,7 @@ the platform works on the reporting gap and the data gap at the same time.
 >
 > **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.10
 >
-> **Model API (Hugging Face):** https://wilsons579-scam-classifier-api-v2.hf.space (usage in §4)
+> **Model API (Hugging Face):** https://wilsons579-scam-classifier-api-final.hf.space (the app's endpoint; all three model APIs are listed in §4)
 
 **Step-by-step install:**
 1. On an Android phone, open the direct APK link above in a browser.
@@ -133,18 +133,25 @@ Rethicsec has two engineered parts that meet at one screen.
 
 ![Rethicsec architecture: the mobile app, the ML system, and the scanner that joins them](docs/assets/architecture.png)
 
-### Try the model API directly
+### Try the model APIs directly
 
-The scam classifier is hosted as a public Hugging Face Space, the same endpoint the app calls.
+Each of the three models has its own public Hugging Face Space. The app calls the
+**final** one (the deployed, embedder-free model); the other two are the documented
+baseline and the embedding-ensemble.
 
-- **Model API base URL:** https://wilsons579-scam-classifier-api-v2.hf.space
-- **Endpoint:** `POST /predict`
+| Model | API base URL | What it serves |
+|---|---|---|
+| **Final (deployed)** | https://wilsons579-scam-classifier-api-final.hf.space | TF-IDF + LogReg, v2 corpus (en/pt/sw), macro-F1 0.946 — the app's endpoint |
+| Embedding ensemble | https://wilsons579-scam-classifier-api-embed.hf.space | TF-IDF + e5-small soft-voting ensemble, v1 corpus, macro-F1 0.955 |
+| Initial baseline | https://wilsons579-scam-classifier-api-initial.hf.space | TF-IDF + LogReg, v1 corpus (the first baseline) |
+
+- **Endpoint (all three):** `POST /predict`
 - **Request body:** `{ "text": "<message to classify>" }`
 
-**Example (curl), a Swahili mobile-money lure:**
+**Example (curl), a Swahili mobile-money lure on the deployed model:**
 
 ```bash
-curl -X POST https://wilsons579-scam-classifier-api-v2.hf.space/predict \
+curl -X POST https://wilsons579-scam-classifier-api-final.hf.space/predict \
   -H "Content-Type: application/json" \
   -d '{"text":"Iyo pesa itume kwenye namba hii ya Airtel 0689933027 jina PETER NYANGE."}'
 ```
@@ -164,13 +171,12 @@ curl -X POST https://wilsons579-scam-classifier-api-v2.hf.space/predict \
 }
 ```
 
-> The v2 model is pure scikit-learn (no embedder to download), so a warm request answers in about a
-> second and there is no 470 MB cold-start download. The Space still sleeps when idle, so only the first
+> The final model is pure scikit-learn (no embedder to download), so a warm request answers in about a
+> second and there is no 470 MB cold-start download. Each Space still sleeps when idle, so only the first
 > request after a pause waits a few seconds for the container to wake (the app hides this with a warm-up
 > ping). In the mobile app the URL is set with the `SCAM_MODEL_API` dart-define, for example
-> `flutter run --dart-define=SCAM_MODEL_API=https://<your-space>.hf.space`. The previous e5 soft-voting
-> ensemble (macro-F1 0.955 on the smaller corpus) remains available at
-> `https://wadotuh-scam-classifier-api.hf.space`.
+> `flutter run --dart-define=SCAM_MODEL_API=https://<your-space>.hf.space`; it defaults to the final
+> Space above. The embedding-ensemble Space downloads the e5 weights on its first request.
 
 ---
 
