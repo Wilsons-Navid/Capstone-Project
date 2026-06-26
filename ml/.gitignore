@@ -5,7 +5,5 @@ data/audits/*.jsonl
 notebooks/.ipynb_checkpoints/
 __pycache__/
 *.pyc
-# trained weights + embedding cache — reproducible via src/demo_model.py & src/embed_model.py
-models/*.joblib
-models/*.npz
-# (metrics.json / embed_metrics.json / model_card.json stay tracked — they're the results)
+# Notebook-generated model artifacts (joblib bundles + embedding caches) and
+# metrics are tracked in the repo so the trained models ship with the project.
