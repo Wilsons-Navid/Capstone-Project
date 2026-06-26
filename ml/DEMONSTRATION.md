@@ -43,15 +43,13 @@ ml/
 ├── data/
 │   ├── raw/            UCI, Nazario, Mendeley smishing, MOZ-Smishing (downloaders in scripts/)
 │   └── labelled/       demo_labeled.jsonl (4,422 labelled messages)
-├── src/
-│   ├── loaders.py      dataset loaders            demo_model.py   TF-IDF + LR/RF pipelines
-│   └── schema.py, taxonomy.py, auto_label.py, scrapers.py, labelling.py
-├── scripts/            01..10 data pipeline (download → normalise → label → build dataset)
+├── src/                corpus + labelling library (loaders, schema, taxonomy, auto_label, scrapers, labelling)
+├── scripts/            01..13 data pipeline (download → normalise → label → build → relabel → export)
 ├── notebooks/
-│   └── model_demo.ipynb    ← the model notebook (EDA, architecture, metrics, inference)
-├── serve_v2/
-│   └── app.py          FastAPI app (deployed, embedder-free v2 model)
-└── models/             scam_classifier.joblib + metrics.json (produced by training)
+│   ├── initial_demo/   initial_demo.ipynb  ← this demo's notebook (EDA, architecture, metrics, inference) + its model
+│   ├── embed_demo/     embed_demo.ipynb    ← semantic upgrade + ensemble + its model
+│   └── final_model/    final_model.ipynb   ← deployed model + its artifacts
+└── final_serve/        app.py — FastAPI app for the deployed model (initial_serve/ and embed_serve/ mirror it)
 ```
 
 ## Setup
@@ -68,20 +66,20 @@ pip install -r ml/requirements.txt
 # 1. assemble the labelled demo dataset (from the downloaded sources)
 python ml/scripts/10_build_demo_dataset.py
 
-# 2. train both models, save the best + metrics to ml/models/
-python ml/src/demo_model.py
-
-# 3. (optional) regenerate the executed notebook
-python ml/notebooks/build_model_notebook.py
+# 2. train + save the model by running the notebook (it owns its code and artifacts)
+cd ml/notebooks/initial_demo
+jupyter nbconvert --to notebook --inplace --execute initial_demo.ipynb
 ```
 
-The notebook `ml/notebooks/model_demo.ipynb` already contains executed outputs
-(class distributions, length plots, metrics tables, confusion matrices, live inference).
+The notebook `ml/notebooks/initial_demo/initial_demo.ipynb` already contains executed
+outputs (class distributions, length plots, metrics tables, confusion matrices, live
+inference) and saves `scam_classifier.joblib` + `metrics.json` beside itself.
 
 ## Run the deployment MVP (Swagger UI)
 
 ```bash
-python -m uvicorn ml.serve.app:app --reload --port 8000
+cd ml
+python -m uvicorn initial_serve.app:app --reload --port 8000
 ```
 
 Open **http://127.0.0.1:8000/docs** → `POST /predict`:

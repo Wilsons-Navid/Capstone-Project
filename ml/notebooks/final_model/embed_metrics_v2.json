@@ -1,0 +1,71 @@
+{
+  "embedder": "intfloat/multilingual-e5-small",
+  "corpus": "demo_labeled_v2.jsonl",
+  "n_total": 9623,
+  "test": {
+    "tfidf_logreg": {
+      "accuracy": 0.9646814404432132,
+      "macro_f1": 0.9461187435503104,
+      "per_class": {
+        "advance_fee_fraud": 0.8735632183908046,
+        "mobile_money_fraud": 0.9828571428571429,
+        "phishing": 0.9514824797843666,
+        "not_a_scam": 0.9765721331689272
+      }
+    },
+    "tfidf_rf": {
+      "accuracy": 0.9362880886426593,
+      "macro_f1": 0.9133104717853703,
+      "per_class": {
+        "advance_fee_fraud": 0.8104575163398693,
+        "mobile_money_fraud": 0.9829545454545454,
+        "phishing": 0.9090909090909091,
+        "not_a_scam": 0.9507389162561576
+      }
+    },
+    "emb_logreg": {
+      "accuracy": 0.9286703601108033,
+      "macro_f1": 0.8989971627945833,
+      "per_class": {
+        "advance_fee_fraud": 0.7586206896551724,
+        "mobile_money_fraud": 0.98005698005698,
+        "phishing": 0.9086092715231788,
+        "not_a_scam": 0.9487017099430018
+      }
+    },
+    "emb_rf": {
+      "accuracy": 0.9182825484764543,
+      "macro_f1": 0.8839001166230814,
+      "per_class": {
+        "advance_fee_fraud": 0.7448275862068966,
+        "mobile_money_fraud": 0.9799426934097422,
+        "phishing": 0.8717201166180758,
+        "not_a_scam": 0.9391100702576113
+      }
+    },
+    "ensemble_softvote": {
+      "accuracy": 0.9591412742382271,
+      "macro_f1": 0.9405242021791477,
+      "per_class": {
+        "advance_fee_fraud": 0.8654970760233918,
+        "mobile_money_fraud": 0.9829545454545454,
+        "phishing": 0.941970310391363,
+        "not_a_scam": 0.9716748768472906
+      }
+    },
+    "ensemble_stack": {
+      "accuracy": 0.9584487534626038,
+      "macro_f1": 0.9365499662860851,
+      "per_class": {
+        "advance_fee_fraud": 0.8432432432432433,
+        "mobile_money_fraud": 0.9885714285714285,
+        "phishing": 0.9411764705882353,
+        "not_a_scam": 0.973208722741433
+      }
+    }
+  },
+  "best": "tfidf_logreg",
+  "n_train": 6736,
+  "n_dev": 1443,
+  "n_test": 1444
+}

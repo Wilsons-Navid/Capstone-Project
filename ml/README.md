@@ -2,34 +2,31 @@
 
 The machine-learning track of the project: it builds a multilingual corpus and trains the classifier that powers the app's scanner. The model scores a short message as **advance_fee_fraud**, **mobile_money_fraud**, **phishing**, or **not_a_scam**.
 
-**Deployed model:** TF-IDF + Logistic Regression on the v2 corpus (9,623 messages, English / Portuguese / Swahili), held-out **macro-F1 0.946** (mobile-money fraud F1 0.983; per-language accuracy en 0.95 / pt 1.00 / sw 0.98). It is embedder-free, served from `serve_v2/` on a Hugging Face Space, and called by the mobile app.
+**Deployed model:** TF-IDF + Logistic Regression on the v2 corpus (9,623 messages, English / Portuguese / Swahili), held-out **macro-F1 0.946** (mobile-money fraud F1 0.983; per-language accuracy en 0.95 / pt 1.00 / sw 0.98). It is embedder-free, served from `final_serve/` on a Hugging Face Space, and called by the mobile app.
 
 ```bash
 pip install -r requirements.txt
-python src/embed_model.py        # train the model ladder + print the comparison table
+cd notebooks/final_model && jupyter nbconvert --to notebook --inplace --execute final_model.ipynb
 ```
 
-Canonical write-up: **`notebooks/scam_detection_main_v2.ipynb`**.
+Canonical write-up: **`notebooks/final_model/final_model.ipynb`**. Each notebook is
+self-contained and lives with the artifacts it produces — see [`notebooks/`](notebooks/).
 
 ## How the model is built
 
 The project classifier scores a short message as **advance_fee_fraud**, **mobile_money_fraud**, **phishing**, or **not_a_scam** (the four data-backed classes; romance / identity-theft / synthetic-media are future work). It is built and compared in three rungs:
 
-1. **Lexical baseline** — TF-IDF → Logistic Regression / Random Forest (`src/demo_model.py`).
-2. **Semantic upgrade** — multilingual **e5-small** sentence embeddings → Logistic Regression / Random Forest (`src/embed_model.py`).
-3. **Ensemble** — soft-voting + stacking over the lexical + semantic models.
+1. **Lexical baseline** — TF-IDF → Logistic Regression / Random Forest (`notebooks/initial_demo/`).
+2. **Semantic upgrade** — multilingual **e5-small** sentence embeddings → Logistic Regression / Random Forest, plus a soft-voting/stacking ensemble (`notebooks/embed_demo/`).
+3. **Final model** — the same ladder on the expanded en/pt/sw corpus; the lightweight TF-IDF + LogReg model wins and is deployed (`notebooks/final_model/`).
 
 **Result (held-out test, macro-F1):**
-- **v1 corpus (4,422 msgs, en/pt):** TF-IDF baseline **0.943** → **soft-voting ensemble 0.955** (best on this corpus).
-- **v2 corpus (9,623 msgs, en/pt/sw — adds the ExAIS + BongoScam African SMS sets):** **TF-IDF + LogReg 0.946** is the best single model; soft-vote 0.941, embeddings-only 0.899. Mobile-money fraud becomes the strongest class (F1 0.983) and per-language accuracy is en 0.95 / pt 1.00 / sw 0.98. See `notebooks/scam_detection_main_v2.ipynb`; the deployed v2 API is `serve_v2/` (embedder-free, instant cold start).
+- **v1 corpus (4,422 msgs, en/pt):** TF-IDF baseline **0.943** → **soft-voting ensemble 0.955** (best on this corpus) — `notebooks/embed_demo/`.
+- **v2 corpus (9,623 msgs, en/pt/sw — adds the ExAIS + BongoScam African SMS sets):** **TF-IDF + LogReg 0.946** is the best single model; soft-vote 0.941, embeddings-only 0.899. Mobile-money fraud becomes the strongest class (F1 0.983) and per-language accuracy is en 0.95 / pt 1.00 / sw 0.98. See `notebooks/final_model/`; the deployed API is `final_serve/` (embedder-free, instant cold start).
 
 On both corpora the multilingual embeddings do *not* beat the lexical baseline — scam messages reuse give-away keywords TF-IDF already catches — but they contribute complementary cross-lingual signal. See the finding in the notebook.
 
-```bash
-python src/embed_model.py                       # train the full ladder, print the comparison table
-```
-
-The delivered model is the v2 run (`notebooks/scam_detection_main_v2.ipynb`, served by `serve_v2/`). The earlier rungs are kept as the documented baseline: `notebooks/scam_detection_main.ipynb` (v1 corpus, en/pt) and `notebooks/model_demo.ipynb` (first preliminary run). Trained models + caches live in `models/` (see `models/README.md` for which notebook produced each); metrics persist in `models/embed_metrics*.json`.
+The delivered model is the v2 run (`notebooks/final_model/final_model.ipynb`, served by `final_serve/`). The earlier rungs are kept as the documented baseline: `notebooks/embed_demo/` (v1 ensemble) and `notebooks/initial_demo/` (first preliminary run). Each notebook is self-contained and saves its artifacts beside it; the three serve dirs (`initial_serve/`, `embed_serve/`, `final_serve/`) each load the matching notebook's model.
 
 ## Corpus scope
 
@@ -64,28 +61,31 @@ Defined in `src/taxonomy.py`:
 ml/
 ├── README.md                          ← this file
 ├── requirements.txt                   ← Python deps (pydantic, pandas, scikit-learn, requests)
+├── notebooks/                         ← three self-contained notebooks, each with its models
+│   ├── README.md                      ← overview table of the three
+│   ├── initial_demo/                  ← initial_demo.ipynb + scam_classifier.joblib, metrics.json, model_card.json
+│   ├── embed_demo/                    ← embed_demo.ipynb + embed_models.joblib, embed_metrics.json, emb_e5small.npz
+│   └── final_model/                   ← final_model.ipynb + embed_models_v2.joblib, …_v2.json, …_v2.npz, scam_tfidf_v2.joblib (DEPLOYED)
+├── initial_serve/                     ← FastAPI API for the initial_demo model
+├── embed_serve/                       ← FastAPI API for the embed_demo ensemble (loads e5)
+├── final_serve/                       ← FastAPI API for the deployed model (on Hugging Face)
 ├── src/
 │   ├── __init__.py
 │   ├── taxonomy.py                    ← six-category enum + descriptions
 │   ├── schema.py                      ← Pydantic LabelledItem model + JSONL I/O
 │   ├── loaders.py                     ← UCI SMS Spam, Nazario, Kaggle CSV loaders
 │   ├── scrapers.py                    ← regional advisory scrapers (ngCERT / ANTIC / EFCC / news)
+│   ├── auto_label.py                  ← heuristic category suggester (labelling bootstrap)
 │   └── labelling.py                   ← audit sampling + Cohen's κ
-├── scripts/
-│   ├── 01_download_public.py          ← fetch public datasets into data/raw/
-│   ├── 02_normalise.py                ← raw → JSONL, with quality phase (length filter, near-dup)
-│   ├── 03_label_helper.py             ← interactive CLI for rater 1
-│   ├── 03c_batch_autolabel.py        ← non-interactive AUTO-suggest pass (bootstrap, not human labels)
-│   ├── 04_create_audit_sample.py      ← stratified 100-item sample for rater 2 (blinded)
-│   ├── 05_compute_kappa.py            ← Cohen's κ on the audit sample
-│   ├── 06_split.py                    ← 70/15/15 stratified train/dev/test split
-│   └── 07_scrape_regional.py          ← harvest the regional stream into data/raw/regional/
-├── data/
-│   ├── raw/                           ← unmodified downloaded datasets (gitignored)
-│   ├── labelled/                      ← JSONL corpus (gitignored except corpus_v*.jsonl)
-│   └── audits/                        ← second-rater audit samples for κ
-└── notebooks/                         ← ad-hoc EDA (gitignored)
+├── scripts/                           ← 01..13 data pipeline (download → … → relabel → export deployed model)
+└── data/
+    ├── raw/                           ← downloaded datasets (zips gitignored, extracts tracked)
+    ├── labelled/                      ← JSONL corpora + labelling intermediates
+    └── audits/                        ← second-rater audit samples for κ
 ```
+
+> Model training code is **inlined in the notebooks** (each owns its pipeline); there is
+> no shared `demo_model`/`embed_model` module. `src/` holds the corpus + labelling library.
 
 ## Regional stream reachability (probed 2026-06-01)
 

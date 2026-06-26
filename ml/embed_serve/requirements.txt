@@ -1,0 +1,7 @@
+# Serving-only deps (lighter than ml/requirements.txt — no notebook/plotting libs).
+fastapi>=0.110
+uvicorn[standard]>=0.27
+scikit-learn==1.8.0   # pin to the training version so the saved joblib unpickles cleanly
+numpy>=1.24
+joblib>=1.3
+sentence-transformers>=2.6   # pulls torch (CPU). First request downloads e5-small (~470MB).

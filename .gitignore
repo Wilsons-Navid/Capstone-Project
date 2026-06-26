@@ -16,14 +16,6 @@ venv/
 # raw-dataset download archives (the extracted contents are tracked, not the zips)
 ml/data/raw/**/*.zip
 ml/data/raw/swahili_bongo/_repo_notebook.ipynb
-# retired v1 serving stack (superseded by ml/serve_v2/; kept local)
-ml/serve/
-ml/models/*.pkl
-ml/models/*.tflite
-ml/models/*.h5
-ml/models/*.onnx
-ml/models/*.pt
-ml/models/checkpoints/
 ml/reports/runs/
 
 # ============================================================
