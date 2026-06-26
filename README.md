@@ -28,7 +28,7 @@ the platform works on the reporting gap and the data gap at the same time.
 >
 > **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.10
 >
-> **Model API (Hugging Face):** https://wilsons579-scam-classifier-api-final.hf.space (the app's endpoint; all three model APIs are listed in §4)
+> **Model API (Hugging Face):** https://wadotuh-scam-classifier-api-final.hf.space (the app's endpoint; all three model APIs are listed in §4)
 
 **Step-by-step install:**
 1. On an Android phone, open the direct APK link above in a browser.
@@ -141,9 +141,9 @@ baseline and the embedding-ensemble.
 
 | Model | API base URL | What it serves |
 |---|---|---|
-| **Final (deployed)** | https://wilsons579-scam-classifier-api-final.hf.space | TF-IDF + LogReg, v2 corpus (en/pt/sw), macro-F1 0.946 — the app's endpoint |
-| Embedding ensemble | https://wilsons579-scam-classifier-api-embed.hf.space | TF-IDF + e5-small soft-voting ensemble, v1 corpus, macro-F1 0.955 |
-| Initial baseline | https://wilsons579-scam-classifier-api-initial.hf.space | TF-IDF + LogReg, v1 corpus (the first baseline) |
+| **Final (deployed)** | https://wadotuh-scam-classifier-api-final.hf.space | TF-IDF + LogReg, v2 corpus (en/pt/sw), macro-F1 0.946 — the app's endpoint |
+| Embedding ensemble | https://wadotuh-scam-classifier-api-embed.hf.space | TF-IDF + e5-small soft-voting ensemble, v1 corpus, macro-F1 0.955 |
+| Initial baseline | https://wadotuh-scam-classifier-api-initial.hf.space | TF-IDF + LogReg, v1 corpus (the first baseline) |
 
 - **Endpoint (all three):** `POST /predict`
 - **Request body:** `{ "text": "<message to classify>" }`
@@ -151,7 +151,7 @@ baseline and the embedding-ensemble.
 **Example (curl), a Swahili mobile-money lure on the deployed model:**
 
 ```bash
-curl -X POST https://wilsons579-scam-classifier-api-final.hf.space/predict \
+curl -X POST https://wadotuh-scam-classifier-api-final.hf.space/predict \
   -H "Content-Type: application/json" \
   -d '{"text":"Iyo pesa itume kwenye namba hii ya Airtel 0689933027 jina PETER NYANGE."}'
 ```

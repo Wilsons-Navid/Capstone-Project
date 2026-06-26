@@ -61,7 +61,7 @@ class ApiConfig {
   // time with: flutter run --dart-define=SCAM_MODEL_API=https://<space>.hf.space
   static const String _scamModelBuildTimeUrl = String.fromEnvironment(
     'SCAM_MODEL_API',
-    defaultValue: 'https://wilsons579-scam-classifier-api-final.hf.space',
+    defaultValue: 'https://wadotuh-scam-classifier-api-final.hf.space',
   );
 
   /// Base URL of the hosted scam-classifier API (e.g. a Hugging Face Space or
