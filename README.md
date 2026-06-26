@@ -24,9 +24,9 @@ the platform works on the reporting gap and the data gap at the same time.
 ## 1. Deployed version: download and install (Android)
 
 > **Direct APK download:**
-> https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.10/rethicsec-v1.0.10.apk
+> https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.11/rethicsec-v1.0.11.apk
 >
-> **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.10
+> **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.11
 >
 > **Model API (Hugging Face):** https://wadotuh-scam-classifier-api-final.hf.space (the app's endpoint; all three model APIs are listed in §4)
 
