@@ -1,8 +1,8 @@
 # Rethicsec: AI-powered scam detection and cybercrime reporting for Africa
 
-**Author:** Wilsons Navid Wado Tiwa, BSc Software Engineering, African Leadership University
-**Product:** Rethicsec mobile app (Flutter + Firebase + a custom Python ML scam classifier)
-**Status:** Implementation and Testing milestone. The deployed Android build is linked below.
+- **Author:** Wilsons Navid Wado Tiwa, BSc Software Engineering, African Leadership University
+- **Product:** Rethicsec mobile app (Flutter + Firebase + a custom Python ML scam classifier)
+- **Status:** Implementation and Testing milestone. The deployed Android build is linked below.
 
 Rethicsec answers a simple question for everyday users: is this message a scam? It gives a clear verdict
 in seconds and then helps the user act on it, including reporting the scam to the right national authority.
