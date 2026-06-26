@@ -2,14 +2,15 @@
 
 Usage:
     python scripts/make_release_qr.py v1.0.11
+    python scripts/make_release_qr.py v1.0.6 rethicsai   # older releases use the rethicsai- prefix
 
-Produces docs/assets/rethicsec-<tag>-qr.png: a designed card (cream background,
+Produces docs/assets/<prefix>-<tag>-qr.png: a designed card (cream background,
 rounded earth-brown QR modules, a title and a "scan to download / Android" caption)
-encoding the GitHub release download URL for rethicsec-<tag>.apk. Scanning it on a
-phone downloads the APK.
+encoding the GitHub release download URL for <prefix>-<tag>.apk. Scanning it on a
+phone downloads the APK. The prefix defaults to "rethicsec".
 
 Upload it to the release with:
-    gh release upload <tag> docs/assets/rethicsec-<tag>-qr.png --clobber
+    gh release upload <tag> docs/assets/<prefix>-<tag>-qr.png --clobber
 """
 import sys
 import qrcode
@@ -96,14 +97,14 @@ def build_card(tag: str, url: str, out: str) -> Image.Image:
     return card
 
 
-def main(tag: str) -> None:
-    url = f"https://github.com/{REPO}/releases/download/{tag}/rethicsec-{tag}.apk"
-    out = f"docs/assets/rethicsec-{tag}-qr.png"
+def main(tag: str, prefix: str = "rethicsec") -> None:
+    url = f"https://github.com/{REPO}/releases/download/{tag}/{prefix}-{tag}.apk"
+    out = f"docs/assets/{prefix}-{tag}-qr.png"
     img = build_card(tag, url, out)
     print(f"saved {out} ({img.size[0]}x{img.size[1]}) -> {url}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        sys.exit("usage: python scripts/make_release_qr.py <tag>  e.g. v1.0.11")
-    main(sys.argv[1])
+    if len(sys.argv) not in (2, 3):
+        sys.exit("usage: python scripts/make_release_qr.py <tag> [prefix]  e.g. v1.0.11  (prefix defaults to rethicsec)")
+    main(*sys.argv[1:])
