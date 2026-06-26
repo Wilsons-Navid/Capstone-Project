@@ -13,7 +13,7 @@ and why one of them was chosen for deployment.
 
 1. [Live model APIs](#live-model-apis)
 2. [Why there are three models](#why-there-are-three-models)
-3. [Results: every model on both corpora](#results-every-model-on-both-corpora)
+3. [Results: every model across the three experiments](#results-every-model-across-the-three-experiments)
 4. [Why the final model was chosen](#why-the-final-model-was-chosen)
 5. [How the pieces fit together](#how-the-pieces-fit-together)
 6. [Repository map](#repository-map)
@@ -57,15 +57,25 @@ experiment, re-run it on its own, and call its live API to compare the models di
 | 2 | [`notebooks/embed_demo/`](notebooks/embed_demo/) | Does modelling meaning, rather than keywords, improve results? It adds multilingual sentence embeddings (e5-small) and combines them with the lexical model in soft-voting and stacking ensembles. Its headline macro-F1 looked strong, but a per-class read exposed the real setback: the model kept misclassifying `mobile_money_fraud` and `advance_fee_fraud`, the two classes that mattered most and had the fewest training examples. That weakness is what motivated stage 3. |
 | 3 | [`notebooks/final_model/`](notebooks/final_model/) | Can more data fix the two weak classes, and which model should ship? Because the embedding model failed on mobile-money and advance-fee messages, real African SMS was gathered (Nigerian ExAIS and Tanzanian BongoScam) to give those classes far more examples. The notebook repeats the full comparison on the expanded English, Portuguese, and Swahili corpus, then selects the model for deployment. After the data was added, the plain TF-IDF with Logistic Regression model came out on top, so it is the one that ships. |
 
-## Results: every model on both corpora
+## Results: every model across the three experiments
 
-Each notebook fits the same set of models and reports them on a held-out test split
-(70/15/15, stratified, fixed seed). The tables below give the full ladder, not only the
-winner, so the comparison is transparent. Accuracy is overall correctness; macro-F1
-averages the per-class F1 scores and so weighs the rare scam classes as heavily as the
-common ones, which is why it is the headline metric.
+Each notebook reports its models on a held-out test split (70/15/15, stratified, fixed
+seed). The tables below give the full ladder, not only the winner, so the comparison is
+transparent. Accuracy is overall correctness; macro-F1 averages the per-class F1 scores and
+so weighs the rare scam classes as heavily as the common ones, which is why it is the
+headline metric.
 
-**Corpus v1 (4,422 messages, English and Portuguese), from `embed_demo`:**
+**Stage 1 baseline (4,422 messages, English and Portuguese), from `initial_demo`:**
+
+| Model | Accuracy | Macro-F1 |
+|---|---|---|
+| TF-IDF + Logistic Regression | 0.958 | 0.943 |
+| TF-IDF + Random Forest | 0.950 | 0.928 |
+
+The baseline only fits the two lexical models. It is the control that stage 2 has to beat,
+so the embedding work begins from these numbers.
+
+**Stage 2, corpus v1 (the same 4,422 messages), from `embed_demo`:**
 
 | Model | Accuracy | Macro-F1 |
 |---|---|---|
@@ -76,7 +86,7 @@ common ones, which is why it is the headline metric.
 | Soft-voting ensemble | **0.971** | **0.955** (best) |
 | Stacking ensemble | 0.952 | 0.925 |
 
-**Corpus v2 (9,623 messages, English, Portuguese, and Swahili), from `final_model`:**
+**Stage 3, corpus v2 (9,623 messages, English, Portuguese, and Swahili), from `final_model`:**
 
 | Model | Accuracy | Macro-F1 |
 |---|---|---|
