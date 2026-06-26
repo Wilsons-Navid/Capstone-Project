@@ -1,23 +1,35 @@
-# Rethicsec: AI-powered scam detection and cybercrime reporting for Africa
+<h1 align="center">Rethicsec</h1>
 
-- **Author:** Wilsons Navid Wado Tiwa, BSc Software Engineering, African Leadership University
-- **Product:** Rethicsec mobile app (Flutter + Firebase + a custom Python ML scam classifier)
-- **Status:** Implementation and Testing milestone. The deployed Android build is linked below.
+<p align="center"><strong>AI-powered scam detection and cybercrime reporting for Africa</strong></p>
 
-Rethicsec answers a simple question for everyday users: is this message a scam? It gives a clear verdict
+<p align="center">
+  <a href="https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.11/rethicsec-v1.0.11.apk"><img alt="Download APK" src="https://img.shields.io/badge/Download-APK%20v1.0.11-2E7D34?style=for-the-badge&logo=android&logoColor=white"></a>
+  <img alt="Platform Android" src="https://img.shields.io/badge/Platform-Android-3E2B20?style=for-the-badge&logo=android&logoColor=white">
+  <img alt="Model macro-F1 0.946" src="https://img.shields.io/badge/Model-macro--F1%200.946-C8851A?style=for-the-badge">
+  <img alt="Corpus languages" src="https://img.shields.io/badge/Corpus-EN%20%7C%20PT%20%7C%20SW-5C4536?style=for-the-badge">
+  <a href="https://drive.google.com/file/d/1oKkNTARQLZ0C4FiUFOgcdcH0d9YUOo9e/view?usp=sharing"><img alt="Demo video" src="https://img.shields.io/badge/Demo-5--min%20video-B3261E?style=for-the-badge&logo=googledrive&logoColor=white"></a>
+</p>
+
+| | |
+|---|---|
+| **Author** | Wilsons Navid Wado Tiwa, BSc Software Engineering, African Leadership University |
+| **Product** | Rethicsec mobile app (Flutter + Firebase + a custom Python ML scam classifier) |
+| **Status** | Implementation and Testing milestone. The deployed Android build is linked below. |
+
+**Rethicsec answers a simple question for everyday users: is this message a scam?** It gives a clear verdict
 in seconds and then helps the user act on it, including reporting the scam to the right national authority.
 The app uses a custom-trained, multilingual scam classifier rather than a general-purpose LLM, together
 with an education hub, an AI assistant, and an authority-reporting directory that covers 14 African
 countries. The classifier is trained on real African scam messages in **English, Portuguese, and Swahili**
 and recognises four scam types (advance-fee fraud, mobile-money fraud, phishing, and not-a-scam).
 
-**Why it matters: the reporting gap.** Cybercrime in Africa is badly under-reported. INTERPOL estimates
-that fewer than 20% of incidents are ever formally logged, so the official statistics, and the
-institutional response built on them, cover only a fraction of what actually happens. Rethicsec is built
-to lower the barrier to reporting. It reaches victims where the scam reaches them, on their phone and in
-their language, converts a confusing message into a clear verdict, and routes a structured report to the
-right authority in one tap. Each report also adds to a regional scam dataset the field currently lacks, so
-the platform works on the reporting gap and the data gap at the same time.
+> **Why it matters: the reporting gap.** Cybercrime in Africa is badly under-reported. INTERPOL estimates
+> that fewer than 20% of incidents are ever formally logged, so the official statistics, and the
+> institutional response built on them, cover only a fraction of what actually happens. Rethicsec is built
+> to lower the barrier to reporting. It reaches victims where the scam reaches them, on their phone and in
+> their language, converts a confusing message into a clear verdict, and routes a structured report to the
+> right authority in one tap. Each report also adds to a regional scam dataset the field currently lacks, so
+> the platform works on the reporting gap and the data gap at the same time.
 
 ### At a glance
 
