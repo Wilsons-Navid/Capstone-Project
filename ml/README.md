@@ -18,7 +18,6 @@ On both corpora the multilingual embeddings do *not* beat the lexical baseline â
 
 ```bash
 python src/embed_model.py                       # train the full ladder, print the comparison table
-python notebooks/build_main_notebook.py         # regenerate the MAIN notebook with plots + inference
 ```
 
 The canonical write-up is **`notebooks/scam_detection_main.ipynb`**. `notebooks/model_demo.ipynb` was an earlier preliminary/demo run and is superseded by it. Trained weights + the embedding cache are gitignored (reproducible via the commands above); metrics persist in `models/embed_metrics.json`.

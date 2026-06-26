@@ -180,3 +180,11 @@ docs/generate_data_sources_doc.py
 meetings/
 dissertation/
 pilot/
+
+# ============================================================
+# ml/: notebook generators + v1 backup notebook — keep local
+# ============================================================
+ml/notebooks/build_main_notebook.py
+ml/notebooks/build_main_notebook_v2.py
+ml/notebooks/build_model_notebook.py
+ml/notebooks/scam_detection_main_v1_backup.ipynb
