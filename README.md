@@ -16,6 +16,14 @@
 | **Product** | Rethicsec mobile app (Flutter + Firebase + a custom Python ML scam classifier) |
 | **Status** | Implementation and Testing milestone. The deployed Android build is linked below. |
 
+<p align="center">
+  <img src="docs/assets/rethicsec-v1.0.11-qr.png" width="200" alt="QR code to download the Rethicsec Android APK">
+</p>
+<p align="center">
+  <strong>Rethicsec is a mobile app.</strong> Scan this QR code with an Android phone to download and install it.<br>
+  An Android device is required; there is no iOS or web build. Full install steps are in <a href="#1-deployed-version-download-and-install-android">section 1</a>.
+</p>
+
 **Rethicsec answers a simple question for everyday users: is this message a scam?** It gives a clear verdict
 in seconds and then helps the user act on it, including reporting the scam to the right national authority.
 The app uses a custom-trained, multilingual scam classifier rather than a general-purpose LLM, together
