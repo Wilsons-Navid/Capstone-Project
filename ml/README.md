@@ -1,8 +1,17 @@
-# `ml/` — Capstone corpus + classical ML evaluation
+# `ml/` — scam-message classifier (corpus + models)
 
-**Status:** Active. Migrated from `ml_potential/` on 2026-05-28 after Thadee approved the proposal. This directory is the working track for Objectives 1 and 3.
+The machine-learning track of the project: it builds a multilingual corpus and trains the classifier that powers the app's scanner. The model scores a short message as **advance_fee_fraud**, **mobile_money_fraud**, **phishing**, or **not_a_scam**.
 
-## Main model
+**Deployed model:** TF-IDF + Logistic Regression on the v2 corpus (9,623 messages, English / Portuguese / Swahili), held-out **macro-F1 0.946** (mobile-money fraud F1 0.983; per-language accuracy en 0.95 / pt 1.00 / sw 0.98). It is embedder-free, served from `serve_v2/` on a Hugging Face Space, and called by the mobile app.
+
+```bash
+pip install -r requirements.txt
+python src/embed_model.py        # train the model ladder + print the comparison table
+```
+
+Canonical write-up: **`notebooks/scam_detection_main_v2.ipynb`**.
+
+## How the model is built
 
 The project classifier scores a short message as **advance_fee_fraud**, **mobile_money_fraud**, **phishing**, or **not_a_scam** (the four data-backed classes; romance / identity-theft / synthetic-media are future work). It is built and compared in three rungs:
 
@@ -20,7 +29,7 @@ On both corpora the multilingual embeddings do *not* beat the lexical baseline �
 python src/embed_model.py                       # train the full ladder, print the comparison table
 ```
 
-The canonical write-up is **`notebooks/scam_detection_main.ipynb`**. `notebooks/model_demo.ipynb` was an earlier preliminary/demo run and is superseded by it. Trained weights + the embedding cache are gitignored (reproducible via the commands above); metrics persist in `models/embed_metrics.json`.
+The delivered model is the v2 run (`notebooks/scam_detection_main_v2.ipynb`, served by `serve_v2/`). The earlier rungs are kept as the documented baseline: `notebooks/scam_detection_main.ipynb` (v1 corpus, en/pt) and `notebooks/model_demo.ipynb` (first preliminary run). Trained models + caches live in `models/` (see `models/README.md` for which notebook produced each); metrics persist in `models/embed_metrics*.json`.
 
 ## Corpus scope
 

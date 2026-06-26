@@ -49,8 +49,8 @@ ml/
 ├── scripts/            01..10 data pipeline (download → normalise → label → build dataset)
 ├── notebooks/
 │   └── model_demo.ipynb    ← the model notebook (EDA, architecture, metrics, inference)
-├── serve/
-│   └── app.py          FastAPI app (Swagger UI deployment MVP)
+├── serve_v2/
+│   └── app.py          FastAPI app (deployed, embedder-free v2 model)
 └── models/             scam_classifier.joblib + metrics.json (produced by training)
 ```
 

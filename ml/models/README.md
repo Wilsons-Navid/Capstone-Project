@@ -27,5 +27,5 @@ it, so you can tell at a glance where a file comes from.
 container is tiny and there is no cold-start model download.
 
 > Note: files are kept flat (not in subfolders) on purpose — several are loaded by
-> fixed relative path in `serve/`, `serve_v2/`, `src/`, and `scripts/13_export_tfidf_v2.py`.
+> fixed relative path in `serve_v2/`, `src/`, and `scripts/13_export_tfidf_v2.py`.
 > This README is the grouping; the paths stay stable.
