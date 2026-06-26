@@ -19,7 +19,30 @@ their language, converts a confusing message into a clear verdict, and routes a 
 right authority in one tap. Each report also adds to a regional scam dataset the field currently lacks, so
 the platform works on the reporting gap and the data gap at the same time.
 
----
+### At a glance
+
+| | |
+|---|---|
+| Download | [`rethicsec-v1.0.11.apk`](https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.11/rethicsec-v1.0.11.apk) (Android, 74 MB) |
+| Live model API | https://wadotuh-scam-classifier-api-final.hf.space |
+| Deployed model | TF-IDF + Logistic Regression, test macro-F1 0.946 |
+| Corpus | 9,623 messages, 4 classes, 3 languages (English, Portuguese, Swahili) |
+| App | Flutter + Firebase, 11 locales, authority reporting for 14 countries |
+| Demo | [5-minute walkthrough](https://drive.google.com/file/d/1oKkNTARQLZ0C4FiUFOgcdcH0d9YUOo9e/view?usp=sharing) |
+
+## Table of contents
+
+1. [Deployed version: download and install (Android)](#1-deployed-version-download-and-install-android)
+2. [Run or build from source (developers)](#2-run-or-build-from-source-developers)
+3. [What the app does (core functionality)](#3-what-the-app-does-core-functionality)
+4. [How it is built: two parts and their intersection](#4-how-it-is-built-two-parts-and-their-intersection)
+5. [Testing results](#5-testing-results)
+6. [Analysis: results against the project objectives](#6-analysis-results-against-the-project-objectives)
+7. [Discussion: why the milestones matter](#7-discussion-why-the-milestones-matter)
+8. [Recommendations and future work](#8-recommendations-and-future-work)
+9. [Repository map](#9-repository-map)
+10. [Tech stack](#10-tech-stack)
+11. [Demo video](#11-demo-video)
 
 ## 1. Deployed version: download and install (Android)
 
@@ -28,7 +51,7 @@ the platform works on the reporting gap and the data gap at the same time.
 >
 > **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.11
 >
-> **Model API (Hugging Face):** https://wadotuh-scam-classifier-api-final.hf.space (the app's endpoint; all three model APIs are listed in §4)
+> **Model API (Hugging Face):** https://wadotuh-scam-classifier-api-final.hf.space (the app's endpoint; all three model APIs are listed in section 4)
 
 **Step-by-step install:**
 1. On an Android phone, open the direct APK link above in a browser.
@@ -38,8 +61,6 @@ the platform works on the reporting gap and the data gap at the same time.
 5. Open Rethicsec, create an account or sign in with Google, and you are in.
 
 No desktop or developer tools are needed to run the deployed app. The APK is enough.
-
----
 
 ## 2. Run or build from source (developers)
 
@@ -62,8 +83,6 @@ flutter build apk --release
 ```
 
 The app ships with its Firebase configuration, so no extra backend setup is needed to run it.
-
----
 
 ## 3. What the app does (core functionality)
 
@@ -110,9 +129,7 @@ The app ships with its Firebase configuration, so no extra backend setup is need
 </p>
 <p align="center"><em>Incident reporting.</em></p>
 
----
-
-## 4. How it's built: two parts and their intersection
+## 4. How it is built: two parts and their intersection
 
 Rethicsec has two engineered parts that meet at one screen.
 
@@ -131,17 +148,30 @@ Rethicsec has two engineered parts that meet at one screen.
   shown in the verdict card. A warm-up ping on app launch keeps the hosted model responsive, so the user
   sees the live model verdict instead of a keyword fallback.
 
+```
+   mobile/rethicsai/  (Flutter + Firebase)            ml/  (Python + scikit-learn)
+   scanner UI, reporting, education,                  corpus -> notebooks -> trained model
+   assistant, admin, 14-country directory                          |
+            |                                                       v
+            |  user pastes a message                       /predict API (Hugging Face)
+            +----------------> ScamModelService -------------------+
+                                      |
+                                      v
+                          verdict card: category + confidence
+```
+
 ![Rethicsec architecture: the mobile app, the ML system, and the scanner that joins them](docs/assets/architecture.png)
 
-### Try the model APIs directly
+### 4.1 Try the model APIs directly
 
 Each of the three models has its own public Hugging Face Space. The app calls the
 **final** one (the deployed, embedder-free model); the other two are the documented
-baseline and the embedding-ensemble.
+baseline and the embedding ensemble. The reasoning behind keeping all three is documented in
+[`ml/README.md`](ml/README.md).
 
 | Model | API base URL | What it serves |
 |---|---|---|
-| **Final (deployed)** | https://wadotuh-scam-classifier-api-final.hf.space | TF-IDF + LogReg, v2 corpus (en/pt/sw), macro-F1 0.946 — the app's endpoint |
+| **Final (deployed)** | https://wadotuh-scam-classifier-api-final.hf.space | TF-IDF + LogReg, v2 corpus (en/pt/sw), macro-F1 0.946. This is the app's endpoint. |
 | Embedding ensemble | https://wadotuh-scam-classifier-api-embed.hf.space | TF-IDF + e5-small soft-voting ensemble, v1 corpus, macro-F1 0.955 |
 | Initial baseline | https://wadotuh-scam-classifier-api-initial.hf.space | TF-IDF + LogReg, v1 corpus (the first baseline) |
 
@@ -178,8 +208,6 @@ curl -X POST https://wadotuh-scam-classifier-api-final.hf.space/predict \
 > `flutter run --dart-define=SCAM_MODEL_API=https://<your-space>.hf.space`; it defaults to the final
 > Space above. The embedding-ensemble Space downloads the e5 weights on its first request.
 
----
-
 ## 5. Testing results
 
 > Screenshots referenced below live in `docs/assets/`. Add your captured images there.
@@ -190,7 +218,7 @@ curl -X POST https://wadotuh-scam-classifier-api-final.hf.space/predict \
 |---|---|---|
 | Automated unit tests | Validation and sanitization logic (`SecurityUtils`), bundled authority-contacts data, theme tokens. | `cd mobile/rethicsai && flutter test` |
 | Automated widget tests | Theme renders, `EarthColors` extension resolves, Material 3 enabled. | included in `flutter test` |
-| Manual / functional testing | Core user flows: scan, verdict, report; dashboard; admin CRUD. | screenshots (§5.2) |
+| Manual / functional testing | Core user flows: scan, verdict, report; dashboard; admin CRUD. | screenshots (section 5.2) |
 
 Automated test run (all green):
 
@@ -235,11 +263,9 @@ and report) ran smoothly on the device.
 
 <p align="center"><img src="docs/assets/perf_phone.png" height="420" alt="Rethicsec running on an Infinix Note 50 Pro"></p>
 
----
+## 6. Analysis: results against the project objectives
 
-## 6. Analysis: results vs. project objectives
-
-### 6.1 What the proposal committed to vs. what was delivered
+### 6.1 What the proposal committed to against what was delivered
 
 The proposal (Chapter 1) set three SMART objectives. The implementation met or exceeded all three.
 
@@ -247,15 +273,15 @@ The proposal (Chapter 1) set three SMART objectives. The implementation met or e
 |---|---|---|---|
 | Obj 1, Corpus | A labelled West African scam corpus of at least 500 incidents across the typology. | 9,623 labelled messages across 4 classes (advance-fee, mobile-money, phishing, not-a-scam) and 3 languages (English, Portuguese, Swahili), from Nazario, UCI-SMS, Mozambique and Mendeley smishing, regional news, the **ExAIS African-English SMS set (Nigeria)**, and the **BongoScam Tanzanian Swahili set**. | Exceeded (about 19 times the target) |
 | Obj 2, Platform | Deploy a mobile platform integrating reporting, classification, risk assessment, and education. | Flutter app with all four, plus the assistant, admin console, and 14-country authority reporting; installable APK. | Exceeded |
-| Obj 3, Model comparison | Compare two classical baselines (TF-IDF with logistic regression vs TF-IDF with random forest), per-category metrics. | Compared six models (the two baselines, e5-embedding LR and RF, soft-vote, and stacking ensembles) on the expanded corpus; deployed the best, **TF-IDF + logistic regression at macro-F1 0.946**, with per-language and per-class breakdowns. | Exceeded scope |
+| Obj 3, Model comparison | Compare two classical baselines (TF-IDF with logistic regression against TF-IDF with random forest), per-category metrics. | Compared six models (the two baselines, e5-embedding LR and RF, soft-vote, and stacking ensembles) on the expanded corpus; deployed the best, **TF-IDF + logistic regression at macro-F1 0.946**, with per-language and per-class breakdowns. | Exceeded scope |
 | Regional scope | Nigeria and Cameroon | Authority reporting for 14 countries | Exceeded |
 | Language scope | English and French (Pidgin where possible) | App localised to 11 languages; corpus is English, Portuguese, and Swahili | Partly diverged |
 
 Honest deviations from the proposal:
 
-- Obj 3 was scoped as a classical-only, two-baseline comparison. The delivered work went beyond it by adding multilingual e5 embeddings and ensembles. Interestingly, on the larger, keyword-rich African corpus the classical TF-IDF + logistic-regression model is again the strongest single model (macro-F1 0.946), narrowly ahead of the ensemble; the embeddings act as cross-lingual insurance rather than a leaderboard win. The final report should frame the embeddings/ensembles as an extension beyond, and a fair comparison against, the proposed classical baselines.
+- Obj 3 was scoped as a classical-only, two-baseline comparison. The delivered work went beyond it by adding multilingual e5 embeddings and ensembles. On the larger, keyword-rich African corpus the classical TF-IDF + logistic-regression model is again the strongest single model (macro-F1 0.946), narrowly ahead of the ensemble; the embeddings act as cross-lingual insurance rather than a leaderboard win. The final report should frame the embeddings and ensembles as an extension beyond, and a fair comparison against, the proposed classical baselines.
 - The corpus language mix is English, Portuguese, and Swahili, not the English and French the proposal targeted. Two real African sources were added since the first milestone (the ExAIS African-English SMS set from Nigeria and the BongoScam Tanzanian Swahili set), which materially improved African coverage. French and Pidgin coverage in the model remains thin, even though the app localises to 11 languages.
-- Corpus provenance: the corpus is labelled by scam typology. It now combines public English/Portuguese smishing and phishing datasets (UCI SMS, Nazario, the Mozambican M-Pesa set, Mendeley) with two real African SMS datasets (ExAIS, BongoScam). The African additions are relabelled from their native binary labels into the four-class typology by a documented, auditable rule set (`ml/scripts/11_relabel_african.py`), and these remain heuristic/provenance labels pending the inter-rater κ audit. A corpus collected first-hand from West African victims is still future work, so the "West African corpus" framing should be read as typology-aligned and now partly region-native rather than fully field-collected. Full source links are in `docs/DATA_SOURCES.md`.
+- Corpus provenance: the corpus is labelled by scam typology. It now combines public English and Portuguese smishing and phishing datasets (UCI SMS, Nazario, the Mozambican M-Pesa set, Mendeley) with two real African SMS datasets (ExAIS, BongoScam). The African additions are relabelled from their native binary labels into the four-class typology by a documented, auditable rule set (`ml/scripts/11_relabel_african.py`), and these remain heuristic and provenance labels pending the inter-rater kappa audit. A corpus collected first-hand from West African victims is still future work, so the "West African corpus" framing should be read as typology-aligned and now partly region-native rather than fully field-collected. Full source links are in `docs/DATA_SOURCES.md`.
 
 ### 6.2 The ML analysis (figures from `ml/notebooks/`)
 
@@ -279,11 +305,11 @@ with the original spelling and encoding preserved:
 > Portuguese-only: it is now carried by Mozambican M-Pesa smishing (Portuguese) **and** Tanzanian Swahili
 > mobile-money lures from the BongoScam set (for example, "Iyo pesa itume kwenye namba hii ya Airtel
 > 0689933027" means "send that money to this Airtel number"). The corpus is therefore English,
-> Portuguese, and Swahili; French and Pidgin coverage in the model is still thin (see §6.1).
+> Portuguese, and Swahili; French and Pidgin coverage in the model is still thin (see section 6.1).
 
 The figures below are from the **v1 corpus (4,422 messages)**, the milestone-1 analysis. The
 **v2 corpus (9,623 messages)** results that follow are reproduced live in
-`ml/notebooks/scam_detection_main_v2.ipynb`.
+`ml/notebooks/final_model/final_model.ipynb`.
 
 Corpus and class imbalance (v1). Phishing dominates; mobile-money and advance-fee are the minority classes, which is the root cause of the bias discussed below:
 
@@ -333,12 +359,12 @@ re-balancing the existing data could not create signal that was not there: the b
 
 That diagnosis drove the v2 work. Acting on it, two real African SMS datasets were sourced and added (the
 ExAIS African-English set and the Tanzanian Swahili BongoScam set), which roughly doubled the two scarce
-classes (mobile-money 538 → 1,166, advance-fee 283 → 597) and added a third language. The payoff is direct:
-**mobile-money fraud became the strongest class (F1 0.983)** and the model now reads Swahili and Portuguese,
-not just English. The minority-data constraint the ablation identified has been substantially eased, though
-advance-fee remains the hardest class and English mobile-money data is still comparatively thin (a
-data-access request to CMU-Africa's Upanzi network is in progress to source real English mobile-money
-messages).
+classes (mobile-money 538 to 1,166, advance-fee 283 to 597) and added a third language. The payoff is
+direct: **mobile-money fraud became the strongest class (F1 0.983)** and the model now reads Swahili and
+Portuguese, not just English. The minority-data constraint the ablation identified has been substantially
+eased, though advance-fee remains the hardest class and English mobile-money data is still comparatively
+thin (a data-access request to CMU-Africa's Upanzi network is in progress to source real English
+mobile-money messages).
 
 A separate finding concerns serving reliability. The v1 model was an e5 ensemble that had to download a
 470 MB embedder on first request; on a Space that sleeps when idle this could time out and the app would
@@ -346,8 +372,6 @@ fall back to weaker keyword heuristics. The v2 model removes the cause entirely:
 (about 1.5 MB, no embedder), so it cold-starts instantly and answers a warm request in about a second. The
 warm-up ping on app launch is retained to mask the container wake from idle, so users reliably see the
 model verdict rather than the fallback.
-
----
 
 ## 7. Discussion: why the milestones matter
 
@@ -369,20 +393,16 @@ model verdict rather than the fallback.
   meeting WCAG AA contrast, and supporting 11 languages all decide whether a non-technical user actually
   understands the guidance.
 
----
-
 ## 8. Recommendations and future work
 
 - Confidence-aware verdicts: show the model's confidence and add an explicit "unsure, treat with caution" state to cut false positives and build trust.
-- Collect authentic minority-class data (mobile-money and advance-fee). This was the single biggest lever on accuracy, as the re-balancing ablation showed, and v2 acted on it by adding the ExAIS and BongoScam African SMS sets, so mobile-money is now the strongest class. The remaining gaps are advance-fee volume and English (rather than Swahili/Portuguese) mobile-money data; a data-access request to a regional smishing-research network (CMU-Africa's Upanzi) is in progress to source the latter.
+- Collect authentic minority-class data (mobile-money and advance-fee). This was the single biggest lever on accuracy, as the re-balancing ablation showed, and v2 acted on it by adding the ExAIS and BongoScam African SMS sets, so mobile-money is now the strongest class. The remaining gaps are advance-fee volume and English (rather than Swahili or Portuguese) mobile-money data; a data-access request to a regional smishing-research network (CMU-Africa's Upanzi) is in progress to source the latter.
 - On-device inference: a quantised model for offline, private screening on low-connectivity networks.
 - Multi-modal detection: images, link reputation, and voice notes.
 - Consent-based escalation tiers: from helping the user act today to partnerships with operators and regulators.
 - Community outreach: promote the app through telco and community-organisation channels where scam exposure is highest.
 
----
-
-## 9. Repository map (related files)
+## 9. Repository map
 
 ```
 Capstone-Project/
@@ -392,20 +412,17 @@ Capstone-Project/
 │   ├── test/                     ← automated tests (flutter test, 36 passing)
 │   └── design-system/MASTER.md   ← the design-system contract
 ├── ml/                           ← scam-classifier research (corpus, notebooks, serving)
+│   └── README.md                 ← the three models, the results, and why the final one ships
 ├── docs/                         ← reports, assets/ (screenshots), templates
-│   └── Rethics_Product_Brand_Report.docx
+│   └── DATA_SOURCES.md           ← source links and licences for every dataset
 └── proposal/                     ← academic proposal workspace
 ```
-
----
 
 ## 10. Tech stack
 
 Flutter (Dart), Material 3, Firebase (Auth, Firestore, Cloud Functions, FCM), a Python ML service
 (scikit-learn TF-IDF + logistic-regression classifier, with a multilingual e5 ensemble compared against
 it), FastAPI on a Hugging Face Docker Space, Claude Haiku for the assistant, and 11 locales.
-
----
 
 ## 11. Demo video
 
