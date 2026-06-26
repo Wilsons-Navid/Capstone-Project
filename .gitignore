@@ -138,3 +138,31 @@ docs/README_Submission_Checklist.docx
 docs/onboarding/Capstone_Onboarding_Report.docx
 Capstone_Project_README.docx
 mobile/rethicsai/Rethics_AI_Google_Stitch_Design_Prompts.docx
+
+# ============================================================
+# One-off doc-generator scripts (outputs not tracked) — keep local
+# ============================================================
+generate_readme_docx.py
+docs/generate_reconciliation_memo.py
+docs/onboarding/generate_onboarding_report.py
+docs/generate_demo_script.py
+docs/generate_readme_checklist.py
+docs/generate_rethics_report.py
+mobile/rethicsai/generate_stitch_doc.py
+
+# ============================================================
+# Mobile dev scratch notes / fix logs — keep local, not in repo
+# ============================================================
+mobile/rethicsai/DOWNLOAD_FEATURES_SUMMARY.md
+mobile/rethicsai/TRANSLATION_FIX_SUMMARY.md
+mobile/rethicsai/UI_OVERFLOW_FIXES.md
+mobile/rethicsai/debug_incident_flow.md
+mobile/rethicsai/evidence_upload_fix_summary.md
+mobile/rethicsai/final_serialization_fix.md
+mobile/rethicsai/serialization_fix_summary.md
+mobile/rethicsai/LANGUAGE_SELECTION_REDESIGN.md
+mobile/rethicsai/ROLE_MANAGEMENT_IMPLEMENTATION.md
+mobile/rethicsai/PROJECT_SUMMARY.md
+mobile/rethicsai/README_PURPOSE.md
+mobile/rethicsai/AUTOMATED_SETUP_GUIDE.md
+mobile/rethicsai/FIREBASE_RULES_UPDATE.md
