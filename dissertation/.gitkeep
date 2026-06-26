@@ -1,7 +1,0 @@
-Dissertation chapters go here once Phase 4 begins.
-
-Suggested layout:
-- chapters/              (one .md per chapter; Pandoc-friendly)
-- generate_dissertation.py   (python-docx generator, mirroring docs/coursework/Major-assesment/generate_proposal_v2.py)
-- references.bib         (consolidated bibliography, APA 7)
-- figures/               (final figures for inclusion)

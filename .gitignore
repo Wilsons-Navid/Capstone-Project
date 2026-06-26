@@ -166,3 +166,17 @@ mobile/rethicsai/PROJECT_SUMMARY.md
 mobile/rethicsai/README_PURPOSE.md
 mobile/rethicsai/AUTOMATED_SETUP_GUIDE.md
 mobile/rethicsai/FIREBASE_RULES_UPDATE.md
+
+# ============================================================
+# Final-submission cleanup: docs/ keeps only assets/ + DATA_SOURCES.md;
+# planning/process dirs dropped. All kept local.
+# ============================================================
+docs/CAPSTONE_NEXT_STEPS.md
+docs/RECONCILIATION_MEMO.md
+docs/DATA_SOURCES.docx
+docs/gantt_timeline.png
+docs/generate_architecture_diagram.py
+docs/generate_data_sources_doc.py
+meetings/
+dissertation/
+pilot/

@@ -1,9 +1,0 @@
-Pilot artifacts go here once Phase 3 begins.
-
-Suggested subdirs (created when needed):
-- consent-forms/         (templates — signed copies in pilot/consent-signed/, gitignored)
-- interview-guides/      (semi-structured interview scripts, EN + FR)
-- recruitment/           (flyers, contact lists with PII redacted)
-- transcripts/           (audio transcripts, gitignored)
-- analysis/              (thematic coding, SUS scoring, summary plots)
-- raw_responses/         (questionnaire exports, gitignored)
