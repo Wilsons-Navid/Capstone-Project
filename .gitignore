@@ -117,6 +117,24 @@ pilot/transcripts/
 pilot/consent-signed/
 
 # ============================================================
-# Don't track Claude Code local settings (any depth)
+# Don't track Claude Code local settings/hooks (any depth)
 # ============================================================
 **/.claude/settings.local.json
+.claude/
+
+# ============================================================
+# Academic coursework + internal docs — keep local, not in repo
+# ============================================================
+docs/coursework/
+docs/Rubric.docx
+docs/Mission-Capstone.docx
+docs/Project Draft.docx
+docs/Research_Background_AI_Education.docx
+docs/WilsonsNavidWadoTiwa_Reconciliation_Memo.docx
+docs/Rethics_Product_Brand_Report.docx
+docs/CAPSTONE_NEXT_STEPS.docx
+docs/DEMO_VIDEO_SCRIPT.docx
+docs/README_Submission_Checklist.docx
+docs/onboarding/Capstone_Onboarding_Report.docx
+Capstone_Project_README.docx
+mobile/rethicsai/Rethics_AI_Google_Stitch_Design_Prompts.docx
