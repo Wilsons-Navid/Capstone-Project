@@ -1,9 +1,5 @@
-data/raw/
-data/labelled/*.jsonl
-!data/labelled/demo_labeled.jsonl
-data/audits/*.jsonl
 notebooks/.ipynb_checkpoints/
 __pycache__/
 *.pyc
-# Notebook-generated model artifacts (joblib bundles + embedding caches) and
-# metrics are tracked in the repo so the trained models ship with the project.
+# The full data folder (raw third-party datasets + labelled corpora) and the
+# notebook-generated model artifacts are tracked so the project ships complete.

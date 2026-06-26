@@ -12,10 +12,7 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 
-# ML data + artifacts (keep code, ignore corpora and weights)
-ml/data/raw/
-ml/data/processed/
-ml/data/external/
+# ML artifacts (data folder + trained models are tracked; see ml/.gitignore)
 ml/models/*.pkl
 ml/models/*.tflite
 ml/models/*.h5
