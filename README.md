@@ -275,19 +275,35 @@ smoothly, which shows the app is not tied to a single device or Android build.
 | Infinix Note 50 Pro (X6855), physical | Android 15 | 8 GB | — | Smooth; all core flows worked | `docs/assets/perf_phone.png` |
 | Xiaomi (model M2012K11AG), physical, MIUI | Android 13 (build TKQ1.221114.001) | 6 GB | Octa-core, max 3.2 GHz | Smooth; launch, navigation, scan and report all worked | `docs/assets/perf_phone2_specs.jpg`, `docs/assets/perf_phone2_scan.jpg` |
 
+<p align="center"><img src="docs/assets/perf_phone.png" height="420" alt="Rethicsec running on an Infinix Note 50 Pro"></p>
+
+Second device (Xiaomi M2012K11AG, Android 13, 6 GB) — device specs, dashboard, scanner verdict, case
+list, and the AI assistant:
+
 <p align="center">
-  <img src="docs/assets/perf_phone.png" height="420" alt="Rethicsec running on an Infinix Note 50 Pro">
-  <img src="docs/assets/perf_phone2_specs.jpg" height="420" alt="Second test device: Xiaomi M2012K11AG, 6 GB RAM, Android 13">
-  <img src="docs/assets/perf_phone2_scan.jpg" height="420" alt="Rethicsec on the second device correctly flagging an advance-fee scam at 99% confidence">
+  <img src="docs/assets/perf_phone2_specs.jpg" height="360" alt="Second test device specs: Xiaomi M2012K11AG, 6 GB RAM, Android 13">
+  <img src="docs/assets/perf_phone2_dashboard.jpg" height="360" alt="Rethicsec dashboard on the second device">
+  <img src="docs/assets/perf_phone2_scan.jpg" height="360" alt="Scanner on the second device flagging an advance-fee scam at 99% confidence">
+  <img src="docs/assets/perf_phone2_cases.jpg" height="360" alt="Case list on the second device showing a submitted report">
+  <img src="docs/assets/perf_phone2_assistant.jpg" height="360" alt="Wilson AI assistant answering a security question on the second device">
 </p>
 
 **Analysis.** The two devices span a meaningful range: a Transsion/Infinix handset on Android 15 with 8 GB
 of RAM, and a Xiaomi/MIUI handset on Android 13 with 6 GB. Across both, the app launched without errors,
 navigated smoothly, and produced correct model verdicts — on the second device the scanner correctly
 classified an MTN advance-fee ("you have won 2,000,000... send your BVN and a 5,000 activation fee") as
-advance-fee fraud at 99% confidence, and a report submitted from the device reached the case list. The
-consistent behaviour across two manufacturers, two Android versions, and two RAM tiers indicates the build
-degrades gracefully on lower-memory hardware and does not depend on a single OEM's Android customisation.
+advance-fee fraud at 99% confidence, a report submitted from the device reached the case list, and the AI
+assistant responded normally. The consistent behaviour across two manufacturers, two Android versions, and
+two RAM tiers indicates the build degrades gracefully on lower-memory hardware and does not depend on a
+single OEM's Android customisation.
+
+**Defect found and fixed during this round of testing.** The second-device run surfaced a text-encoding
+defect: the report-submission confirmation (visible in the case-list screenshot above) rendered emoji and
+accented characters as garbled "mojibake" because two source files had been saved with a broken character
+encoding. The defect was diagnosed (UTF-8 bytes mis-saved as Latin-1), fixed by repairing the encoding,
+removing the emojis from the report messages, and replacing the language-picker flag emojis with clean
+language-code badges, and shipped in build v1.0.14. The screenshot is kept here as the "before" evidence of
+the testing process catching and resolving a real defect.
 
 ## 6. Analysis: results against the project objectives
 
