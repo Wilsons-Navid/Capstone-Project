@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/themes/app_theme.dart';
@@ -20,77 +20,77 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
       locale: const Locale('en'),
       name: 'English',
       nativeName: 'English',
-      flag: 'ðŸ‡ºðŸ‡¸',
+      flag: '',
       region: 'Global',
     ),
     LanguageOption(
       locale: const Locale('sw'),
       name: 'Swahili',
       nativeName: 'Kiswahili',
-      flag: 'ðŸ‡°ðŸ‡ª',
+      flag: '',
       region: 'East Africa',
     ),
     LanguageOption(
       locale: const Locale('fr'),
       name: 'French',
-      nativeName: 'FranÃ§ais',
-      flag: 'ðŸ‡«ðŸ‡·',
+      nativeName: 'Français',
+      flag: '',
       region: 'West & Central Africa',
     ),
     LanguageOption(
       locale: const Locale('ar'),
       name: 'Arabic',
-      nativeName: 'Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©',
-      flag: 'ðŸ‡¸ðŸ‡¦',
+      nativeName: 'العربية',
+      flag: '',
       region: 'North Africa',
     ),
     LanguageOption(
       locale: const Locale('ha'),
       name: 'Hausa',
       nativeName: 'Harshen Hausa',
-      flag: 'ðŸ‡³ðŸ‡¬',
+      flag: '',
       region: 'West Africa',
     ),
     LanguageOption(
       locale: const Locale('yo'),
       name: 'Yoruba',
-      nativeName: 'ÃˆdÃ¨ YorÃ¹bÃ¡',
-      flag: 'ðŸ‡³ðŸ‡¬',
+      nativeName: 'Èdè Yorùbá',
+      flag: '',
       region: 'West Africa',
     ),
     LanguageOption(
       locale: const Locale('ig'),
       name: 'Igbo',
-      nativeName: 'Asá»¥sá»¥ Igbo',
-      flag: 'ðŸ‡³ðŸ‡¬',
+      nativeName: 'Asụsụ Igbo',
+      flag: '',
       region: 'West Africa',
     ),
     LanguageOption(
       locale: const Locale('zu'),
       name: 'Zulu',
       nativeName: 'isiZulu',
-      flag: 'ðŸ‡¿ðŸ‡¦',
+      flag: '',
       region: 'Southern Africa',
     ),
     LanguageOption(
       locale: const Locale('xh'),
       name: 'Xhosa',
       nativeName: 'isiXhosa',
-      flag: 'ðŸ‡¿ðŸ‡¦',
+      flag: '',
       region: 'Southern Africa',
     ),
     LanguageOption(
       locale: const Locale('af'),
       name: 'Afrikaans',
       nativeName: 'Afrikaans',
-      flag: 'ðŸ‡¿ðŸ‡¦',
+      flag: '',
       region: 'Southern Africa',
     ),
     LanguageOption(
       locale: const Locale('dua'),
       name: 'Sawa (Duala)',
       nativeName: 'Duala',
-      flag: 'ðŸ‡¨ðŸ‡²',
+      flag: '',
       region: 'Central Africa',
     ),
   ];
@@ -198,7 +198,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                       ),
                       Text(
                         _getCurrentLanguageFlag(),
-                        style: const TextStyle(fontSize: 32),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -277,7 +277,7 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
                                 child: Center(
                                   child: Text(
                                     _flagFor(language.locale),
-                                    style: const TextStyle(fontSize: 28),
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ),
@@ -438,34 +438,13 @@ class _LanguageSelectionPageState extends State<LanguageSelectionPage> {
       );
       return _flagFor(currentLocale);
     } catch (e) {
-      return '🇬🇧';
+      return '';
     }
   }
 
 
   String _flagFor(Locale locale) {
-    switch (locale.languageCode) {
-      case 'en':
-        return '🇬🇧';
-      case 'sw':
-        return '🇰🇪';
-      case 'fr':
-        return '🇫🇷';
-      case 'ar':
-        return '🇪🇬';
-      case 'ha':
-      case 'yo':
-      case 'ig':
-        return '🇳🇬';
-      case 'zu':
-      case 'xh':
-      case 'af':
-        return '🇿🇦';
-      case 'dua':
-        return '🇨🇲';
-      default:
-        return '🏳️';
-    }
+    return locale.languageCode.toUpperCase();
   }
 
   bool _isCurrentLanguage(Locale locale) {

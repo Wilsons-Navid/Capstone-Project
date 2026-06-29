@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -254,7 +254,7 @@ class _IncidentReportPageState extends State<IncidentReportPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'ðŸ›¡ï¸ Your Security Matters',
+            'Your Security Matters',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -595,7 +595,7 @@ class _IncidentReportPageState extends State<IncidentReportPage> {
                 const Text('Tap to upload screenshots, emails, or documents'),
                 const SizedBox(height: 4),
                 Text(
-                  'Max size: 10MB per file â€¢ Formats: JPG, PNG, PDF, DOC',
+                  'Max size: 10MB per file • Formats: JPG, PNG, PDF, DOC',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey[600],
@@ -974,8 +974,8 @@ class _IncidentReportPageState extends State<IncidentReportPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(exists 
-              ? 'âœ… Report submitted successfully!\nðŸ“„ Case ID: $result\nðŸ“§ Confirmation sent to: ${_currentUser!.email}\nðŸ“Š You can track this case in "My Cases"' 
-              : 'âš ï¸ Report submitted but verification failed. Case ID: $result'),
+              ? 'Report submitted successfully!\nCase ID: $result\nConfirmation sent to: ${_currentUser!.email}\nYou can track this case in "My Cases"' 
+              : 'Report submitted but verification failed. Case ID: $result'),
             backgroundColor: exists ? AppTheme.accentColor : Colors.orange,
             duration: const Duration(seconds: 6),
             behavior: SnackBarBehavior.floating,
@@ -1067,7 +1067,7 @@ class _IncidentReportPageState extends State<IncidentReportPage> {
     if (c.contains('ghana')) return 'GHS';
     if (c.contains('morocco')) return 'MAD';
     if (c.contains('egypt')) return 'EGP';
-    if (c.contains('senegal') || c.contains('cote d') || c.contains('cÃ´te d')) return 'XOF';
+    if (c.contains('senegal') || c.contains('cote d') || c.contains('côte d')) return 'XOF';
     if (c.contains('cameroon') || c.contains('gabon') || c.contains('congo')) return 'XAF';
     return 'USD';
   }
