@@ -77,7 +77,8 @@ and recognises four scam types (advance-fee fraud, mobile-money fraud, phishing,
 2. Tap Download; when it finishes, tap the file to open it.
 3. Android may warn about "Install from unknown sources". Tap Settings, then Allow from this source. This is normal for apps installed outside an app store.
 4. If Google Play Protect shows a warning, tap More details, then Install anyway. The build requests SMS-reading permissions, which Play Protect flags for sideloaded apps.
-5. Open Rethicsec, create an account or sign in with Google, and you are in.
+5. If there is no "Install anyway" option, open Play Store, tap your profile, then Play Protect, then Settings, turn off scanning, install the app, and turn scanning back on.
+6. Open Rethicsec, create an account or sign in with Google, and you are in.
 
 No desktop or developer tools are needed to run the deployed app. The APK is enough.
 
