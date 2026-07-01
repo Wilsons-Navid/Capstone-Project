@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.15/rethicsec-v1.0.15.apk"><img alt="Download APK" src="https://img.shields.io/badge/Download-APK%20v1.0.15-2E7D34?style=for-the-badge&logo=android&logoColor=white"></a>
   <img alt="Platform Android" src="https://img.shields.io/badge/Platform-Android-3E2B20?style=for-the-badge&logo=android&logoColor=white">
-  <img alt="Model macro-F1 0.946" src="https://img.shields.io/badge/Model-macro--F1%200.946-C8851A?style=for-the-badge">
+  <img alt="Deployed scan model macro-F1 0.932" src="https://img.shields.io/badge/Scan%20model-macro--F1%200.932-C8851A?style=for-the-badge">
   <img alt="Corpus languages" src="https://img.shields.io/badge/Corpus-EN%20%7C%20PT%20%7C%20SW%20%7C%20RW-5C4536?style=for-the-badge">
   <a href="https://drive.google.com/file/d/1oKkNTARQLZ0C4FiUFOgcdcH0d9YUOo9e/view?usp=sharing"><img alt="Demo video" src="https://img.shields.io/badge/Demo-5--min%20video-B3261E?style=for-the-badge&logo=googledrive&logoColor=white"></a>
 </p>
@@ -233,7 +233,7 @@ curl -X POST https://wadotuh-scam-classifier-api-v3.hf.space/predict \
 
 ## 5. Testing results
 
-> Screenshots referenced below live in `docs/assets/`. Add your captured images there.
+The screenshots referenced throughout this section are in `docs/assets/`.
 
 ### 5.1 Testing strategies
 
@@ -353,11 +353,11 @@ with the original spelling and encoding preserved:
 ```
 
 > Note: each record has `id`, `text`, `language`, `category`, and `source`. These examples are from the
-> original v1 corpus. In the current v2 corpus the `mobile_money_fraud` class is no longer
-> Portuguese-only: it is now carried by Mozambican M-Pesa smishing (Portuguese) **and** Tanzanian Swahili
-> mobile-money lures from the BongoScam set (for example, "Iyo pesa itume kwenye namba hii ya Airtel
-> 0689933027" means "send that money to this Airtel number"). The corpus is therefore English,
-> Portuguese, and Swahili; French and Pidgin coverage in the model is still thin (see section 6.1).
+> original v1 corpus. From v2 onward the `mobile_money_fraud` class is no longer Portuguese-only: it is
+> now carried by Mozambican M-Pesa smishing (Portuguese) **and** Tanzanian Swahili mobile-money lures from
+> the BongoScam set (for example, "Iyo pesa itume kwenye namba hii ya Airtel 0689933027" means "send that
+> money to this Airtel number"), and v3 adds Kinyarwanda from the honeynet capture. French and Pidgin
+> coverage in the model is still thin (see section 6.1).
 
 The figures below are from the **v1 corpus (4,422 messages)**, the milestone-1 analysis. The
 **v2 corpus (9,623 messages)** results that follow are reproduced live in
