@@ -90,9 +90,3 @@ transparency / due diligence.
 - **PaySim** (Kaggle, `ealaxi/paysim1`): ~6.36M synthetic mobile-money transaction records (amounts, balances, transfer types, isFraud) seeded from real African logs; CC BY-SA 4.0. No message text. Relevant only if scope extended to a transaction-level fraud model.
 - **mobile-money-fraud-detection** (github.com/antann07): synthetic mobile-money transaction records / engineered behavioural features (SIM-swap, device/location, velocity). No message text.
 
-## Sources attempted but NOT used
-The following regional government advisory sources were probed but yielded **no**
-training data (blocked), and are not counted among the sources used:
-- ngCERT (`cert.gov.ng`) — Cloudflare anti-bot, HTTP 403
-- ANTIC (`antic.cm`) — host unreachable (connect timeout)
-- EFCC (`efccnigeria.org`) — empty shell / 404

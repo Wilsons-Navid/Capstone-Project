@@ -287,7 +287,25 @@ The labels are source-provenance and heuristic labels. A human inter-rater study
 with Cohen's kappa, is the final standard of label quality (Objective 3). A first-hand
 victim-collected corpus, the three reserved scam classes, and a comparison against a large
 language model are out of scope and recorded as future work. Wider French and Pidgin
-coverage, and a reliable feed from official advisory bodies, remain data-collection gaps.
+coverage remains a data-collection gap.
+
+The corpus draws on eight harvested sources — public labelled sets, a regional news stream,
+and real African SMS:
+
+| Source | What it contributes | Raw messages |
+|---|---|---|
+| UCI SMS Spam Collection | English ham/spam SMS: legitimate and smishing examples | 5,574 |
+| Nazario Phishing Corpus | phishing emails, the phishing class | 4,966 |
+| SMS Phishing Dataset (Mendeley `f45bkkt8pr`) | smishing SMS with URL and phone indicators | 5,971 |
+| MOZ-Smishing | Portuguese M-Pesa SMS, the mobile-money class | 552 |
+| Premium Times regional stream | West African scam-news paragraphs (WordPress REST API) | 393 |
+| ExAIS_SMS (Abeokuta, Nigeria) | real African-English SMS (2,350 spam / 2,890 ham) | 5,240 |
+| BongoScam (Tanzania) | real Swahili scam and trust SMS | 1,508 |
+| CMU-Africa Upanzi honeynet | real African mobile-money smishing (English, Kinyarwanda, Swahili) | 1,099 |
+
+These are raw source sizes. After normalising, deduplicating, relabelling into the four
+classes and filtering noise, the assembled corpus is **10,722 labelled messages** spanning
+English, Portuguese, Kinyarwanda and Swahili.
 
 ## Reproducing the work
 
