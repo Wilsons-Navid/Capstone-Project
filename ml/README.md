@@ -243,7 +243,7 @@ in bold are the ones the app runs today.
 ## How the pieces fit together
 
 ![From the corpus, through the scripts and the notebooks, to the serve apps, the predict API, and the mobile app](../docs/assets/ml/ml_pipeline.png)
-<p align="center"><em>The diagram traces the first three notebooks; the two honeynet notebooks (<code>cmu_binary</code>, <code>cmu_corpus_v3</code>) extend the same corpus-to-serve pattern.</em></p>
+<p align="center"><em>All five notebooks follow the same path — corpus to notebook to artifact to serve app to <code>/predict</code>. The two honeynet models are the ones the app runs today: <code>cmu_corpus_v3</code> backs the manual scan and <code>cmu_binary</code> backs the SMS inbox.</em></p>
 
 Each notebook contains its own training code; there is no shared `demo_model` or
 `embed_model` module to import. A notebook writes its artifacts into its own folder, and
