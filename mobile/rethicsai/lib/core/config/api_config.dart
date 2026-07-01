@@ -54,14 +54,24 @@ class ApiConfig {
     return '';
   }
 
-  // ---- Scam-classifier model API (the project's v2 multilingual model) ----
-  // Default points at the deployed Hugging Face Space (final_serve: TF-IDF + LogReg,
-  // the best model on the expanded en/pt/sw corpus, test macro-F1 0.946; pure
-  // scikit-learn so there is no cold-start model download). Override at build
-  // time with: flutter run --dart-define=SCAM_MODEL_API=https://<space>.hf.space
+  // ---- Scam-classifier model API (the project's v3 four-class model) ----
+  // Backs the manual scan. Default points at the deployed Hugging Face Space
+  // (cmu_v3_serve: TF-IDF + LogReg on the honeynet-enriched v3 corpus, the best
+  // four-class model; pure scikit-learn so there is no cold-start model download).
+  // Override at build time with:
+  //   flutter run --dart-define=SCAM_MODEL_API=https://<space>.hf.space
   static const String _scamModelBuildTimeUrl = String.fromEnvironment(
     'SCAM_MODEL_API',
-    defaultValue: 'https://wadotuh-scam-classifier-api-final.hf.space',
+    defaultValue: 'https://wadotuh-scam-classifier-api-v3.hf.space',
+  );
+
+  // ---- Binary inbox detector API (scam-or-not) ----
+  // Backs the SMS feature. A fast first-pass yes/no model trained only on the
+  // CMU-Africa Upanzi honeynet capture (cmu_inbox_serve). Override at build time
+  // with: flutter run --dart-define=SCAM_BINARY_API=https://<space>.hf.space
+  static const String _binaryModelBuildTimeUrl = String.fromEnvironment(
+    'SCAM_BINARY_API',
+    defaultValue: 'https://wadotuh-cmu-scam-inbox-guard.hf.space',
   );
 
   /// Base URL of the hosted scam-classifier API (e.g. a Hugging Face Space or
@@ -91,6 +101,38 @@ class ApiConfig {
     } catch (e) {
       if (kDebugMode) {
         print('Error storing scam model URL: $e');
+      }
+    }
+  }
+
+  /// Base URL of the hosted binary inbox detector (the SMS feature's model).
+  /// Same resolution order as [getScamModelBaseUrl]: env var, then secure
+  /// storage, then the build-time default. Empty string => the SMS scanner
+  /// falls back to its heuristic checks.
+  static Future<String> getBinaryModelBaseUrl() async {
+    try {
+      final envUrl = Platform.environment['SCAM_BINARY_API'];
+      if (envUrl != null && envUrl.isNotEmpty) {
+        return envUrl;
+      }
+      final storedUrl = await _secureStorage.read(key: 'binary_model_base_url');
+      if (storedUrl != null && storedUrl.isNotEmpty) {
+        return storedUrl;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error retrieving binary model URL: $e');
+      }
+    }
+    return _binaryModelBuildTimeUrl;
+  }
+
+  static Future<void> setBinaryModelBaseUrl(String url) async {
+    try {
+      await _secureStorage.write(key: 'binary_model_base_url', value: url);
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error storing binary model URL: $e');
       }
     }
   }

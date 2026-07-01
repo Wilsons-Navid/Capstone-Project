@@ -35,6 +35,8 @@ class ScamModelResult {
         return 'Phishing';
       case 'not_a_scam':
         return 'Not a scam';
+      case 'scam':
+        return 'Likely scam';
       default:
         return category;
     }
@@ -48,6 +50,21 @@ class ScamModelResult {
       scores: raw.map((k, v) => MapEntry(k.toString(), (v as num).toDouble())),
     );
   }
+
+  /// Map the binary inbox detector's response ({is_scam, scam_probability})
+  /// into the shared result type, so the SMS feature can treat it like any
+  /// other verdict. A positive uses the generic `scam` category, a negative
+  /// `not_a_scam`; confidence is always the model's confidence in the verdict
+  /// that is shown.
+  factory ScamModelResult.fromBinaryJson(Map<String, dynamic> json) {
+    final isScam = json['is_scam'] == true;
+    final p = (json['scam_probability'] as num?)?.toDouble() ?? 0;
+    return ScamModelResult(
+      category: isScam ? 'scam' : 'not_a_scam',
+      confidence: isScam ? p : (1 - p),
+      scores: {'scam': p, 'not_a_scam': 1 - p},
+    );
+  }
 }
 
 /// Client for the project's scam-classifier API (the model "understands meaning"
@@ -58,16 +75,32 @@ class ScamModelResult {
 /// than erroring. Configure the URL via `ApiConfig.setScamModelBaseUrl(...)` or
 /// the `SCAM_MODEL_API` dart-define / env var.
 class ScamModelService {
-  ScamModelService({Dio? dio}) : _dio = dio ?? Dio();
+  ScamModelService({
+    Dio? dio,
+    Future<String> Function()? baseUrlResolver,
+    bool binary = false,
+  })  : _dio = dio ?? Dio(),
+        _resolveBaseUrl = baseUrlResolver ?? ApiConfig.getScamModelBaseUrl,
+        _binary = binary;
 
   final Dio _dio;
+
+  /// Resolves the base URL to call. Defaults to the four-class model
+  /// ([ApiConfig.getScamModelBaseUrl]); the SMS feature passes
+  /// [ApiConfig.getBinaryModelBaseUrl] here.
+  final Future<String> Function() _resolveBaseUrl;
+
+  /// When true, this client talks to the binary inbox detector and parses its
+  /// {is_scam, scam_probability} response instead of the four-class one.
+  final bool _binary;
 
   // The model is hosted on a free Hugging Face Space that sleeps when idle.
   // The v2 model is pure scikit-learn (~1.5 MB, no embedder download), so a warm
   // container answers in ~1s; only the container wake from idle adds a few
   // seconds. We still pre-warm once per session so the user's first scan after
   // the app opens is fast rather than waiting on the cold container.
-  static bool _warmStarted = false;
+  // Per-instance: the four-class and binary clients each warm their own Space.
+  bool _warmStarted = false;
 
   /// Fire-and-forget warm-up of the (sleeping) model Space. Hitting POST
   /// /predict — not GET /health — is what actually loads the model, so we send
@@ -77,7 +110,7 @@ class ScamModelService {
     if (_warmStarted) return;
     _warmStarted = true;
 
-    final baseUrl = await ApiConfig.getScamModelBaseUrl();
+    final baseUrl = await _resolveBaseUrl();
     if (baseUrl.isEmpty) {
       _warmStarted = false;
       return;
@@ -107,7 +140,7 @@ class ScamModelService {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return null;
 
-    final baseUrl = await ApiConfig.getScamModelBaseUrl();
+    final baseUrl = await _resolveBaseUrl();
     if (baseUrl.isEmpty) return null; // model not configured → heuristic-only
 
     final url = '${baseUrl.replaceAll(RegExp(r'/+$'), '')}/predict';
@@ -124,7 +157,10 @@ class ScamModelService {
         ),
       );
       if (resp.statusCode == 200 && resp.data is Map) {
-        return ScamModelResult.fromJson(Map<String, dynamic>.from(resp.data));
+        final map = Map<String, dynamic>.from(resp.data);
+        return _binary
+            ? ScamModelResult.fromBinaryJson(map)
+            : ScamModelResult.fromJson(map);
       }
     } catch (e) {
       if (kDebugMode) {

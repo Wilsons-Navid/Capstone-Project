@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:another_telephony/telephony.dart';
 import 'package:flutter/foundation.dart';
 
+import '../config/api_config.dart';
 import 'scam_model_service.dart';
 import 'detected_threat_service.dart';
 
@@ -24,15 +25,24 @@ class SmsScanItem {
   bool get isScam => verdict != null && !verdict!.isSafe;
 }
 
-/// Reads incoming / inbox SMS and classifies them with the project's scam model
+/// Reads incoming / inbox SMS and classifies them with the project's binary
+/// inbox detector — a fast scam-or-not model trained only on real captured SMS
 /// (Thadee's "give the app access to incoming messages"). Android-only.
+///
+/// The SMS feature uses the binary model, not the four-class one: for an inbox
+/// the first question is simply whether a message is a scam. The manual scan
+/// uses the four-class model to say what kind.
 ///
 /// v1 does foreground live protection + on-demand inbox scan. Background delivery
 /// (an SMS receiver while the app is closed) is a future extension and needs a
 /// top-level handler + manifest receiver.
 class SmsScannerService {
   SmsScannerService({ScamModelService? model})
-      : _model = model ?? ScamModelService();
+      : _model = model ??
+            ScamModelService(
+              binary: true,
+              baseUrlResolver: ApiConfig.getBinaryModelBaseUrl,
+            );
 
   final ScamModelService _model;
   final DetectedThreatService _detectedThreats = DetectedThreatService();

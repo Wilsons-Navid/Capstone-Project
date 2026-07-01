@@ -24,6 +24,7 @@ class _SmsGuardPageState extends State<SmsGuardPage> {
   bool _liveOn = false;
 
   String _cat(String c) {
+    if (c == 'scam') return 'Likely scam'; // binary inbox detector verdict
     const known = {'advance_fee_fraud', 'mobile_money_fraud', 'phishing', 'not_a_scam'};
     return known.contains(c) ? 'scanner.cat_$c'.tr() : c;
   }
