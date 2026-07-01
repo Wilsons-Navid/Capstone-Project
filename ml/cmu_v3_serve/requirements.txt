@@ -1,0 +1,9 @@
+# Versions MUST match those that saved notebooks/cmu_corpus_v3/scam_tfidf_v3.joblib,
+# or the unpickled sklearn pipeline raises at predict time (500).
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+scikit-learn==1.8.0
+numpy==2.4.3
+scipy==1.17.0
+joblib==1.5.3
+pydantic==2.10.4

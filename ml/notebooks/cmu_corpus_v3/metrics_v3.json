@@ -1,0 +1,31 @@
+{
+  "model": "tfidf_logreg",
+  "corpus": "demo_labeled_v3.jsonl",
+  "classes": [
+    "advance_fee_fraud",
+    "mobile_money_fraud",
+    "phishing",
+    "not_a_scam"
+  ],
+  "n_total": 10722,
+  "n_cmu_added": 1099,
+  "test_macro_f1_v2_only": 0.8809,
+  "test_macro_f1_v3": 0.9321,
+  "per_class_v3": {
+    "advance_fee_fraud": 0.8632,
+    "mobile_money_fraud": 0.9522,
+    "phishing": 0.9432,
+    "not_a_scam": 0.9698
+  },
+  "embedding_comparison": {
+    "TF-IDF (shipped)": 0.9321,
+    "e5 embeddings": 0.8741,
+    "TF-IDF + e5 ensemble": 0.9288
+  },
+  "languages": [
+    "en",
+    "pt",
+    "rw",
+    "sw"
+  ]
+}

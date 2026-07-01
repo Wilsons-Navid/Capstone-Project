@@ -11,6 +11,7 @@ inlines its own training code, so it can be opened and re-run on its own.
 | [`embed_demo/`](embed_demo/) | `embed_demo.ipynb` | Semantic upgrade: e5-small embeddings + a soft-voting ensemble (test macro-F1 0.955) | `embed_models.joblib`, `embed_metrics.json`, `emb_e5small.npz` | [`../embed_serve/`](../embed_serve/) |
 | [`final_model/`](final_model/) | `final_model.ipynb` | **Deployed** 4-class model: expanded en/pt/sw corpus; TF-IDF + LogReg wins (test macro-F1 0.946) | `embed_models_v2.joblib`, `embed_metrics_v2.json`, `emb_e5small_v2.npz`, **`scam_tfidf_v2.joblib`** | [`../final_serve/`](../final_serve/) |
 | [`cmu_binary/`](cmu_binary/) | `cmu_binary.ipynb` | **Real-world binary detector** for the inbox scan: TF-IDF word+char + LogReg on the CMU-Africa Upanzi honeynet (en/rw/sw), recall-tuned | `cmu_scam_binary.joblib`, `metrics.json`, `model_card.json` | [`../cmu_inbox_serve/`](../cmu_inbox_serve/) |
+| [`cmu_corpus_v3/`](cmu_corpus_v3/) | `cmu_corpus_v3.ipynb` | **4-class v3**: folds the honeynet scams into advance_fee/momo/phishing/not_a_scam and retrains; head-to-head vs v2 | `scam_tfidf_v3.joblib`, `metrics_v3.json` | [`../cmu_v3_serve/`](../cmu_v3_serve/) |
 
 ## Running a notebook
 
