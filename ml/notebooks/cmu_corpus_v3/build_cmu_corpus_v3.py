@@ -240,6 +240,17 @@ down next. The average is the promise; the per-class and per-language views are 
 proof.
 """)
 
+md(r"""
+One comparison to head off before it misleads anyone. The deployed four-class model
+carries a headline macro-F1 of **0.946**, and it is tempting to line that up against
+the 0.932 here and conclude v3 is a step back. It is not, and the reason is the test
+set. That 0.946 was measured on the v2 test split, which holds no honeynet messages,
+so it is a gentler exam. The 0.932 above is on the v3 test split, which mixes in the
+harder, real captured scams the honeynet brought. The honest comparison is the one
+we just ran, both models on the *same* shared test set: the v2 recipe scores 0.881
+and v3 scores 0.932. Measured fairly, v3 is ahead by five points, not behind.
+""")
+
 # ---------------------------------------------------------------------------
 md(r"""
 ### 4.1 Per-class F1: who got better, who held
