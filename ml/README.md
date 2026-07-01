@@ -286,21 +286,8 @@ committed to this repository; only the models trained on it are shipped.
 The labels are source-provenance and heuristic labels. A human inter-rater study, measured
 with Cohen's kappa, is the final standard of label quality (Objective 3). A first-hand
 victim-collected corpus, the three reserved scam classes, and a comparison against a large
-language model are out of scope and recorded as future work.
-
-The official advisory sites were tested as sources but could not be scraped, as of
-1 June 2026:
-
-| Source | Status | Note |
-|---|---|---|
-| Premium Times (English news) | works | WordPress REST API; 393 unique scam-relevant paragraphs harvested |
-| ngCERT (`cert.gov.ng`) | blocked | Cloudflare anti-bot (HTTP 403) |
-| ANTIC (`antic.cm`, French) | blocked | host unreachable |
-| EFCC (`efccnigeria.org`) | blocked | empty page or HTTP 404 |
-
-The blocked sources stay in `src/scrapers.py` as honest probes that log why they returned
-nothing. The lack of reachable official advisories is itself a data-collection limitation
-worth recording, and French and Pidgin coverage remains a gap.
+language model are out of scope and recorded as future work. Wider French and Pidgin
+coverage, and a reliable feed from official advisory bodies, remain data-collection gaps.
 
 ## Reproducing the work
 
