@@ -1,7 +1,7 @@
 name: rethicssec
 description: "Rethicssec - Comprehensive cybercrime reporting platform for Africa"
 publish_to: 'none'
-version: 1.0.14+15
+version: 1.0.15+16
 
 environment:
   sdk: ^3.5.0

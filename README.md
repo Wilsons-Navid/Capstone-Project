@@ -3,7 +3,7 @@
 <p align="center"><strong>AI-powered scam detection and cybercrime reporting for Africa</strong></p>
 
 <p align="center">
-  <a href="https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.14/rethicsec-v1.0.14.apk"><img alt="Download APK" src="https://img.shields.io/badge/Download-APK%20v1.0.14-2E7D34?style=for-the-badge&logo=android&logoColor=white"></a>
+  <a href="https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.15/rethicsec-v1.0.15.apk"><img alt="Download APK" src="https://img.shields.io/badge/Download-APK%20v1.0.15-2E7D34?style=for-the-badge&logo=android&logoColor=white"></a>
   <img alt="Platform Android" src="https://img.shields.io/badge/Platform-Android-3E2B20?style=for-the-badge&logo=android&logoColor=white">
   <img alt="Model macro-F1 0.946" src="https://img.shields.io/badge/Model-macro--F1%200.946-C8851A?style=for-the-badge">
   <img alt="Corpus languages" src="https://img.shields.io/badge/Corpus-EN%20%7C%20PT%20%7C%20SW-5C4536?style=for-the-badge">
@@ -17,7 +17,7 @@
 | **Status** | Implementation and Testing milestone. The deployed Android build is linked below. |
 
 <p align="center">
-  <img src="docs/assets/rethicsec-v1.0.14-qr.png" width="280" alt="Scan this QR code to download the Rethicsec Android APK">
+  <img src="docs/assets/rethicsec-v1.0.15-qr.png" width="280" alt="Scan this QR code to download the Rethicsec Android APK">
 </p>
 <p align="center">
   There is no iOS or web build. Full install steps are in <a href="#1-deployed-version-download-and-install-android">section 1</a>.
@@ -42,7 +42,7 @@ and recognises four scam types (advance-fee fraud, mobile-money fraud, phishing,
 
 | | |
 |---|---|
-| Download | [`rethicsec-v1.0.14.apk`](https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.14/rethicsec-v1.0.14.apk) (Android, 74 MB) |
+| Download | [`rethicsec-v1.0.15.apk`](https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.15/rethicsec-v1.0.15.apk) (Android, 74 MB) |
 | Live model API | https://wadotuh-scam-classifier-api-final.hf.space |
 | Deployed model | TF-IDF + Logistic Regression, test macro-F1 0.946 |
 | Corpus | 9,623 messages, 4 classes, 3 languages (English, Portuguese, Swahili) |
@@ -66,9 +66,9 @@ and recognises four scam types (advance-fee fraud, mobile-money fraud, phishing,
 ## 1. Deployed version: download and install (Android)
 
 > **Direct APK download:**
-> https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.14/rethicsec-v1.0.14.apk
+> https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.15/rethicsec-v1.0.15.apk
 >
-> **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.14
+> **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.15
 >
 > **Model API (Hugging Face):** https://wadotuh-scam-classifier-api-final.hf.space (the app's endpoint; all three model APIs are listed in section 4)
 
