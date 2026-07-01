@@ -6,7 +6,7 @@
   <a href="https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.15/rethicsec-v1.0.15.apk"><img alt="Download APK" src="https://img.shields.io/badge/Download-APK%20v1.0.15-2E7D34?style=for-the-badge&logo=android&logoColor=white"></a>
   <img alt="Platform Android" src="https://img.shields.io/badge/Platform-Android-3E2B20?style=for-the-badge&logo=android&logoColor=white">
   <img alt="Model macro-F1 0.946" src="https://img.shields.io/badge/Model-macro--F1%200.946-C8851A?style=for-the-badge">
-  <img alt="Corpus languages" src="https://img.shields.io/badge/Corpus-EN%20%7C%20PT%20%7C%20SW-5C4536?style=for-the-badge">
+  <img alt="Corpus languages" src="https://img.shields.io/badge/Corpus-EN%20%7C%20PT%20%7C%20SW%20%7C%20RW-5C4536?style=for-the-badge">
   <a href="https://drive.google.com/file/d/1oKkNTARQLZ0C4FiUFOgcdcH0d9YUOo9e/view?usp=sharing"><img alt="Demo video" src="https://img.shields.io/badge/Demo-5--min%20video-B3261E?style=for-the-badge&logo=googledrive&logoColor=white"></a>
 </p>
 
@@ -25,10 +25,12 @@
 
 **Rethicsec answers a simple question for everyday users: is this message a scam?** It gives a clear verdict
 in seconds and then helps the user act on it, including reporting the scam to the right national authority.
-The app uses a custom-trained, multilingual scam classifier rather than a general-purpose LLM, together
+The app uses custom-trained, multilingual scam classifiers rather than a general-purpose LLM, together
 with an education hub, an AI assistant, and an authority-reporting directory that covers 14 African
-countries. The classifier is trained on real African scam messages in **English, Portuguese, and Swahili**
-and recognises four scam types (advance-fee fraud, mobile-money fraud, phishing, and not-a-scam).
+countries. Detection runs in two stages: a fast binary "scam or not" model backs the SMS inbox feature,
+and a four-class model backs the manual scan, naming the scam type (advance-fee fraud, mobile-money fraud,
+phishing, or not-a-scam). Both are trained on real African scam messages in **English, Portuguese, Swahili,
+and Kinyarwanda**, the last from a live smishing honeynet run by the Upanzi Network at CMU-Africa.
 
 > **Why it matters: the reporting gap.** Cybercrime in Africa is badly under-reported. INTERPOL estimates
 > that fewer than 20% of incidents are ever formally logged, so the official statistics, and the
@@ -43,9 +45,9 @@ and recognises four scam types (advance-fee fraud, mobile-money fraud, phishing,
 | | |
 |---|---|
 | Download | [`rethicsec-v1.0.15.apk`](https://github.com/Wilsons-Navid/Capstone-Project/releases/download/v1.0.15/rethicsec-v1.0.15.apk) (Android, 74 MB) |
-| Live model API | https://wadotuh-scam-classifier-api-final.hf.space |
-| Deployed model | TF-IDF + Logistic Regression, test macro-F1 0.946 |
-| Corpus | 9,623 messages, 4 classes, 3 languages (English, Portuguese, Swahili) |
+| Live model APIs | Scan: https://wadotuh-scam-classifier-api-v3.hf.space · SMS: https://wadotuh-cmu-scam-inbox-guard.hf.space |
+| Deployed models | Manual scan: four-class TF-IDF + LogReg (v3, macro-F1 0.932). SMS feature: binary inbox detector (scam-F1 0.87). |
+| Corpus | 10,722 messages, 4 classes, 4 languages (English, Portuguese, Swahili, Kinyarwanda) |
 | App | Flutter + Firebase, 11 locales, authority reporting for 14 countries |
 | Demo | [5-minute walkthrough](https://drive.google.com/file/d/1oKkNTARQLZ0C4FiUFOgcdcH0d9YUOo9e/view?usp=sharing) |
 
@@ -70,7 +72,7 @@ and recognises four scam types (advance-fee fraud, mobile-money fraud, phishing,
 >
 > **Release page:** https://github.com/Wilsons-Navid/Capstone-Project/releases/tag/v1.0.15
 >
-> **Model API (Hugging Face):** https://wadotuh-scam-classifier-api-final.hf.space (the app's endpoint; all three model APIs are listed in section 4)
+> **Model APIs (Hugging Face):** the scan uses https://wadotuh-scam-classifier-api-v3.hf.space and the SMS feature uses https://wadotuh-cmu-scam-inbox-guard.hf.space (all model APIs are listed in section 4)
 
 **Step-by-step install:**
 1. On an Android phone, open the direct APK link above in a browser.
@@ -108,8 +110,8 @@ The app ships with its Firebase configuration, so no extra backend setup is need
 
 | Feature (name in the app) | What it does |
 |---|---|
-| Threat Scanner | Paste an SMS, email, URL, phone number or message; the AI returns a threat level, a category, and an explanation. |
-| SMS Protection | Scan your inbox or live-classify incoming SMS with the model (Android only). |
+| Threat Scanner | Paste an SMS, email, URL, phone number or message; the four-class model returns a threat level, a category, and an explanation. |
+| SMS Protection | Scan your inbox or live-classify incoming SMS with the binary scam-or-not model, trained on real captured SMS (Android only). |
 | Report to authorities | Country-aware directory (14 countries) of police, cyber-crime, and financial-crime units. Call, email, or report online with a pre-filled message. |
 | Report Incident | Structured report with evidence upload, geolocation, and priority. |
 | Track Cases | Status timeline for submitted cases. |
@@ -157,16 +159,21 @@ Rethicsec has two engineered parts that meet at one screen.
   UI, structured reporting, case tracking, the education hub, the Wilson assistant, the admin console, the
   14-country authority directory, and 11 languages, backed by Firebase (Auth, Firestore, Cloud Functions,
   FCM).
-- **Part 2, the ML system** (`ml/`): the research core. It contains a four-class scam corpus of **9,623
-  messages across English, Portuguese, and Swahili**, the training and evaluation notebooks, and the
-  trained classifier served behind a `/predict` API. Several models are compared (TF-IDF and multilingual
-  e5 base models plus soft-voting and stacking ensembles); the deployed model is the best of them on the
-  expanded corpus, **TF-IDF + Logistic Regression (test macro-F1 0.946)**. Because it is pure
-  scikit-learn with no embedder to download, the service cold-starts instantly.
+- **Part 2, the ML system** (`ml/`): the research core. It holds a four-class scam corpus of **10,722
+  messages across English, Portuguese, Swahili, and Kinyarwanda**, the training and evaluation notebooks,
+  and the trained classifiers served behind `/predict` APIs. The corpus grew in stages: public English and
+  Portuguese datasets, then real African SMS (Nigerian ExAIS and Tanzanian BongoScam), and most recently a
+  capture from the **CMU-Africa Upanzi smishing honeynet** of live mobile-money fraud. Two models are
+  deployed. The manual scan uses the **four-class v3 model**, TF-IDF + Logistic Regression retrained on the
+  honeynet-enriched corpus (macro-F1 0.932 on the realistic test set, five points above the same recipe
+  without the honeynet data). The SMS feature uses a **binary scam-or-not model** trained only on the
+  honeynet capture. Both are pure scikit-learn with no embedder to download, so they cold-start instantly.
+  The full model story and every comparison are in [`ml/README.md`](ml/README.md).
 - **The intersection, the scanner.** This is where the two parts meet. A user pastes a message, the app's
-  `ScamModelService` calls the model's `/predict` endpoint, and the returned category and confidence are
-  shown in the verdict card. A warm-up ping on app launch keeps the hosted model responsive, so the user
-  sees the live model verdict instead of a keyword fallback.
+  `ScamModelService` calls the four-class model's `/predict` endpoint, and the returned category and
+  confidence are shown in the verdict card. The SMS feature calls the binary model the same way. A warm-up
+  ping on app launch keeps the hosted models responsive, so the user sees the live verdict instead of a
+  keyword fallback.
 
 ![Rethicsec build view: the mobile app, the ML pipeline, and the scanner that joins them](docs/assets/build_architecture.png)
 <p align="center"><em>Build view: each part is developed on its own, and the scanner is the screen where the app calls the served model.</em></p>
@@ -177,24 +184,26 @@ The diagram below traces the same idea at run time: a pasted message makes a rou
 
 ### 4.1 Try the model APIs directly
 
-Each of the three models has its own public Hugging Face Space. The app calls the
-**final** one (the deployed, embedder-free model); the other two are the documented
-baseline and the embedding ensemble. The reasoning behind keeping all three is documented in
-[`ml/README.md`](ml/README.md).
+Each model has its own public Hugging Face Space. The app calls two of them: the four-class **v3** model
+for the manual scan and the **binary** detector for the SMS feature. The other three are the previous
+four-class model and the documented baseline and embedding ensemble. The reasoning behind keeping them all
+is in [`ml/README.md`](ml/README.md).
 
 | Model | API base URL | What it serves |
 |---|---|---|
-| **Final (deployed)** | https://wadotuh-scam-classifier-api-final.hf.space | TF-IDF + LogReg, v2 corpus (en/pt/sw), macro-F1 0.946. This is the app's endpoint. |
+| **v3 four-class (the app's scan)** | https://wadotuh-scam-classifier-api-v3.hf.space | TF-IDF + LogReg on the honeynet-enriched corpus (en/pt/sw/rw), macro-F1 0.932. |
+| **Binary inbox (the app's SMS feature)** | https://wadotuh-cmu-scam-inbox-guard.hf.space | Scam-or-not, trained on the CMU honeynet capture, scam-F1 0.87. Returns `{is_scam, scam_probability, verdict}`. |
+| Final v2 four-class | https://wadotuh-scam-classifier-api-final.hf.space | TF-IDF + LogReg, v2 corpus (en/pt/sw), macro-F1 0.946. The previous scan model. |
 | Embedding ensemble | https://wadotuh-scam-classifier-api-embed.hf.space | TF-IDF + e5-small soft-voting ensemble, v1 corpus, macro-F1 0.955 |
 | Initial baseline | https://wadotuh-scam-classifier-api-initial.hf.space | TF-IDF + LogReg, v1 corpus (the first baseline) |
 
-- **Endpoint (all three):** `POST /predict`
+- **Endpoint (all):** `POST /predict`
 - **Request body:** `{ "text": "<message to classify>" }`
 
-**Example (curl), a Swahili mobile-money lure on the deployed model:**
+**Example (curl), a Swahili mobile-money lure on the four-class scan model:**
 
 ```bash
-curl -X POST https://wadotuh-scam-classifier-api-final.hf.space/predict \
+curl -X POST https://wadotuh-scam-classifier-api-v3.hf.space/predict \
   -H "Content-Type: application/json" \
   -d '{"text":"Iyo pesa itume kwenye namba hii ya Airtel 0689933027 jina PETER NYANGE."}'
 ```
@@ -214,12 +223,13 @@ curl -X POST https://wadotuh-scam-classifier-api-final.hf.space/predict \
 }
 ```
 
-> The final model is pure scikit-learn (no embedder to download), so a warm request answers in about a
-> second and there is no 470 MB cold-start download. Each Space still sleeps when idle, so only the first
-> request after a pause waits a few seconds for the container to wake (the app hides this with a warm-up
-> ping). In the mobile app the URL is set with the `SCAM_MODEL_API` dart-define, for example
-> `flutter run --dart-define=SCAM_MODEL_API=https://<your-space>.hf.space`; it defaults to the final
-> Space above. The embedding-ensemble Space downloads the e5 weights on its first request.
+> The v3 and binary models are pure scikit-learn (no embedder to download), so a warm request answers in
+> about a second and there is no 470 MB cold-start download. Each Space still sleeps when idle, so only the
+> first request after a pause waits a few seconds for the container to wake (the app hides this with a
+> warm-up ping). In the mobile app the scan URL is set with the `SCAM_MODEL_API` dart-define and the SMS
+> URL with `SCAM_BINARY_API`, for example
+> `flutter run --dart-define=SCAM_MODEL_API=https://<your-space>.hf.space`; they default to the v3 and
+> binary Spaces above. The embedding-ensemble Space downloads the e5 weights on its first request.
 
 ## 5. Testing results
 
@@ -313,16 +323,16 @@ The proposal (Chapter 1) set three SMART objectives. The implementation met or e
 
 | Proposal objective | Committed to | Delivered | Verdict |
 |---|---|---|---|
-| Obj 1, Corpus | A labelled West African scam corpus of at least 500 incidents across the typology. | 9,623 labelled messages across 4 classes (advance-fee, mobile-money, phishing, not-a-scam) and 3 languages (English, Portuguese, Swahili), from Nazario, UCI-SMS, Mozambique and Mendeley smishing, regional news, the **ExAIS African-English SMS set (Nigeria)**, and the **BongoScam Tanzanian Swahili set**. | Exceeded (about 19 times the target) |
+| Obj 1, Corpus | A labelled West African scam corpus of at least 500 incidents across the typology. | 10,722 labelled messages across 4 classes (advance-fee, mobile-money, phishing, not-a-scam) and 4 languages (English, Portuguese, Swahili, Kinyarwanda), from Nazario, UCI-SMS, Mozambique and Mendeley smishing, regional news, the **ExAIS African-English SMS set (Nigeria)**, the **BongoScam Tanzanian Swahili set**, and a capture from the **CMU-Africa Upanzi smishing honeynet**. | Exceeded (about 21 times the target) |
 | Obj 2, Platform | Deploy a mobile platform integrating reporting, classification, risk assessment, and education. | Flutter app with all four, plus the assistant, admin console, and 14-country authority reporting; installable APK. | Exceeded |
-| Obj 3, Model comparison | Compare two classical baselines (TF-IDF with logistic regression against TF-IDF with random forest), per-category metrics. | Compared six models (the two baselines, e5-embedding LR and RF, soft-vote, and stacking ensembles) on the expanded corpus; deployed the best, **TF-IDF + logistic regression at macro-F1 0.946**, with per-language and per-class breakdowns. | Exceeded scope |
+| Obj 3, Model comparison | Compare two classical baselines (TF-IDF with logistic regression against TF-IDF with random forest), per-category metrics. | Compared six models on the expanded corpus with per-language and per-class breakdowns; then, once the CMU honeynet data arrived, ran a further controlled experiment and retrained. The deployed scan model is now the **four-class v3 (TF-IDF + logistic regression, macro-F1 0.932 on the harder honeynet-inclusive test set, +5 points over the same recipe without that data)**, paired with a **binary inbox model** for the SMS feature. | Exceeded scope |
 | Regional scope | Nigeria and Cameroon | Authority reporting for 14 countries | Exceeded |
-| Language scope | English and French (Pidgin where possible) | App localised to 11 languages; corpus is English, Portuguese, and Swahili | Partly diverged |
+| Language scope | English and French (Pidgin where possible) | App localised to 11 languages; corpus is English, Portuguese, Swahili, and Kinyarwanda | Partly diverged |
 
 Honest deviations from the proposal:
 
 - Obj 3 was scoped as a classical-only, two-baseline comparison. The delivered work went beyond it by adding multilingual e5 embeddings and ensembles. On the larger, keyword-rich African corpus the classical TF-IDF + logistic-regression model is again the strongest single model (macro-F1 0.946), narrowly ahead of the ensemble; the embeddings act as cross-lingual insurance rather than a leaderboard win. The final report should frame the embeddings and ensembles as an extension beyond, and a fair comparison against, the proposed classical baselines.
-- The corpus language mix is English, Portuguese, and Swahili, not the English and French the proposal targeted. Two real African sources were added since the first milestone (the ExAIS African-English SMS set from Nigeria and the BongoScam Tanzanian Swahili set), which materially improved African coverage. French and Pidgin coverage in the model remains thin, even though the app localises to 11 languages.
+- The corpus language mix is English, Portuguese, Swahili, and Kinyarwanda, not the English and French the proposal targeted. Three real African sources were added since the first milestone (the ExAIS African-English SMS set from Nigeria, the BongoScam Tanzanian Swahili set, and the CMU-Africa Upanzi honeynet capture), which materially improved African coverage. French and Pidgin coverage in the model remains thin, even though the app localises to 11 languages.
 - Corpus provenance: the corpus is labelled by scam typology. It now combines public English and Portuguese smishing and phishing datasets (UCI SMS, Nazario, the Mozambican M-Pesa set, Mendeley) with two real African SMS datasets (ExAIS, BongoScam). The African additions are relabelled from their native binary labels into the four-class typology by a documented, auditable rule set (`ml/scripts/11_relabel_african.py`), and these remain heuristic and provenance labels pending the inter-rater kappa audit. A corpus collected first-hand from West African victims is still future work, so the "West African corpus" framing should be read as typology-aligned and now partly region-native rather than fully field-collected. Full source links are in `docs/DATA_SOURCES.md`.
 
 ### 6.2 The ML analysis (figures from `ml/notebooks/`)
@@ -389,6 +399,18 @@ Re-balancing ablation (v1). Class-weighting, over-sampling, and the combined str
 - The keyword-rich African data favours the lexical model, so TF-IDF + logistic regression is again the
   best single model; the multilingual embeddings add cross-lingual robustness but do not top the board.
 
+**v3 results, after adding the CMU honeynet.** After the v2 milestone, a capture from the CMU-Africa Upanzi
+smishing honeynet (real mobile-money fraud in English, Kinyarwanda, and Swahili) was folded into the corpus
+to make v3 (10,722 messages). A controlled experiment held the model recipe fixed and changed only the
+training data: on one shared, harder test set that includes the honeynet messages, the same TF-IDF +
+logistic-regression recipe scores macro-F1 0.881 without the honeynet data and **0.932 with it**, a
+five-point gain driven by mobile-money (per-class F1 0.952). Re-checking embeddings on v3 reached the same
+verdict as before (TF-IDF 0.932 beats e5 0.874), so the shipped scan model stays lexical. The honeynet
+capture also trained a **binary scam-or-not model** (scam-F1 0.87) that now backs the SMS feature: a fast
+first pass for the inbox, with the four-class model as the second opinion. The honeynet data is gated, so it
+is credited to the Upanzi Network at CMU-Africa but not redistributed; the full comparison is in
+[`ml/README.md`](ml/README.md).
+
 ### 6.3 Where results fell short, and what the ML experiments showed
 
 At milestone 1, the 0.955 figure was in-distribution and the v1 corpus was class-imbalanced (phishing
@@ -404,9 +426,11 @@ ExAIS African-English set and the Tanzanian Swahili BongoScam set), which roughl
 classes (mobile-money 538 to 1,166, advance-fee 283 to 597) and added a third language. The payoff is
 direct: **mobile-money fraud became the strongest class (F1 0.983)** and the model now reads Swahili and
 Portuguese, not just English. The minority-data constraint the ablation identified has been substantially
-eased, though advance-fee remains the hardest class and English mobile-money data is still comparatively
-thin (a data-access request to CMU-Africa's Upanzi network is in progress to source real English
-mobile-money messages).
+eased. The most recent step acted on that same diagnosis once more: the requested capture from CMU-Africa's
+Upanzi smishing honeynet arrived and was folded into the corpus (v3), which in a controlled same-test-set
+comparison lifted the four-class model from macro-F1 0.881 to 0.932 and strengthened the mobile-money class
+in Kinyarwanda and Swahili. That capture also trained a separate binary inbox model now used by the SMS
+feature. Advance-fee remains the hardest class.
 
 A separate finding concerns serving reliability. The v1 model was an e5 ensemble that had to download a
 470 MB embedder on first request; on a Space that sleeps when idle this could time out and the app would
@@ -438,7 +462,7 @@ model verdict rather than the fallback.
 ## 8. Recommendations and future work
 
 - Confidence-aware verdicts: show the model's confidence and add an explicit "unsure, treat with caution" state to cut false positives and build trust.
-- Collect authentic minority-class data (mobile-money and advance-fee). This was the single biggest lever on accuracy, as the re-balancing ablation showed, and v2 acted on it by adding the ExAIS and BongoScam African SMS sets, so mobile-money is now the strongest class. The remaining gaps are advance-fee volume and English (rather than Swahili or Portuguese) mobile-money data; a data-access request to a regional smishing-research network (CMU-Africa's Upanzi) is in progress to source the latter.
+- Collect authentic minority-class data (mobile-money and advance-fee). This was the single biggest lever on accuracy, as the re-balancing ablation showed. v2 acted on it by adding the ExAIS and BongoScam African SMS sets, and v3 went further by folding in the CMU-Africa Upanzi honeynet capture of real mobile-money fraud, so mobile-money is now the strongest class across four languages. The remaining gap is advance-fee volume, which stays the hardest class; a human inter-rater labelling pass over the honeynet-derived labels is the next step.
 - On-device inference: a quantised model for offline, private screening on low-connectivity networks.
 - Multi-modal detection: images, link reputation, and voice notes.
 - Consent-based escalation tiers: from helping the user act today to partnerships with operators and regulators.
@@ -454,7 +478,7 @@ Capstone-Project/
 │   ├── test/                     ← automated tests (flutter test, 36 passing)
 │   └── design-system/MASTER.md   ← the design-system contract
 ├── ml/                           ← scam-classifier research (corpus, notebooks, serving)
-│   └── README.md                 ← the three models, the results, and why the final one ships
+│   └── README.md                 ← the models (baseline → v3 → binary), the results, and why each one ships
 ├── docs/
 │   ├── DATA_SOURCES.md           ← source links and licences for every dataset
 │   └── assets/                   ← screenshots and the architecture diagrams used in this README
