@@ -3,3 +3,10 @@ __pycache__/
 *.pyc
 # The full data folder (raw third-party datasets + labelled corpora) and the
 # notebook-generated model artifacts are tracked so the project ships complete.
+
+# Exception: the CMU-Africa Upanzi honeynet capture is gated (shared on request,
+# not publicly redistributable), so its raw file and the corpora derived from it
+# stay local and are NOT published. The trained models are derived and safe to ship.
+data/raw/cmu_honeynet/
+data/labelled/cmu_binary.jsonl
+data/labelled/demo_labeled_v3.jsonl

@@ -1,15 +1,16 @@
 # Notebooks
 
-Three self-contained notebooks, each in its own folder with **the model artifacts it
+Self-contained notebooks, each in its own folder with **the model artifacts it
 generates** and a README. They tell the model story in order — baseline → semantic
-upgrade → final multilingual model. Each notebook inlines all of its own training code
-(no shared `src` module to import), so it can be opened and re-run on its own.
+upgrade → final multilingual model → real-world honeynet models. Each notebook
+inlines its own training code, so it can be opened and re-run on its own.
 
 | Folder | Notebook | What it is | Artifacts it produces | Served by |
 |---|---|---|---|---|
 | [`initial_demo/`](initial_demo/) | `initial_demo.ipynb` | First baseline: TF-IDF + LogReg/RF on the v1 English/Portuguese corpus | `scam_classifier.joblib`, `metrics.json`, `model_card.json` | [`../initial_serve/`](../initial_serve/) |
 | [`embed_demo/`](embed_demo/) | `embed_demo.ipynb` | Semantic upgrade: e5-small embeddings + a soft-voting ensemble (test macro-F1 0.955) | `embed_models.joblib`, `embed_metrics.json`, `emb_e5small.npz` | [`../embed_serve/`](../embed_serve/) |
-| [`final_model/`](final_model/) | `final_model.ipynb` | **Final, deployed** model: expanded en/pt/sw corpus; TF-IDF + LogReg wins (test macro-F1 0.946) | `embed_models_v2.joblib`, `embed_metrics_v2.json`, `emb_e5small_v2.npz`, **`scam_tfidf_v2.joblib`** | [`../final_serve/`](../final_serve/) |
+| [`final_model/`](final_model/) | `final_model.ipynb` | **Deployed** 4-class model: expanded en/pt/sw corpus; TF-IDF + LogReg wins (test macro-F1 0.946) | `embed_models_v2.joblib`, `embed_metrics_v2.json`, `emb_e5small_v2.npz`, **`scam_tfidf_v2.joblib`** | [`../final_serve/`](../final_serve/) |
+| [`cmu_binary/`](cmu_binary/) | `cmu_binary.ipynb` | **Real-world binary detector** for the inbox scan: TF-IDF word+char + LogReg on the CMU-Africa Upanzi honeynet (en/rw/sw), recall-tuned | `cmu_scam_binary.joblib`, `metrics.json`, `model_card.json` | [`../cmu_inbox_serve/`](../cmu_inbox_serve/) |
 
 ## Running a notebook
 

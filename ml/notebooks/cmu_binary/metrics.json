@@ -1,0 +1,12 @@
+{
+  "model": "tfidf_word+char_logreg",
+  "task": "binary scam vs legit",
+  "threshold": 0.6204,
+  "test_scam_f1": 0.8696,
+  "test_pr_auc": 0.9302,
+  "test_roc_auc": 0.9892,
+  "n_total": 1099,
+  "n_scam": 165,
+  "n_train": 879,
+  "n_test": 220
+}
