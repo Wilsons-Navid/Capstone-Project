@@ -5,8 +5,8 @@
 <p align="center">
   <a href="https://wadotuh-scam-classifier-api-final.hf.space"><img alt="Final model API" src="https://img.shields.io/badge/Final%20API-live-2E7D34?style=for-the-badge&logo=huggingface&logoColor=white"></a>
   <img alt="Model macro-F1 0.946" src="https://img.shields.io/badge/Model-macro--F1%200.946-C8851A?style=for-the-badge">
-  <img alt="Corpus languages" src="https://img.shields.io/badge/Corpus-EN%20%7C%20PT%20%7C%20SW-5C4536?style=for-the-badge">
-  <img alt="Corpus size" src="https://img.shields.io/badge/Messages-9%2C623-3E2B20?style=for-the-badge">
+  <img alt="Corpus languages" src="https://img.shields.io/badge/Corpus-EN%20%7C%20PT%20%7C%20SW%20%7C%20RW-5C4536?style=for-the-badge">
+  <img alt="Corpus size" src="https://img.shields.io/badge/Messages-10%2C722-3E2B20?style=for-the-badge">
   <img alt="Framework scikit-learn" src="https://img.shields.io/badge/Framework-scikit--learn-A66E12?style=for-the-badge&logo=scikitlearn&logoColor=white">
 </p>
 
@@ -16,56 +16,66 @@ short message, the classifier answers one question, namely whether the message i
 and of what kind. It assigns one of four labels: `advance_fee_fraud`,
 `mobile_money_fraud`, `phishing`, or `not_a_scam`.
 
-The sections below explain what was built, how the three models compare on real numbers,
+The sections below explain what was built, how the models compare on real numbers,
 and why one of them was chosen for deployment.
 
 ## Table of contents
 
 1. [Live model APIs](#live-model-apis)
-2. [Why there are three models](#why-there-are-three-models)
+2. [Why there are several models](#why-there-are-several-models)
 3. [Results: every model across the three experiments](#results-every-model-across-the-three-experiments)
 4. [Why the final model was chosen](#why-the-final-model-was-chosen)
-5. [How the pieces fit together](#how-the-pieces-fit-together)
-6. [Repository map](#repository-map)
-7. [The corpus](#the-corpus)
-8. [Reproducing the work](#reproducing-the-work)
-9. [Data format and quality checks](#data-format-and-quality-checks)
-10. [Taxonomy and deliverables](#taxonomy-and-deliverables)
+5. [Real-world data, and two more models](#real-world-data-and-two-more-models)
+6. [How the pieces fit together](#how-the-pieces-fit-together)
+7. [Repository map](#repository-map)
+8. [The corpus](#the-corpus)
+9. [Reproducing the work](#reproducing-the-work)
+10. [Data format and quality checks](#data-format-and-quality-checks)
+11. [Taxonomy and deliverables](#taxonomy-and-deliverables)
+12. [Acknowledgements](#acknowledgements)
 
 ## Live model APIs
 
-All three models are deployed, each behind its own public endpoint. Send a `POST` request
-to `/predict` with a JSON body of `{"text": "..."}`. Interactive documentation is at
-`/docs` on each Space.
+All of these models are deployed, each behind its own public endpoint. Send a `POST`
+request to `/predict` with a JSON body of `{"text": "..."}`. Interactive documentation is
+at `/docs` on each Space. The two roles the mobile app uses are marked.
 
 | Model | Live API | Summary |
 |---|---|---|
-| Final (deployed; the app uses this) | https://wadotuh-scam-classifier-api-final.hf.space | TF-IDF with Logistic Regression on the en/pt/sw corpus. Test macro-F1 0.946. No embedder, so it starts instantly. |
+| **Corpus v3 — four-class (the app's scan)** | https://wadotuh-scam-classifier-api-v3.hf.space | TF-IDF + Logistic Regression on the honeynet-enriched v3 corpus. Macro-F1 0.932 on the realistic test set, up 5 points over the same recipe without the honeynet data. No embedder, so it starts instantly. |
+| **Inbox binary — scam or not (the app's SMS feature)** | https://wadotuh-cmu-scam-inbox-guard.hf.space | Trained only on the CMU-Africa Upanzi honeynet capture. Scam F1 0.87, precision-recall AUC 0.93. Recall-tuned fast first pass; returns `{is_scam, scam_probability, verdict}`. |
+| Final v2 — four-class (previous scan model) | https://wadotuh-scam-classifier-api-final.hf.space | TF-IDF + Logistic Regression on the en/pt/sw corpus. Test macro-F1 0.946 on the v2 test set. Superseded by v3. |
 | Embedding ensemble | https://wadotuh-scam-classifier-api-embed.hf.space | TF-IDF plus e5-small embeddings in a soft-voting ensemble. Test macro-F1 0.955 on the smaller corpus. |
 | Initial baseline | https://wadotuh-scam-classifier-api-initial.hf.space | TF-IDF with Logistic Regression, the first baseline. |
 
-A quick test against the deployed model, using a Swahili mobile-money lure:
+A quick test against the current four-class model, using a Swahili mobile-money lure:
 
 ```bash
-curl -X POST https://wadotuh-scam-classifier-api-final.hf.space/predict \
+curl -X POST https://wadotuh-scam-classifier-api-v3.hf.space/predict \
   -H "Content-Type: application/json" \
   -d '{"text":"Iyo pesa itume kwenye namba hii ya Airtel 0689933027 jina PETER NYANGE."}'
-# returns: {"predicted_category":"mobile_money_fraud","confidence":0.9966, ...}
+# returns: {"predicted_category":"mobile_money_fraud","confidence":0.99, ...}
 ```
 
-## Why there are three models
+## Why there are several models
 
-The project did not train a single model in isolation. It ran three experiments in
-sequence, kept all of them, and deployed the one the evidence supported. Each experiment
-asks a specific question, and each builds on the answer to the previous one. Keeping all
-three makes the reasoning auditable: a reader can open any notebook, follow the full
-experiment, re-run it on its own, and call its live API to compare the models directly.
+The project did not train a single model in isolation. It ran a sequence of experiments,
+kept all of them, and deployed the ones the evidence supported. Each experiment asks a
+specific question, and each builds on the answer to the previous one. Keeping them all
+makes the reasoning auditable: a reader can open any notebook, follow the full experiment,
+re-run it on its own, and compare the models directly.
+
+The first three stages build the four-class classifier that ships. Stages four and five
+came later, once a real capture of African scam messages arrived, and are covered in
+[Real-world data, and two more models](#real-world-data-and-two-more-models).
 
 | Stage | Notebook | The question it answers |
 |---|---|---|
 | 1 | [`notebooks/initial_demo/`](notebooks/initial_demo/) | Can a simple, inexpensive model classify these messages at all? It establishes a classical TF-IDF with Logistic Regression baseline on the first English and Portuguese corpus. This baseline is the control: a more complex model has to beat it to justify its cost. |
 | 2 | [`notebooks/embed_demo/`](notebooks/embed_demo/) | Does modelling meaning, rather than keywords, improve results? It adds multilingual sentence embeddings (e5-small) and combines them with the lexical model in soft-voting and stacking ensembles. Its headline macro-F1 looked strong, but a per-class read exposed the real setback: the model kept misclassifying `mobile_money_fraud` and `advance_fee_fraud`, the two classes that mattered most and had the fewest training examples. That weakness is what motivated stage 3. |
 | 3 | [`notebooks/final_model/`](notebooks/final_model/) | Can more data fix the two weak classes, and which model should ship? Because the embedding model failed on mobile-money and advance-fee messages, real African SMS was gathered (Nigerian ExAIS and Tanzanian BongoScam) to give those classes far more examples. The notebook repeats the full comparison on the expanded English, Portuguese, and Swahili corpus, then selects the model for deployment. After the data was added, the plain TF-IDF with Logistic Regression model came out on top, so it is the one that ships. |
+| 4 | [`notebooks/cmu_binary/`](notebooks/cmu_binary/) | The four-class model names the scam; can a separate, faster model just decide scam-or-not for the inbox scan, trained only on real scam messages caught in the wild? |
+| 5 | [`notebooks/cmu_corpus_v3/`](notebooks/cmu_corpus_v3/) | Does folding that real honeynet data into the four-class corpus improve the weak mobile-money class without harming the rest? |
 
 ## Results: every model across the three experiments
 
@@ -148,6 +158,83 @@ In short, the lexical model is both the most accurate on the deployment corpus a
 cheapest to run, so it is the one served to the app. The other two remain available as the
 documented baseline and the semantic comparison.
 
+## Real-world data, and two more models
+
+Every stage above shared one weakness. The scam examples came from public datasets that
+are mostly English and Portuguese, so the model read English phishing well and struggled
+with African mobile-money fraud in the languages it actually arrives in. Stage 3 narrowed
+the gap with Nigerian and Tanzanian SMS, but mobile-money stayed the thinnest class.
+
+That gap closed when a capture from the CMU-Africa Upanzi smishing honeynet became
+available. A honeynet is a set of phone numbers that exist only to attract fraudsters, so
+almost everything it records is a real scam, caught in the wild across Rwanda, Kenya and
+Ghana, much of it in Kinyarwanda and Swahili. It is the real African scam text the project
+had been missing. The capture is shared on request rather than published, so it and the
+corpora derived from it are kept out of this repository; the models trained on it are
+derived and ship normally.
+
+The honeynet opened two pieces of work.
+
+**A binary detector for the inbox scan ([`notebooks/cmu_binary/`](notebooks/cmu_binary/)).**
+The four-class model names the kind of scam, but before that the app just needs to decide
+whether a message is worth worrying about at all. This model answers that one question,
+scam or not, trained only on the honeynet capture. It uses TF-IDF over word and character
+n-grams (the character n-grams matter here, because these SMS are full of typos and
+code-switching) with a logistic-regression head, and its decision threshold is tuned for
+recall, since for a scanner a missed scam is worse than a false alarm the user can dismiss.
+On a held-out test set it reaches a scam F1 of about 0.87 and a precision-recall AUC of
+about 0.93. It is the fast first pass; the four-class model is the second opinion. It is
+served by [`cmu_inbox_serve/`](cmu_inbox_serve/).
+
+**A honeynet-enriched four-class model ([`notebooks/cmu_corpus_v3/`](notebooks/cmu_corpus_v3/)).**
+Here the honeynet scams are mapped into the four classes and merged with the v2 corpus to
+make v3. The notebook then runs a controlled experiment: it splits v3 once and trains two
+models on the same split, one on the old data only and one on the old data plus the
+honeynet, and scores both on the same held-out test set. Only the training data differs,
+so the gap between them is the honeynet's doing. Macro-F1 rises from 0.881 to 0.932, driven
+by mobile-money, which climbs to a per-class F1 of 0.952, while the leak of real
+mobile-money fraud into the other classes shrinks. The same notebook re-runs the embedding
+comparison on the enriched corpus and reaches the same verdict as stage 3: TF-IDF at 0.932
+beats e5 embeddings at 0.874, so the shipped model stays lexical and embedder-free. It is
+served by [`cmu_v3_serve/`](cmu_v3_serve/).
+
+Together they form a two-stage check: the binary model raises a flag quickly, and the
+four-class model says what kind of scam it is. In the app, the binary model backs the SMS
+inbox feature, and the v3 four-class model backs the manual scan.
+
+### The new model against the old one
+
+It is worth comparing v3 with the previously deployed final model directly, because the
+two headline numbers can mislead. The final model's 0.946 was measured on the v2 test set,
+which contains no honeynet messages, so it is a gentler exam. The only fair comparison puts
+both approaches on the *same* held-out test set, the v3 split that includes the real
+captured scams. On that shared, harder test set:
+
+| Model | Trained on | Macro-F1 (shared v3 test) |
+|---|---|---|
+| Final recipe (v2 data only) | v2 corpus | 0.881 |
+| **v3 (v2 + CMU honeynet)** | v3 corpus | **0.932** |
+
+Adding the honeynet data lifts the four-class model by five points on the realistic test
+set, driven by mobile-money fraud (per-class F1 0.952). So v3 is not a step down from the
+final model's 0.946; that figure was simply scored on an easier exam.
+
+### Every model at a glance
+
+| Notebook | Model | Task | Corpus (test) | Headline score | Role |
+|---|---|---|---|---|---|
+| [`initial_demo`](notebooks/initial_demo/) | TF-IDF + LogReg | 4-class | v1 (4,422) | macro-F1 0.943 | baseline / control |
+| [`embed_demo`](notebooks/embed_demo/) | e5 soft-voting ensemble | 4-class | v1 (4,422) | macro-F1 0.955 | best on the small corpus |
+| [`final_model`](notebooks/final_model/) | TF-IDF + LogReg | 4-class | v2 (9,623) | macro-F1 0.946 | previous deployed model |
+| [`cmu_corpus_v3`](notebooks/cmu_corpus_v3/) | TF-IDF + LogReg | 4-class | v3 (10,722) | macro-F1 **0.932** | **deployed — the app scan** |
+| [`cmu_binary`](notebooks/cmu_binary/) | TF-IDF word+char + LogReg | binary | CMU honeynet (1,099) | scam-F1 **0.870**, PR-AUC 0.930 | **deployed — the app SMS feature** |
+
+The four-class scores are on different corpora and test sets, so they are not a single
+leaderboard: the embedding ensemble's 0.955 was on the small, easy v1 corpus, while v3's
+0.932 is on the largest and hardest test set. The binary model solves a different task
+(scam or not), so its scam-F1 is not comparable to the four-class macro-F1. The two models
+in bold are the ones the app runs today.
+
 ## How the pieces fit together
 
 ![From the corpus, through the scripts and the three notebooks, to the serve apps, the predict API, and the mobile app](../docs/assets/ml/ml_pipeline.png)
@@ -161,9 +248,9 @@ trains, ships, and serves from one place.
 
 | Path | Contents |
 |---|---|
-| [`notebooks/`](notebooks/) | The three experiments. Each folder holds one notebook, the models it produced, and a short README. Begin at [`notebooks/README.md`](notebooks/README.md). |
-| `initial_serve/`, `embed_serve/`, `final_serve/` | One FastAPI service per model (the app, a Dockerfile, and a Hugging Face deploy script). Each loads the matching notebook's model. |
-| `scripts/` | The numbered data pipeline, `01_` through `13_`: acquire, clean, label, audit, split, relabel the African data, and export the deployed model. |
+| [`notebooks/`](notebooks/) | The experiments. Each folder holds one notebook, the models it produced, and a short README. Begin at [`notebooks/README.md`](notebooks/README.md). |
+| `initial_serve/`, `embed_serve/`, `final_serve/`, `cmu_inbox_serve/`, `cmu_v3_serve/` | One FastAPI service per model (the app, a Dockerfile, and a Hugging Face deploy script). Each loads the matching notebook's model. |
+| `scripts/` | The numbered data pipeline, `01_` through `15_`: acquire, clean, label, audit, split, relabel the African data, export the deployed model, and (`14_`, `15_`) ingest the CMU honeynet capture and build the v3 corpus. |
 | `src/` | The corpus and labelling library: `taxonomy.py`, `schema.py` (a Pydantic record plus JSONL input and output), `loaders.py`, `scrapers.py`, `auto_label.py`, and `labelling.py` (audit sampling and Cohen's kappa). |
 | `data/` | `raw/` for downloaded datasets, `labelled/` for the JSONL corpora, and `audits/` for the second-rater samples used to compute kappa. |
 
@@ -180,6 +267,14 @@ and BongoScam (Swahili, from Tanzania). The African sets carry binary native lab
 `scripts/11_relabel_african.py` maps into the four-class taxonomy before
 `scripts/12_build_corpus_v2.py` merges them in. Source links and licences are listed in
 [`../docs/DATA_SOURCES.md`](../docs/DATA_SOURCES.md).
+
+A fourth stream was added later for the v3 corpus (10,722 messages): a capture from the
+**Upanzi Network at Carnegie Mellon University Africa** and its smishing honeynet, real
+scam SMS in English, Kinyarwanda and Swahili (see [Acknowledgements](#acknowledgements)).
+`scripts/14_ingest_cmu.py` cleans it and `scripts/15_build_corpus_v3.py` maps its scams
+into the four classes and merges it in. This capture is gated (shared on request, not
+publicly redistributable), so unlike the other streams it is kept local and is not
+committed to this repository; only the models trained on it are shipped.
 
 The labels are source-provenance and heuristic labels. A human inter-rater study, measured
 with Cohen's kappa, is the final standard of label quality (Objective 3). A first-hand
@@ -225,6 +320,8 @@ python scripts/06_split.py               # lock the corpus and produce the 70/15
 python scripts/11_relabel_african.py     # map ExAIS and BongoScam into the four classes
 python scripts/12_build_corpus_v2.py     # merge into data/labelled/demo_labeled_v2.jsonl
 python scripts/13_export_tfidf_v2.py     # export the deployed model, scam_tfidf_v2.joblib
+python scripts/14_ingest_cmu.py          # clean the CMU honeynet capture (kept local, not published)
+python scripts/15_build_corpus_v3.py     # map the honeynet scams into the four classes and build v3
 ```
 
 ## Data format and quality checks
@@ -259,3 +356,14 @@ The objectives and their deadlines, from proposal section 1.3.1:
 | 1 | A labelled corpus of at least 500 items, with Cohen's kappa of 0.7 or higher on a 100-item audit | 12 June 2026 |
 | 2 | A working Android build (in [`../mobile/`](../mobile/)) | 26 June 2026 |
 | 3 | A model comparison with per-category metrics | 10 July 2026 |
+
+## Acknowledgements
+
+The real-world scam messages behind the two honeynet models (stages 4 and 5) come from the
+**Upanzi Network at Carnegie Mellon University Africa (CMU-Africa)**, whose smishing
+honeynet captures live mobile-money fraud across East and West Africa. The capture was
+shared for research on request, and it is credited here with thanks. Per that arrangement
+the dataset is gated: it is kept out of this public repository, and only the models trained
+on it are shipped. The honeynet is described in Lamptey, Gueye, Seidu, Luhanga and Sowon,
+*"Smishing Honeypots: Design and Deployment"*, ACM COMPASS '24
+([doi:10.1145/3674829.3675080](https://doi.org/10.1145/3674829.3675080)).
