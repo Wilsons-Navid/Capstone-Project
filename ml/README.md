@@ -12,7 +12,7 @@
 
 This directory holds the research core of Rethicsec: the corpus, the modelling
 experiments, and the two trained classifiers the mobile app calls. Detection runs in two
-stages. A binary model settles the fast question — is this message a scam or not — and backs
+stages. A binary model settles the fast question, is this message a scam or not, and backs
 the SMS inbox feature. A four-class model then names the kind of scam for the manual scan,
 choosing among `advance_fee_fraud`, `mobile_money_fraud`, `phishing`, and `not_a_scam`.
 
