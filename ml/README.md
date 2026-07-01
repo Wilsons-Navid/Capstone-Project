@@ -3,28 +3,28 @@
 <p align="center"><strong>The research core of Rethicsec: corpus, modelling experiments, and the deployed classifier</strong></p>
 
 <p align="center">
-  <a href="https://wadotuh-scam-classifier-api-final.hf.space"><img alt="Final model API" src="https://img.shields.io/badge/Final%20API-live-2E7D34?style=for-the-badge&logo=huggingface&logoColor=white"></a>
-  <img alt="Model macro-F1 0.946" src="https://img.shields.io/badge/Model-macro--F1%200.946-C8851A?style=for-the-badge">
+  <a href="https://wadotuh-scam-classifier-api-v3.hf.space"><img alt="Scan model API" src="https://img.shields.io/badge/Scan%20API-live-2E7D34?style=for-the-badge&logo=huggingface&logoColor=white"></a>
+  <img alt="Scan model macro-F1 0.932" src="https://img.shields.io/badge/Scan%20model-macro--F1%200.932-C8851A?style=for-the-badge">
   <img alt="Corpus languages" src="https://img.shields.io/badge/Corpus-EN%20%7C%20PT%20%7C%20SW%20%7C%20RW-5C4536?style=for-the-badge">
   <img alt="Corpus size" src="https://img.shields.io/badge/Messages-10%2C722-3E2B20?style=for-the-badge">
   <img alt="Framework scikit-learn" src="https://img.shields.io/badge/Framework-scikit--learn-A66E12?style=for-the-badge&logo=scikitlearn&logoColor=white">
 </p>
 
 This directory holds the research core of Rethicsec: the corpus, the modelling
-experiments, and the trained classifier that the mobile app's scanner calls. Given a
-short message, the classifier answers one question, namely whether the message is a scam
-and of what kind. It assigns one of four labels: `advance_fee_fraud`,
-`mobile_money_fraud`, `phishing`, or `not_a_scam`.
+experiments, and the two trained classifiers the mobile app calls. Detection runs in two
+stages. A binary model settles the fast question, is this message a scam or not, and backs
+the SMS inbox feature. A four-class model then names the kind of scam for the manual scan,
+choosing among `advance_fee_fraud`, `mobile_money_fraud`, `phishing`, and `not_a_scam`.
 
 The sections below explain what was built, how the models compare on real numbers,
-and why one of them was chosen for deployment.
+and why the deployed ones were chosen.
 
 ## Table of contents
 
 1. [Live model APIs](#live-model-apis)
 2. [Why there are several models](#why-there-are-several-models)
-3. [Results: every model across the three experiments](#results-every-model-across-the-three-experiments)
-4. [Why the final model was chosen](#why-the-final-model-was-chosen)
+3. [Results across the first three experiments](#results-across-the-first-three-experiments)
+4. [Why the lexical model, not the ensemble](#why-the-lexical-model-not-the-ensemble)
 5. [Real-world data, and two more models](#real-world-data-and-two-more-models)
 6. [How the pieces fit together](#how-the-pieces-fit-together)
 7. [Repository map](#repository-map)
@@ -73,14 +73,16 @@ came later, once a real capture of African scam messages arrived, and are covere
 |---|---|---|
 | 1 | [`notebooks/initial_demo/`](notebooks/initial_demo/) | Can a simple, inexpensive model classify these messages at all? It establishes a classical TF-IDF with Logistic Regression baseline on the first English and Portuguese corpus. This baseline is the control: a more complex model has to beat it to justify its cost. |
 | 2 | [`notebooks/embed_demo/`](notebooks/embed_demo/) | Does modelling meaning, rather than keywords, improve results? It adds multilingual sentence embeddings (e5-small) and combines them with the lexical model in soft-voting and stacking ensembles. Its headline macro-F1 looked strong, but a per-class read exposed the real setback: the model kept misclassifying `mobile_money_fraud` and `advance_fee_fraud`, the two classes that mattered most and had the fewest training examples. That weakness is what motivated stage 3. |
-| 3 | [`notebooks/final_model/`](notebooks/final_model/) | Can more data fix the two weak classes, and which model should ship? Because the embedding model failed on mobile-money and advance-fee messages, real African SMS was gathered (Nigerian ExAIS and Tanzanian BongoScam) to give those classes far more examples. The notebook repeats the full comparison on the expanded English, Portuguese, and Swahili corpus, then selects the model for deployment. After the data was added, the plain TF-IDF with Logistic Regression model came out on top, so it is the one that ships. |
+| 3 | [`notebooks/final_model/`](notebooks/final_model/) | Can more data fix the two weak classes, and which model should ship? Because the embedding model failed on mobile-money and advance-fee messages, real African SMS was gathered (Nigerian ExAIS and Tanzanian BongoScam) to give those classes far more examples. The notebook repeats the full comparison on the expanded English, Portuguese, and Swahili corpus, then selects the model for deployment. After the data was added, the plain TF-IDF with Logistic Regression model came out on top, so it shipped as the first deployed model (later superseded by v3, stage 5). |
 | 4 | [`notebooks/cmu_binary/`](notebooks/cmu_binary/) | The four-class model names the scam; can a separate, faster model just decide scam-or-not for the inbox scan, trained only on real scam messages caught in the wild? |
 | 5 | [`notebooks/cmu_corpus_v3/`](notebooks/cmu_corpus_v3/) | Does folding that real honeynet data into the four-class corpus improve the weak mobile-money class without harming the rest? |
 
-## Results: every model across the three experiments
+## Results across the first three experiments
 
-Each notebook reports its models on a held-out test split (70/15/15, stratified, fixed
-seed). The tables below give the full ladder, not only the winner, so the comparison is
+These three stages build the four-class model and report on a held-out test split
+(70/15/15, stratified, fixed seed). The two later honeynet notebooks use an 80/20 split and
+are reported in [Real-world data, and two more models](#real-world-data-and-two-more-models).
+The tables below give the full ladder, not only the winner, so the comparison is
 transparent. Accuracy is overall correctness; macro-F1 averages the per-class F1 scores and
 so weighs the rare scam classes as heavily as the common ones, which is why it is the
 headline metric.
@@ -125,15 +127,17 @@ accuracy was 0.95 for English, 1.00 for Portuguese, and 0.98 for Swahili, which 
 coverage question the African data was added to test. The fix was more data for the weak
 classes, not a more complex model.
 
-## Why the final model was chosen
+## Why the lexical model, not the ensemble
 
-The deployed model is TF-IDF with Logistic Regression, the v2 result in the table above.
-The path to it runs through the stage 2 setback. The embedding ensemble was the most
-complex model and won on the smaller v1 corpus, but a per-class look showed it could not
-reliably classify `mobile_money_fraud` or `advance_fee_fraud`, which are the classes the
-app exists to catch. The response was to gather real African SMS for those classes and
-retrain everything on the larger corpus. On that corpus the plain lexical model, not the
-ensemble, came out best, so it is the one that ships. Three reasons support the choice.
+Across every stage the same kind of model kept winning: TF-IDF with Logistic Regression, a
+plain lexical classifier. It is the recipe the app runs today, shipped now as the v3 model,
+so it helps to explain why it was picked over the heavier embedding models. The path to it
+runs through the stage 2 setback. The embedding ensemble was the most complex model and won
+on the smaller v1 corpus, but a per-class look showed it could not reliably classify
+`mobile_money_fraud` or `advance_fee_fraud`, the classes the app exists to catch. The
+response was to gather real African SMS for those classes and retrain everything on the
+larger corpus. On that corpus the plain lexical model, not the ensemble, came out best.
+Three reasons support the choice.
 
 First, accuracy. On the expanded corpus it has the highest macro-F1 (0.946) and the
 highest accuracy (0.965) of any model tried, single or ensemble, and it carries the
@@ -155,8 +159,9 @@ the model has not seen, but they do not win on this in-distribution test. Report
 plainly is a more defensible claim than presenting a single headline figure.
 
 In short, the lexical model is both the most accurate on the deployment corpus and the
-cheapest to run, so it is the one served to the app. The other two remain available as the
-documented baseline and the semantic comparison.
+cheapest to run, so it is the recipe served to the app, first as v2 and now as the
+honeynet-enriched v3. The earlier models stay available as the documented baseline, the
+semantic comparison, and the superseded v2.
 
 ## Real-world data, and two more models
 
@@ -204,7 +209,7 @@ inbox feature, and the v3 four-class model backs the manual scan.
 
 ### The new model against the old one
 
-It is worth comparing v3 with the previously deployed final model directly, because the
+Comparing v3 with the previously deployed final model directly matters here, because the
 two headline numbers can mislead. The final model's 0.946 was measured on the v2 test set,
 which contains no honeynet messages, so it is a gentler exam. The only fair comparison puts
 both approaches on the *same* held-out test set, the v3 split that includes the real
@@ -237,7 +242,8 @@ in bold are the ones the app runs today.
 
 ## How the pieces fit together
 
-![From the corpus, through the scripts and the three notebooks, to the serve apps, the predict API, and the mobile app](../docs/assets/ml/ml_pipeline.png)
+![From the corpus, through the scripts and the notebooks, to the serve apps, the predict API, and the mobile app](../docs/assets/ml/ml_pipeline.png)
+<p align="center"><em>The diagram traces the first three notebooks; the two honeynet notebooks (<code>cmu_binary</code>, <code>cmu_corpus_v3</code>) extend the same corpus-to-serve pattern.</em></p>
 
 Each notebook contains its own training code; there is no shared `demo_model` or
 `embed_model` module to import. A notebook writes its artifacts into its own folder, and
@@ -256,8 +262,9 @@ trains, ships, and serves from one place.
 
 ## The corpus
 
-The corpus holds 9,623 messages across English, Portuguese, and Swahili, labelled into the
-four classes. It was assembled from three streams.
+The v2 corpus holds 9,623 messages across English, Portuguese, and Swahili, labelled into
+the four classes, and a later honeynet stream grows it to 10,722 for v3 (below). The v2
+corpus was assembled from three streams.
 
 The first is public datasets: the Nazario phishing collection, UCI SMS Spam, Mendeley
 smishing, and MOZ-Smishing (Portuguese M-Pesa messages). The second is a regional news
@@ -326,16 +333,20 @@ python scripts/15_build_corpus_v3.py     # map the honeynet scams into the four 
 
 ## Data format and quality checks
 
-Each corpus file is JSON Lines, one record per line:
+The shipped corpus files (`demo_labeled_v2.jsonl`, `demo_labeled_v3.jsonl`) are JSON Lines,
+one record per line, with a compact schema:
 
 | Field | Notes |
 |---|---|
-| `id` | a stable 12-character SHA1 hash of `text` |
+| `id` | a stable 12-character hash of `text` |
 | `text` | the message |
-| `language` | ISO 639-1 (`pcm` for Nigerian Pidgin) |
-| `category` | one of the taxonomy labels |
-| `label_source` | `rater1`, `rater2`, `adjudicated`, or `auto` |
-| `source_stream`, `source_url`, `original_label`, `labelled_at` | provenance fields |
+| `language` | ISO 639-1 (`pcm` for Nigerian Pidgin, `rw` for Kinyarwanda) |
+| `category` | one of the four taxonomy labels |
+| `source` | the dataset the record came from (for example `exais_sms`, `cmu_honeynet`) |
+
+While a corpus is being built the labelling pipeline keeps a richer record (rater identity,
+original label, source URL, and timestamps; see `src/schema.py`); the shipped files carry
+only the fields above.
 
 `scripts/02_normalise.py` runs four checks before any training, following proposal section
 3.4.2. It validates each record against the Pydantic schema, removes exact duplicates by
